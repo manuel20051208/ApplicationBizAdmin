@@ -1,0 +1,938 @@
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
+import { toast } from "sonner"
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/dashboard/app-sidebar"
+import { Separator } from "@/components/ui/separator"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { 
+  User, 
+  Phone, 
+  Camera, 
+  Trash2, 
+  Edit, 
+  Plus,
+  Shield,
+  Upload,
+  X,
+  Lock,
+  Loader2,
+  Building2,
+} from "lucide-react"
+import { PhoneInput } from "@/components/ui/phone-input"
+import { getStoredUser, updateStoredUser } from "@/lib/services/authService"
+import { fetchAdminProfile, updateAdminProfile, uploadProfilePhoto, getProfilePhotoUrl } from "@/lib/services/adminService"
+
+interface UserProfile {
+  name: string
+  username: string
+  email: string
+  phone: string
+  businessName: string
+  avatar: string | null
+}
+
+function ProfilePhoto({
+  src,
+  alt,
+  className = "object-cover",
+}: {
+  src?: string | null
+  alt: string
+  className?: string
+}) {
+  if (!src?.trim()) {
+    return <div className={`flex h-full w-full items-center justify-center bg-muted ${className}`} />
+  }
+
+  if (src.startsWith("blob:") || src.startsWith("data:")) {
+    return <img src={src} alt={alt} className={`h-full w-full ${className}`} />
+  }
+
+  return <Image src={src} alt={alt} fill className={className} />
+}
+
+export default function ConfiguracionPage() {
+  const [profile, setProfile] = useState<UserProfile>({
+    name: "",
+    username: "",
+    email: "",
+    phone: "",
+    businessName: "",
+    avatar: null,
+  })
+
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isSavingAvatar, setIsSavingAvatar] = useState(false)
+
+  const loadProfilePhoto = async (photoPath?: string | null) => {
+    if (photoPath?.startsWith("data:") || photoPath?.startsWith("blob:")) {
+      setProfile(prev => ({ ...prev, avatar: photoPath }))
+      return
+    }
+
+    if (photoPath) {
+      const fallbackUrl = getProfilePhotoUrl(photoPath)
+      setProfile(prev => ({ ...prev, avatar: fallbackUrl || null }))
+      return
+    }
+
+    setProfile(prev => ({ ...prev, avatar: null }))
+  }
+
+  // Cargar datos del usuario desde localStorage y luego desde la API
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const stored = getStoredUser()
+        if (stored?.id) {
+          const storedPhoto = stored.profilePhoto || stored.fotoPerfil || stored.photo
+
+          // Pre-cargar de localStorage inmediatamente (incluyendo la foto si existe)
+          setProfile(prev => ({
+            ...prev,
+            name: stored.fullName || "",
+            username: stored.username || "",
+            email: stored.email || "",
+            phone: stored.phone ? String(stored.phone) : "",
+            businessName: stored.businessName || "",
+            avatar: storedPhoto ? getProfilePhotoUrl(storedPhoto) || null : null,
+          }))
+          setEditName(stored.fullName || "")
+          setEditPhone(stored.phone ? String(stored.phone) : "")
+          setEditBusinessName(stored.businessName || "")
+
+          // Cargar desde la API de Admin
+          if (stored.accountType === "ADMIN") {
+            try {
+              const adminData = await fetchAdminProfile()
+              setProfile(prev => ({
+                ...prev,
+                name: adminData.fullName || prev.name,
+                username: adminData.userName || prev.username,
+                email: adminData.email || prev.email,
+                phone: adminData.phone ? String(adminData.phone) : prev.phone,
+                businessName: adminData.businessName || prev.businessName,
+              }))
+              setEditName(adminData.fullName || stored.fullName || "")
+              setEditPhone(adminData.phone ? String(adminData.phone) : stored.phone ? String(stored.phone) : "")
+              setEditBusinessName(adminData.businessName || stored.businessName || "")
+
+              const apiPhoto = adminData.photo || adminData.profilePhoto || adminData.fotoPerfil
+              updateStoredUser({
+                profilePhoto: apiPhoto || undefined,
+                fotoPerfil: apiPhoto || undefined,
+                photo: apiPhoto || undefined
+              })
+              await loadProfilePhoto(apiPhoto)
+            } catch (profileErr) {
+              console.error("Error al cargar perfil del administrador", profileErr)
+              // Show error to user but continue (data from localStorage is already loaded)
+              const errorMsg = profileErr instanceof Error ? profileErr.message : "No se pudo cargar el perfil del administrador"
+              toast.error(errorMsg)
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error al cargar perfil", err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    fetchProfile()
+
+    return () => undefined
+  }, [])
+  
+  const [editName, setEditName] = useState("")
+  const [editPhone, setEditPhone] = useState("")
+  const [editBusinessName, setEditBusinessName] = useState("")
+  const [newPhone, setNewPhone] = useState("")
+  
+  const [isEditNameOpen, setIsEditNameOpen] = useState(false)
+  const [isEditBusinessNameOpen, setIsEditBusinessNameOpen] = useState(false)
+  const [isEditPhoneOpen, setIsEditPhoneOpen] = useState(false)
+  const [isAddPhoneOpen, setIsAddPhoneOpen] = useState(false)
+  const [isAvatarOpen, setIsAvatarOpen] = useState(false)
+  
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+
+  // Estados para Cambio de Contraseña
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false)
+  const [pwdStep, setPwdStep] = useState<"choose" | "sending" | "verify" | "new_password">("choose")
+  const [verificationMethod, setVerificationMethod] = useState<"email" | "sms" | null>(null)
+  const [verificationCode, setVerificationCode] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+
+  const handleStartPasswordChange = (method: "email" | "sms") => {
+    setVerificationMethod(method)
+    setPwdStep("sending")
+    setTimeout(() => {
+      setPwdStep("verify")
+    }, 1500)
+  }
+
+  const handleVerifyCode = () => {
+    if (verificationCode.length === 6) {
+      setPwdStep("new_password")
+    } else {
+      alert("El código debe ser de 6 dígitos")
+    }
+  }
+
+  const handleSavePassword = () => {
+    if (newPassword && newPassword === confirmPassword) {
+      alert("Contraseña actualizada exitosamente")
+      setIsPasswordOpen(false)
+      setTimeout(() => {
+        setPwdStep("choose")
+        setVerificationCode("")
+        setNewPassword("")
+        setConfirmPassword("")
+      }, 500)
+    } else {
+      alert("Las contraseñas no coinciden")
+    }
+  }
+
+  const handleSaveName = async () => {
+    const user = getStoredUser();
+    if (!user?.id) return;
+    
+    try {
+      const updatedProfile = await updateAdminProfile({
+        id: user.id,
+        userName: profile.username,
+        fullName: editName,
+        email: profile.email,
+        phone: Number(profile.phone.replace(/\D/g, "")) || 0,
+        businessName: profile.businessName
+      });
+      
+      setProfile({ ...profile, name: updatedProfile.fullName });
+      updateStoredUser({ fullName: updatedProfile.fullName });
+      setIsEditNameOpen(false);
+      toast.success("Nombre actualizado");
+    } catch (err) {
+      console.error("Error al guardar nombre", err);
+      toast.error("No se pudo guardar el nombre");
+    }
+  }
+
+  const handleSaveBusinessName = async () => {
+    const user = getStoredUser()
+    if (!user?.id) return
+
+    try {
+      const updatedProfile = await updateAdminProfile({
+        id: user.id,
+        userName: profile.username,
+        fullName: profile.name,
+        email: profile.email,
+        phone: Number(profile.phone.replace(/\D/g, "")) || 0,
+        businessName: editBusinessName,
+      })
+
+      setProfile({ ...profile, businessName: updatedProfile.businessName })
+      updateStoredUser({ businessName: updatedProfile.businessName })
+      window.dispatchEvent(new Event("user-profile-updated"))
+      setIsEditBusinessNameOpen(false)
+      toast.success("Nombre del negocio actualizado")
+    } catch (err) {
+      console.error("Error al guardar nombre del negocio", err)
+      toast.error("No se pudo guardar el nombre del negocio")
+    }
+  }
+
+  const savePhoneToApi = async (newPhoneStr: string) => {
+    const user = getStoredUser();
+    if (!user?.id) return false;
+    
+    try {
+      // Extraemos solo los dígitos para el campo phone numérico
+      const phoneNum = Number(newPhoneStr.replace(/\D/g, '')) || 0;
+      const updatedProfile = await updateAdminProfile({
+        id: user.id,
+        userName: profile.username,
+        fullName: profile.name,
+        email: profile.email,
+        phone: phoneNum,
+        businessName: profile.businessName
+      });
+      setProfile({ ...profile, phone: newPhoneStr });
+      updateStoredUser({ phone: updatedProfile.phone });
+      return true;
+    } catch (err) {
+      console.error("Error al guardar teléfono", err);
+      alert("No se pudo guardar el teléfono");
+      return false;
+    }
+  }
+
+  const handleSavePhone = async () => {
+    const success = await savePhoneToApi(editPhone);
+    if (success) setIsEditPhoneOpen(false);
+  }
+
+  const handleAddPhone = async () => {
+    const success = await savePhoneToApi(newPhone);
+    if (success) {
+      setNewPhone("");
+      setIsAddPhoneOpen(false);
+    }
+  }
+
+  const handleDeletePhone = async () => {
+    await savePhoneToApi("");
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleSaveAvatar = async () => {
+    const user = getStoredUser()
+    if (!user?.id) {
+      toast.error("Usuario no autenticado")
+      return
+    }
+
+    try {
+      setIsSavingAvatar(true)
+      if (selectedFile) {
+        await uploadProfilePhoto(selectedFile)
+        toast.success("Foto de perfil actualizada exitosamente")
+
+        if (user.accountType === "ADMIN") {
+          const adminData = await fetchAdminProfile()
+          const apiPhoto = adminData.photo || adminData.profilePhoto || adminData.fotoPerfil
+          updateStoredUser({
+            profilePhoto: apiPhoto || undefined,
+            fotoPerfil: apiPhoto || undefined,
+            photo: apiPhoto || undefined,
+          })
+          await loadProfilePhoto(apiPhoto)
+        } else if (previewImage) {
+          setProfile(prev => ({ ...prev, avatar: previewImage }))
+        }
+
+        window.dispatchEvent(new Event("user-profile-updated"))
+      } else if (previewImage) {
+        // Fallback for visual preview if no file was uploaded
+        setProfile({ ...profile, avatar: previewImage })
+      }
+      
+      setPreviewImage(null)
+      setSelectedFile(null)
+      setIsAvatarOpen(false)
+    } catch (err) {
+      console.error("Error al guardar avatar:", err)
+      toast.error("No se pudo guardar la foto de perfil")
+    } finally {
+      setIsSavingAvatar(false)
+    }
+  }
+
+  const handleDeleteAvatar = () => {
+    setProfile({ ...profile, avatar: null })
+    setPreviewImage(null)
+    setSelectedFile(null)
+    // Clear storage fields
+    updateStoredUser({
+      profilePhoto: undefined,
+      fotoPerfil: undefined
+    })
+    window.dispatchEvent(new Event("user-profile-updated"))
+    toast.success("Foto de perfil eliminada")
+  }
+
+  const handleRemovePreview = () => {
+    setPreviewImage(null)
+    setSelectedFile(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  const handleDeleteUser = () => {
+    alert("Usuario eliminado (simulación)")
+  }
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase()
+  }
+
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border bg-card px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbPage>Configuración</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </header>
+
+        <main className="flex-1 p-6">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-foreground">Configuración</h1>
+            <p className="text-muted-foreground">Administra tu cuenta y preferencias</p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Foto de Perfil */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="h-5 w-5 text-primary" />
+                  Foto de Perfil
+                </CardTitle>
+                <CardDescription>
+                  Tu foto aparecerá en el sidebar y en tu perfil
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-6">
+                  <div className="relative h-24 w-24">
+                    {profile.avatar ? (
+                      <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-border">
+                        <ProfilePhoto
+                          src={profile.avatar || "/avatar-placeholder.png"}
+                          alt={profile.name || "Usuario"}
+                        />
+                      </div>
+                    ) : (
+                      <Avatar className="h-24 w-24 border-2 border-border">
+                        <AvatarFallback className="bg-primary/20 text-primary text-2xl font-semibold">
+                          {getInitials(profile.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Dialog open={isAvatarOpen} onOpenChange={(open) => {
+                      setIsAvatarOpen(open)
+                      if (!open) setPreviewImage(null)
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          <Edit className="h-4 w-4" />
+                          {profile.avatar ? "Modificar" : "Agregar"} Foto
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Foto de Perfil</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col items-center gap-4 py-4">
+                          {previewImage ? (
+                            <div className="relative">
+                              <div className="relative h-32 w-32 overflow-hidden rounded-full border-2 border-border">
+                                <ProfilePhoto
+                                  src={previewImage || "/avatar-placeholder.png"}
+                                  alt="Preview"
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute -right-1 -top-1 h-6 w-6"
+                                onClick={handleRemovePreview}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : profile.avatar ? (
+                            <div className="relative h-32 w-32 overflow-hidden rounded-full border-2 border-border">
+                              <ProfilePhoto
+                                src={profile.avatar || "/avatar-placeholder.png"}
+                                alt={profile.name || "Usuario"}
+                              />
+                            </div>
+                          ) : (
+                            <div 
+                              className="flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-full border-2 border-dashed border-border bg-secondary/50 transition-colors hover:border-primary hover:bg-secondary"
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              <Camera className="mb-2 h-8 w-8 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">Subir foto</span>
+                            </div>
+                          )}
+                          
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageUpload}
+                          />
+                          
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="gap-2"
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              <Upload className="h-4 w-4" />
+                              {previewImage || profile.avatar ? "Cambiar" : "Subir"} Archivo
+                            </Button>
+                            {(previewImage || profile.avatar) && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                className="gap-2 text-destructive hover:bg-destructive/20 hover:text-destructive"
+                                onClick={() => {
+                                  handleRemovePreview()
+                                  if (profile.avatar) handleDeleteAvatar()
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Eliminar
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Cancelar</Button>
+                          </DialogClose>
+                          <Button onClick={handleSaveAvatar} disabled={isSavingAvatar || (!previewImage && !profile.avatar)}>
+                            {isSavingAvatar ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Guardando...
+                              </>
+                            ) : (
+                              "Guardar"
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    {profile.avatar && (
+                      <Button 
+                        variant="ghost" 
+                        className="gap-2 text-destructive hover:bg-destructive/20 hover:text-destructive"
+                        onClick={handleDeleteAvatar}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Eliminar Foto
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Información del Negocio */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  Información del Negocio
+                </CardTitle>
+                <CardDescription>
+                  El nombre que aparece en el sidebar y en el portal de clientes
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Nombre del negocio</p>
+                    <p className="font-medium">{profile.businessName || "Sin nombre"}</p>
+                  </div>
+                  <Dialog open={isEditBusinessNameOpen} onOpenChange={setIsEditBusinessNameOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Edit className="h-4 w-4" />
+                        Cambiar
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Cambiar Nombre del Negocio</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="businessName">Nombre del negocio</Label>
+                          <Input
+                            id="businessName"
+                            value={editBusinessName}
+                            onChange={(e) => setEditBusinessName(e.target.value)}
+                            placeholder="Ej: Mi Tienda S.A."
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancelar</Button>
+                        </DialogClose>
+                        <Button onClick={handleSaveBusinessName} disabled={!editBusinessName.trim()}>
+                          Guardar
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Información de Usuario */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  Información de Usuario
+                </CardTitle>
+                <CardDescription>
+                  Actualiza tu nombre personal
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Nombre</p>
+                    <p className="font-medium">{profile.name}</p>
+                  </div>
+                  <Dialog open={isEditNameOpen} onOpenChange={setIsEditNameOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Edit className="h-4 w-4" />
+                        Cambiar
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Cambiar Nombre de Usuario</DialogTitle>
+                        <DialogDescription>
+                          Modifica el nombre que verás en tu perfil.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="name">Nuevo nombre</Label>
+                          <Input
+                            id="name"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancelar</Button>
+                        </DialogClose>
+                        <Button onClick={handleSaveName}>Guardar</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">{profile.email}</p>
+                  </div>
+                  <span className="rounded-full bg-secondary px-3 py-1 text-xs text-muted-foreground">
+                    No editable
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Teléfono */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Phone className="h-5 w-5 text-primary" />
+                  Número de Teléfono
+                </CardTitle>
+                <CardDescription>
+                  Gestiona tu número de contacto
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {profile.phone ? (
+                  <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Teléfono</p>
+                      <p className="font-medium">{profile.phone}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Dialog open={isEditPhoneOpen} onOpenChange={setIsEditPhoneOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="gap-2">
+                            <Edit className="h-4 w-4" />
+                            Editar
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Editar Número de Teléfono</DialogTitle>
+                            <DialogDescription>
+                              Actualiza tu número de contacto.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid gap-2">
+                              <Label htmlFor="phone">Número de teléfono</Label>
+                              <PhoneInput
+                                id="phone"
+                                value={editPhone}
+                                onChange={(val) => setEditPhone(val)}
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <DialogClose asChild>
+                              <Button variant="outline">Cancelar</Button>
+                            </DialogClose>
+                            <Button onClick={handleSavePhone}>Guardar</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="gap-2 text-destructive hover:bg-destructive/20 hover:text-destructive"
+                        onClick={handleDeletePhone}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Dialog open={isAddPhoneOpen} onOpenChange={setIsAddPhoneOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full gap-2">
+                        <Plus className="h-4 w-4" />
+                        Agregar Número de Teléfono
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Agregar Número de Teléfono</DialogTitle>
+                        <DialogDescription>
+                          Agrega un número para que te contacten.
+                        </DialogDescription>
+                      </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="new-phone">Número de teléfono</Label>
+                            <PhoneInput
+                              id="new-phone"
+                              value={newPhone}
+                              onChange={(val) => setNewPhone(val)}
+                            />
+                          </div>
+                        </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancelar</Button>
+                        </DialogClose>
+                        <Button onClick={handleAddPhone}>Agregar</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Seguridad */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lock className="h-5 w-5 text-primary" />
+                  Seguridad
+                </CardTitle>
+                <CardDescription>
+                  Gestiona la contraseña de tu cuenta
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Contraseña</p>
+                    <p className="font-medium">••••••••</p>
+                  </div>
+                  <Dialog open={isPasswordOpen} onOpenChange={(open) => {
+                    setIsPasswordOpen(open)
+                    if (!open) {
+                      setTimeout(() => {
+                        setPwdStep("choose")
+                        setVerificationCode("")
+                        setNewPassword("")
+                        setConfirmPassword("")
+                      }, 500)
+                    }
+                  }}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Edit className="h-4 w-4" />
+                        Cambiar
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Cambiar Contraseña</DialogTitle>
+                        <DialogDescription>
+                          Revisa tu identidad y actualiza tu contraseña.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-4">
+                        {pwdStep === "choose" && (
+                          <div className="flex flex-col gap-4 text-center">
+                            <p className="text-sm text-muted-foreground">¿Cómo deseas recibir tu código de verificación?</p>
+                            <Button variant="outline" onClick={() => handleStartPasswordChange("email")}>
+                              Enviar por Correo ({profile.email})
+                            </Button>
+                            <Button variant="outline" onClick={() => handleStartPasswordChange("sms")} disabled={!profile.phone}>
+                              Enviar por SMS {profile.phone ? `(${profile.phone})` : "(No configurado)"}
+                            </Button>
+                          </div>
+                        )}
+                        {pwdStep === "sending" && (
+                          <div className="flex flex-col items-center justify-center gap-4 py-8">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <p className="text-sm text-muted-foreground">Enviando código de verificación...</p>
+                          </div>
+                        )}
+                        {pwdStep === "verify" && (
+                          <div className="flex flex-col gap-4 text-center">
+                            <p className="text-sm text-muted-foreground">
+                              Ingresa el código de 6 dígitos enviado por {verificationMethod === "email" ? "correo" : "SMS"}.
+                            </p>
+                            <Input 
+                              placeholder="000000" 
+                              value={verificationCode} 
+                              onChange={(e) => setVerificationCode(e.target.value)} 
+                              maxLength={6}
+                              className="text-center text-lg tracking-widest"
+                            />
+                            <Button onClick={handleVerifyCode}>Verificar</Button>
+                          </div>
+                        )}
+                        {pwdStep === "new_password" && (
+                          <div className="flex flex-col gap-4">
+                            <div className="space-y-2">
+                              <Label>Nueva contraseña</Label>
+                              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Confirmar contraseña</Label>
+                              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                            </div>
+                            <Button onClick={handleSavePassword}>Guardar Contraseña</Button>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Zona de Peligro */}
+            <Card className="border-destructive/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <Shield className="h-5 w-5" />
+                  Zona de Peligro
+                </CardTitle>
+                <CardDescription>
+                  Acciones irreversibles de tu cuenta
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="w-full gap-2 border-destructive/50 text-destructive hover:bg-destructive/20 hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Eliminar Usuario
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. Se eliminará permanentemente tu cuenta
+                        y todos los datos asociados a ella.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDeleteUser}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
