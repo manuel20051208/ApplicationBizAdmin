@@ -7,8 +7,8 @@ import { Separator } from "@/components/ui/separator"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
-export default function DashboardPage() {
-  const cookieStore = cookies()
+export default async function DashboardPage() {
+  const cookieStore = await cookies()
   const token = cookieStore.get("biz-admin-token")
   
   if (!token) {

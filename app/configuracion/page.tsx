@@ -213,13 +213,13 @@ export default function ConfiguracionPage() {
     if (verificationCode.length === 6) {
       setPwdStep("new_password")
     } else {
-      alert("El código debe ser de 6 dígitos")
+      toast.error("El código debe ser de 6 dígitos")
     }
   }
 
   const handleSavePassword = () => {
     if (newPassword && newPassword === confirmPassword) {
-      alert("Contraseña actualizada exitosamente")
+      toast.success("Contraseña actualizada exitosamente")
       setIsPasswordOpen(false)
       setTimeout(() => {
         setPwdStep("choose")
@@ -228,7 +228,7 @@ export default function ConfiguracionPage() {
         setConfirmPassword("")
       }, 500)
     } else {
-      alert("Las contraseñas no coinciden")
+      toast.error("Las contraseñas no coinciden")
     }
   }
 
@@ -301,7 +301,7 @@ export default function ConfiguracionPage() {
       return true;
     } catch (err) {
       console.error("Error al guardar teléfono", err);
-      alert("No se pudo guardar el teléfono");
+      toast.error("No se pudo guardar el teléfono");
       return false;
     }
   }
@@ -400,7 +400,7 @@ export default function ConfiguracionPage() {
   }
 
   const handleDeleteUser = () => {
-    alert("Usuario eliminado (simulación)")
+    toast.success("Usuario eliminado (simulación)")
   }
 
   const getInitials = (name: string) => {

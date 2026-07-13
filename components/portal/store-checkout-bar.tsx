@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { CartSheet } from "@/components/portal/cart-sheet"
 import { LinkCardDialog } from "@/components/portal/link-card-dialog"
+import { toast } from "sonner"
 import { getStoredUser } from "@/lib/services/authService"
 import { type Product, type ProductImage } from "@/lib/services/productService"
 import { purchase, type PurchaseRequestDTO } from "@/lib/services/saleService"
@@ -93,7 +94,7 @@ export function StoreCheckoutBar({
     const clientId = Number(user?.id)
 
     if (!Number.isFinite(clientId) || clientId <= 0) {
-      alert("No se encontró un ID de cliente válido. Por favor, inicia sesión nuevamente.")
+      toast.error("No se encontró un ID de cliente válido. Por favor, inicia sesión nuevamente.")
       setIsCheckingOut(false)
       return
     }
@@ -120,7 +121,7 @@ export function StoreCheckoutBar({
     }))
 
     if (!itemsForApi.length) {
-      alert("El carrito está vacío. Agrega productos antes de comprar.")
+      toast.error("El carrito está vacío. Agrega productos antes de comprar.")
       setIsCheckingOut(false)
       return
     }
@@ -165,7 +166,7 @@ export function StoreCheckoutBar({
         // Si falla el parseo, continuamos con el alert normal
       }
 
-      alert(`Hubo un error al procesar la compra: ${err.message}`)
+      toast.error(`Hubo un error al procesar la compra: ${err.message}`)
     } finally {
       setIsCheckingOut(false)
     }

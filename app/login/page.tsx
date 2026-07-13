@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 import { getNetworkErrorMessage, isNetworkOrApiDown } from "@/lib/api-errors"
 import {
   loginAndSave,
@@ -33,9 +34,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => { 
+  useEffect(() => {
     setMounted(true)
-    
+
     // Si el usuario ya está autenticado, redirigirlo a su respectivo portal
     const user = getStoredUser();
     if (user && user.token && !isSessionExpired(user)) {
@@ -50,6 +51,7 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({
     name: "",
     nameBusiness: "",
+    username: "",
     email: "",
     password: "",
     phone: "",
@@ -63,11 +65,10 @@ export default function LoginPage() {
       const authRole = role as AuthRole
 
       if (isLogin) {
-        // Ambos roles usan email como identificador
         await loginAndSave(
           authRole,
           {
-            identifier: formData.email,
+            identifier: role === "admin" ? formData.username : formData.email,
             password: formData.password,
           },
           formData
@@ -77,6 +78,7 @@ export default function LoginPage() {
           await registerAndSave(
             authRole,
             {
+              username: formData.username,
               password: formData.password,
               fullName: formData.name,
               email: formData.email,
@@ -98,6 +100,7 @@ export default function LoginPage() {
             formData
           )
         }
+        toast.success("Usuario registrado exitosamente");
       }
 
       if (role === "admin") {
@@ -140,14 +143,14 @@ export default function LoginPage() {
         : error instanceof Error
           ? error.message
           : getNetworkErrorMessage()
-      alert(message)
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
   }
 
   const resetForm = () => {
-    setFormData({ name: "", nameBusiness: "", email: "", password: "", phone: "" })
+    setFormData({ name: "", nameBusiness: "", username: "", email: "", password: "", phone: "" })
     setIsLogin(true)
     setShowPassword(false)
   }
@@ -340,24 +343,47 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* ---- CAMPO EMAIL (siempre visible para ambos roles) ---- */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
-                  Correo electrónico
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    className="pl-10"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
+              {/* ---- CAMPO USERNAME (Solo admin) ---- */}
+              {isAdmin && (
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-sm font-medium">
+                    Nombre de usuario
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Tu usuario"
+                      className="pl-10"
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* ---- CAMPO EMAIL (Cliente, o Admin en Registro) ---- */}
+              {(!isAdmin || !isLogin) && (
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">
+                    Correo electrónico
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      className="pl-10"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Password field */}
               <div className="space-y-2">

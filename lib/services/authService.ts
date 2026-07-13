@@ -57,6 +57,7 @@ export async function login(
 }
 
 export interface RegisterAdminPayload {
+  username: string;
   password: string;
   fullName: string;
   email: string;
