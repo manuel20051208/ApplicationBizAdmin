@@ -76,12 +76,14 @@ export interface PurchaseItemRequestDTO {
 
 export interface PurchaseRequestDTO {
   clientId: number;
+  userId: number[];
   items: PurchaseItemRequestDTO[];
 }
 
 export async function purchase(request: PurchaseRequestDTO): Promise<any> {
   const normalizedRequest = {
     clientId: Number(request.clientId),
+    userId: request.userId || [],
     items: (request.items || []).map((item) => ({
       productId: Number(item.productId),
       quantity: Number(item.quantity),

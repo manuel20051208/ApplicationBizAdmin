@@ -126,8 +126,11 @@ export function StoreCheckoutBar({
       return
     }
 
+    const userIds = Array.from(new Set(purchaseLines.map(pl => pl.product.userAdminId).filter(id => id != null))) as number[];
+
     const request: PurchaseRequestDTO = {
       clientId,
+      userId: userIds,
       items: itemsForApi,
     }
 
@@ -136,7 +139,9 @@ export function StoreCheckoutBar({
       
       const lines = purchaseLines.map((item) => item.line)
       const total = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0)
-      const orderId = response.id || `ORD-${Date.now().toString(36).toUpperCase()}`
+      
+      // Update parsing for saleIds
+      const orderId = response.saleIds ? response.saleIds.join(", ") : (response.id || `ORD-${Date.now().toString(36).toUpperCase()}`)
 
 
       onCartChange([])

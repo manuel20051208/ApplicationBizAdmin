@@ -20,7 +20,8 @@ import {
 
 // ── Tipos internos ──────────────────────────────────────────────
 interface SaleGroup {
-  saleId: number
+  id: string
+  saleIds: number[]
   occurredAt: string
   state: string
   items: ClientHistoryProjection[]
@@ -40,7 +41,7 @@ const statusConfig: Record<string, { label: string; className: string; icon: Rea
 }
 
 function getStatusCfg(state: string) {
-  return statusConfig[state.toLowerCase()] ?? statusConfig.procesando
+  return statusConfig[state?.toLowerCase()] ?? statusConfig.procesando
 }
 
 // ── Helpers ─────────────────────────────────────────────────────
@@ -60,21 +61,29 @@ function fmtMoney(n: number): string {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n)
 }
 
-// Agrupa items planos por saleId y suma totalAmount correctamente
+// Agrupa items por fecha (para agrupar las compras simultáneas)
 function groupBySale(items: ClientHistoryProjection[]): SaleGroup[] {
-  const map = new Map<number, SaleGroup>()
+  const map = new Map<string, SaleGroup>()
   for (const item of items) {
-    if (!map.has(item.saleId)) {
-      map.set(item.saleId, {
-        saleId: item.saleId,
+    // Usamos los primeros 16 chars de ISO para agrupar (hasta los minutos)
+    // Ej: 2026-06-10T19:09
+    const key = item.occurredAt.substring(0, 16)
+    
+    if (!map.has(key)) {
+      map.set(key, {
+        id: key,
+        saleIds: [],
         occurredAt: item.occurredAt,
-        state: item.state,
+        state: item.state, // Mostramos el estado del primer item
         items: [],
         grandTotal: 0,
         totalQuantity: 0,
       })
     }
-    const group = map.get(item.saleId)!
+    const group = map.get(key)!
+    if (!group.saleIds.includes(item.saleId)) {
+      group.saleIds.push(item.saleId)
+    }
     group.items.push(item)
     group.grandTotal += item.totalAmount
     group.totalQuantity += item.quantity
@@ -162,18 +171,18 @@ export default function ComprasPage() {
                     {sales.map((sale) => {
                       const cfg = getStatusCfg(sale.state)
                       const Icon = cfg.icon
-                      const isSelected = selected?.saleId === sale.saleId
+                      const isSelected = selected?.id === sale.id
                       return (
                         <TableRow
-                          key={sale.saleId}
+                          key={sale.id}
                           onClick={() => setSelected(sale)}
                           className={`cursor-pointer transition-colors border-border ${
                             isSelected ? "bg-primary/5" : "hover:bg-muted/50"
                           }`}
                         >
                           <TableCell className="pl-6">
-                            <span className="font-mono text-sm font-bold text-primary">
-                              #{sale.saleId}
+                            <span className="font-mono text-sm font-bold text-primary truncate max-w-[120px] inline-block" title={sale.saleIds.join(", ")}>
+                              #{sale.saleIds.join(", ")}
                             </span>
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
@@ -208,7 +217,7 @@ export default function ComprasPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg text-foreground">Detalle del Pedido</CardTitle>
-                  <span className="font-mono text-sm font-bold text-primary">#{selected.saleId}</span>
+                  <span className="font-mono text-sm font-bold text-primary truncate max-w-[150px]" title={selected.saleIds.join(", ")}>#{selected.saleIds.join(", ")}</span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-5">
@@ -235,9 +244,9 @@ export default function ComprasPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5">
                     <Hash className="size-4 shrink-0 text-muted-foreground" />
-                    <div>
+                    <div className="overflow-hidden">
                       <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Pedido</p>
-                      <p className="text-xs font-bold font-mono text-foreground">#{selected.saleId}</p>
+                      <p className="text-xs font-bold font-mono text-foreground truncate" title={selected.saleIds.join(", ")}>#{selected.saleIds.join(", ")}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5">
@@ -258,10 +267,10 @@ export default function ComprasPage() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Productos ({selected.totalQuantity})
                   </p>
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
                     {selected.items.map((item) => (
                       <div
-                        key={item.saleItemId}
+                        key={item.saleItemId || item.productId}
                         className="flex items-start justify-between rounded-xl border border-border bg-muted/30 p-3"
                       >
                         <div className="flex-1 min-w-0">

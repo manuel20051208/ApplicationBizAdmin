@@ -16,11 +16,8 @@ import { getNetworkErrorMessage, isNetworkOrApiDown } from "@/lib/api-errors"
 import {
   loginAndSave,
   registerAndSave,
-  updateStoredUser,
   type AuthRole,
 } from "@/lib/services/authService"
-import { fetchAdminProfile } from "@/lib/services/adminService"
-import { fetchClientProfile } from "@/lib/services/clientService"
 import { getStoredUser, isSessionExpired } from "@/lib/auth/session"
 
 type Role = "admin" | "customer"
@@ -104,37 +101,8 @@ export default function LoginPage() {
       }
 
       if (role === "admin") {
-        // Cargar foto de perfil del admin y guardarla antes de redirigir
-        try {
-          const adminData = await fetchAdminProfile()
-          const apiPhoto = adminData.photo || adminData.profilePhoto || adminData.fotoPerfil
-          if (apiPhoto) {
-            updateStoredUser({
-              profilePhoto: apiPhoto,
-              fotoPerfil: apiPhoto,
-              photo: apiPhoto,
-            })
-          }
-        } catch {
-          // Si falla la carga de foto, igual redirigimos
-        }
         router.push("/")
       } else {
-        // Cargar datos del perfil del cliente antes de redirigir
-        try {
-          const clientData = await fetchClientProfile()
-          updateStoredUser({
-            fullName: clientData.fullName,
-            email: clientData.email,
-            phone: clientData.phone ?? undefined,
-            address: clientData.address ?? undefined,
-            photo: clientData.photo ?? undefined,
-            profilePhoto: clientData.photo ?? undefined,
-            fotoPerfil: clientData.photo ?? undefined,
-          })
-        } catch {
-          // Si falla, igual redirigimos
-        }
         router.push("/portal")
       }
     } catch (error) {
