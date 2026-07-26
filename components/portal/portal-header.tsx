@@ -29,6 +29,13 @@ export function PortalHeader() {
         currentHeaderBlobUrlRef.current = null
       }
 
+      // Si tiene foto de Google (empieza con http/https), la usamos directamente
+      const photoPath = userData.profilePhoto || userData.fotoPerfil || userData.photo
+      if (photoPath?.startsWith("http://") || photoPath?.startsWith("https://")) {
+        setAvatarUrl(photoPath)
+        return
+      }
+
       try {
         const blobUrl = await fetchClientProfilePhotoBlobUrl()
         if (blobUrl) {

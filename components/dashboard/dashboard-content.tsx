@@ -82,11 +82,8 @@ export function DashboardContent() {
 
     } catch (err) {
       console.error("Error al cargar dashboard:", err)
-      toast.error("No se pudo conectar con el servidor. ¿Está corriendo Spring Boot en el puerto 8080?", {
-        action: {
-          label: "Reintentar",
-          onClick: () => loadDashboard()
-        }
+      import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
+        triggerOfflineNotification(() => loadDashboard())
       })
     } finally {
       setLoading(false)

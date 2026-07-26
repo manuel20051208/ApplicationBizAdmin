@@ -38,6 +38,7 @@ import {
   type CartItem,
 } from "@/lib/portal-store"
 import { StoreCheckoutBar } from "@/components/portal/store-checkout-bar"
+import { GoogleCallbackClient } from "@/components/auth/GoogleCallbackClient"
 
 // Producto con imágenes cargadas para la tienda
 interface StoreProduct extends Product {
@@ -47,6 +48,15 @@ interface StoreProduct extends Product {
 }
 
 export default function TiendaPage() {
+  return (
+    <GoogleCallbackClient>
+      <TiendaPageContent />
+    </GoogleCallbackClient>
+  )
+}
+
+function TiendaPageContent() {
+
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [cart, setCart] = useState<CartItem[]>([])
@@ -123,11 +133,8 @@ export default function TiendaPage() {
       )
     } catch (err) {
       console.error("Error al cargar productos:", err)
-      toast.error("No se pudieron cargar los productos. Verifica que el servidor esté activo.", {
-        action: {
-          label: "Reintentar",
-          onClick: () => loadProducts()
-        }
+      import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
+        triggerOfflineNotification(() => loadProducts())
       })
     } finally {
       setIsLoading(false)

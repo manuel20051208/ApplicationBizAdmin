@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { toast } from "sonner"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
@@ -126,6 +127,42 @@ export default function InventarioPage() {
   const [storePreview, setStorePreview] = useState<StorePreviewPayload | null>(null)
 
   const [user, setUser] = useState<any>(null)
+  const router = useRouter()
+
+  const checkProfileOrWarn = (): boolean => {
+    const storedUser = getStoredUser("admin")
+    if (!storedUser) return false
+
+    const isInvalid = (val?: string | number | null) => {
+      if (val === undefined || val === null) return true
+      const str = String(val).trim().toLowerCase()
+      return (
+        str === "" ||
+        str === "0" ||
+        str === "no especificado" ||
+        str === "sin nombre" ||
+        str === "null" ||
+        str === "undefined"
+      )
+    }
+
+    if (
+      isInvalid(storedUser.fullName) ||
+      isInvalid(storedUser.businessName) ||
+      isInvalid(storedUser.phone) ||
+      isInvalid(storedUser.email)
+    ) {
+      toast.error("Debes completar la información de tu perfil y negocio (Nombre, Negocio, Teléfono, Email) en Configuración antes de agregar productos.", {
+        action: {
+          label: "Ir a Configuración",
+          onClick: () => router.push("/configuracion"),
+        },
+        duration: 6000,
+      })
+      return false
+    }
+    return true
+  }
 
   useEffect(() => {
     setUser(getStoredUser())
@@ -137,11 +174,8 @@ export default function InventarioPage() {
       const data = await fetchAllProducts()
       setProducts(data.map((p: any) => ({ ...p, images: p.images || [] })))
     } catch (err) {
-      toast.error("No se pudo conectar con el servidor. ¿Está corriendo Spring Boot en el puerto 8080?", {
-        action: {
-          label: "Reintentar",
-          onClick: () => loadProducts()
-        }
+      import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
+        triggerOfflineNotification(() => loadProducts())
       })
       console.error(err)
     } finally {
@@ -167,6 +201,8 @@ export default function InventarioPage() {
   })
 
   const handleAddProduct = async () => {
+    if (!checkProfileOrWarn()) return
+
     if (newProduct.name && newProduct.price && newProduct.stock && newProduct.category) {
       try {
         const savedProduct = await saveProduct({
@@ -346,9 +382,21 @@ export default function InventarioPage() {
                   <SelectItem value="200">Mostrar 200</SelectItem>
                 </SelectContent>
               </Select>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                if (open) {
+                  if (checkProfileOrWarn()) {
+                    setIsDialogOpen(true)
+                  }
+                } else {
+                  setIsDialogOpen(false)
+                }
+              }}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2">
+                  <Button className="gap-2" onClick={(e) => {
+                    if (!checkProfileOrWarn()) {
+                      e.preventDefault()
+                    }
+                  }}>
                     <Plus className="h-4 w-4" />
                     Agregar Producto
                   </Button>

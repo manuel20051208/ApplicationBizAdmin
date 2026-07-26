@@ -23,7 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Users, Search, Mail, ShoppingBag } from "lucide-react"
 
 interface Customer {
@@ -74,7 +73,9 @@ export default function ClientesPage() {
         setCustomers(mappedData)
       } catch (err) {
         console.error("Error al cargar clientes:", err)
-        toast.error("Error de conexión al cargar clientes. Revisa la consola o si el endpoint responde correctamente (HTTP 404/500).")
+        import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
+          triggerOfflineNotification(() => loadCustomers())
+        })
       } finally {
         setIsLoading(false)
       }
@@ -143,16 +144,7 @@ export default function ClientesPage() {
     }
   }
 
-  const getInitials = (name: string) => {
-    if (!name) return "NN";
-    return name
-      .split(" ")
-      .filter(n => n.length > 0)
-      .map(n => n[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase()
-  }
+
 
   return (
     <SidebarProvider>
@@ -260,18 +252,11 @@ export default function ClientesPage() {
                       filteredCustomers.map((customer) => (
                         <TableRow key={customer.id} className="border-border">
                           <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-10 w-10 bg-primary/20">
-                                <AvatarFallback className="bg-primary/20 text-primary text-sm font-semibold">
-                                  {getInitials(customer.name)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium">{customer.name}</p>
-                                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold font-mono text-primary">
-                                  CLI-{String(customer.id).padStart(3, '0')}
-                                </span>
-                              </div>
+                            <div>
+                              <p className="font-medium">{customer.name}</p>
+                              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold font-mono text-primary">
+                                CLI-{String(customer.id).padStart(3, '0')}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground">

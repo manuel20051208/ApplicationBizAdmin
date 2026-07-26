@@ -32,16 +32,10 @@ export async function login(
   credentials: LoginCredentials
 ): Promise<AuthApiResponse> {
   const endpoint = role === "admin" ? "api/user/login" : "api/client/login";
-  const body =
-    role === "admin"
-      ? {
-          username: credentials.identifier,
-          password: credentials.password,
-        }
-      : {
-          email: credentials.identifier,
-          password: credentials.password,
-        };
+  const body = {
+    email: credentials.identifier,
+    password: credentials.password,
+  };
 
   const res = await fetchClient(endpoint, {
     method: "POST",
@@ -57,7 +51,6 @@ export async function login(
 }
 
 export interface RegisterAdminPayload {
-  username: string;
   password: string;
   fullName: string;
   email: string;

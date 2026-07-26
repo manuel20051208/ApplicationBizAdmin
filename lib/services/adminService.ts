@@ -1,5 +1,6 @@
 import { fetchClient, API_BASE_URL } from "../api/httpClient";
 import { SaleItemView } from "./saleService";
+import { getStoredUser } from "@/lib/auth/session";
 
 // ==================== USER PROFILES (ADMIN) ====================
 
@@ -124,9 +125,11 @@ export function getProfilePhotoUrl(photoPath?: string | null): string {
 
 const DASHBOARD_API = "dashboard-controller";
 
-export async function fetchDashboardData(): Promise<DashboardDataResponse> {
-  const res = await fetchClient(`${DASHBOARD_API}/get-data-dashboard`);
-  if (res.status === 404) {
+export async function fetchDashboardData(userId?: number | null): Promise<DashboardDataResponse> {
+  const user = getStoredUser("admin");
+  const id = userId ?? user?.id;
+
+  if (!id) {
     return {
       totalSales: 0,
       totalProducts: 0,
@@ -135,8 +138,60 @@ export async function fetchDashboardData(): Promise<DashboardDataResponse> {
       showLatestSales: { content: [], page: { size: 0, number: 0, totalElements: 0, totalPages: 0 } },
     };
   }
-  if (!res.ok) throw new Error("Error al obtener datos del dashboard");
-  return res.json();
+
+  try {
+    const [sumRes, stockRes, clientsRes, graphicRes, salesRes] = await Promise.allSettled([
+      fetchClient(`${DASHBOARD_API}/sum/${id}`),
+      fetchClient(`${DASHBOARD_API}/stock/${id}`),
+      fetchClient(`${DASHBOARD_API}/count-clients/${id}`),
+      fetchClient(`${DASHBOARD_API}/data-graphic/${id}`),
+      fetchClient(`${DASHBOARD_API}/latest-sales/${id}?pageSize=10`),
+    ]);
+
+    const totalSales = sumRes.status === "fulfilled" && sumRes.value.ok ? await sumRes.value.json() : 0;
+    const totalProducts = stockRes.status === "fulfilled" && stockRes.value.ok ? await stockRes.value.json() : 0;
+    const totalClients = clientsRes.status === "fulfilled" && clientsRes.value.ok ? await clientsRes.value.json() : 0;
+
+    let monthlyDataRaw: Record<string, number> = {};
+    if (graphicRes.status === "fulfilled" && graphicRes.value.ok) {
+      try { monthlyDataRaw = await graphicRes.value.json(); } catch {}
+    }
+
+    const SPANISH_MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const monthlyData = Object.entries(monthlyDataRaw).map(([key, val]) => {
+      const monthNum = parseInt(key, 10);
+      const monthName = !isNaN(monthNum) && monthNum >= 1 && monthNum <= 12 ? SPANISH_MONTHS[monthNum - 1] : key;
+      return {
+        monthName,
+        monthlyTotal: Number(val) || 0,
+        numberOfProducts: 0,
+        countClients: 0,
+      };
+    });
+
+    let showLatestSalesData = { content: [], page: { size: 10, number: 0, totalElements: 0, totalPages: 0 } };
+    if (salesRes.status === "fulfilled" && salesRes.value.ok) {
+      try {
+        const data = await salesRes.value.json();
+        const content = Array.isArray(data) ? data : (data.content || []);
+        showLatestSalesData = {
+          content,
+          page: data.page || { size: content.length, number: 0, totalElements: content.length, totalPages: 1 },
+        };
+      } catch {}
+    }
+
+    return {
+      totalSales: Number(totalSales) || 0,
+      totalProducts: Number(totalProducts) || 0,
+      totalClients: Number(totalClients) || 0,
+      monthlyData,
+      showLatestSales: showLatestSalesData,
+    };
+  } catch (err) {
+    console.error("Error al obtener datos del dashboard:", err);
+    throw err;
+  }
 }
 
 export async function fetchDashboardSum(): Promise<number> {

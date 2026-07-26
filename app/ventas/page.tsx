@@ -57,11 +57,8 @@ export default function VentasPage() {
 
       setSales(data)
     } catch (err) {
-      toast.error("No se pudo conectar con el servidor. ¿Está corriendo Spring Boot en el puerto 8080?", {
-        action: {
-          label: "Reintentar",
-          onClick: () => loadSales()
-        }
+      import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
+        triggerOfflineNotification(() => loadSales())
       })
       console.error(err)
     } finally {

@@ -122,19 +122,25 @@ export default function ConfiguracionPage() {
         if (stored?.id) {
           const storedPhoto = stored.profilePhoto || stored.fotoPerfil || stored.photo
 
+          const fallbackVal = (val?: string | number | null) => {
+            if (val === undefined || val === null) return "No especificado"
+            const str = String(val).trim()
+            return str === "" || str === "0" || str === "null" || str === "undefined" ? "No especificado" : str
+          }
+
           // Pre-cargar de localStorage inmediatamente (incluyendo la foto si existe)
           setProfile(prev => ({
             ...prev,
-            name: stored.fullName || "",
-            username: stored.username || "",
-            email: stored.email || "",
-            phone: stored.phone ? String(stored.phone) : "",
-            businessName: stored.businessName || "",
+            name: fallbackVal(stored.fullName),
+            username: fallbackVal(stored.username),
+            email: fallbackVal(stored.email),
+            phone: fallbackVal(stored.phone),
+            businessName: fallbackVal(stored.businessName),
             avatar: storedPhoto ? getProfilePhotoUrl(storedPhoto) || null : null,
           }))
-          setEditName(stored.fullName || "")
-          setEditPhone(stored.phone ? String(stored.phone) : "")
-          setEditBusinessName(stored.businessName || "")
+          setEditName(stored.fullName && stored.fullName !== "No especificado" ? stored.fullName : "")
+          setEditPhone(stored.phone && String(stored.phone) !== "No especificado" && String(stored.phone) !== "0" ? String(stored.phone) : "")
+          setEditBusinessName(stored.businessName && stored.businessName !== "No especificado" ? stored.businessName : "")
 
           // Cargar desde la API de Admin
           if (stored.accountType === "ADMIN") {
@@ -142,11 +148,11 @@ export default function ConfiguracionPage() {
               const adminData = await fetchAdminProfile()
               setProfile(prev => ({
                 ...prev,
-                name: adminData.fullName || prev.name,
-                username: adminData.userName || prev.username,
-                email: adminData.email || prev.email,
-                phone: adminData.phone ? String(adminData.phone) : prev.phone,
-                businessName: adminData.businessName || prev.businessName,
+                name: fallbackVal(adminData.fullName || prev.name),
+                username: fallbackVal(adminData.userName || prev.username),
+                email: fallbackVal(adminData.email || prev.email),
+                phone: fallbackVal(adminData.phone ? String(adminData.phone) : prev.phone),
+                businessName: fallbackVal(adminData.businessName || prev.businessName),
               }))
               setEditName(adminData.fullName || stored.fullName || "")
               setEditPhone(adminData.phone ? String(adminData.phone) : stored.phone ? String(stored.phone) : "")

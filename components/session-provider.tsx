@@ -32,6 +32,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     // Si estamos en login, no validamos sesión para expulsar
     if (pathname === "/login") return;
 
+    // Si hay un ?token= en la URL, estamos en medio de un flujo OAuth.
+    // No validamos sesión aquí; GoogleCallbackAdmin se encargará.
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("token")) return;
+
     const expiredMsg = sessionStorage.getItem("biz-session-expired-msg");
     if (expiredMsg) {
       sessionStorage.removeItem("biz-session-expired-msg");

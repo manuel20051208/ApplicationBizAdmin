@@ -85,11 +85,14 @@ export async function fetchClient(
 
     if (!response.ok) {
       if (response.status === 401 && requireAuth) {
-        handleSessionExpired();
+        console.warn(`[HTTP 401] Petición no autorizada a ${url}`);
+        toast.error("No tienes autorización o tu token no fue validado por el servidor.");
       } else if (response.status === 403) {
         toast.error("No tienes permisos para realizar esta acción.");
       } else if (response.status >= 500) {
-        toast.error("Ocurrió un error en el servidor. Inténtalo más tarde.");
+        import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
+          triggerOfflineNotification();
+        });
       }
     }
 
@@ -98,7 +101,9 @@ export async function fetchClient(
     if (error instanceof ApiError && error.status === 401) {
       throw error;
     }
-    toast.error("Error de conexión al servidor.");
+    import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
+      triggerOfflineNotification();
+    });
     throw error;
   }
 }

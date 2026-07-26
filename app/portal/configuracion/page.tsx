@@ -69,6 +69,11 @@ export default function ConfiguracionClientePage() {
       return
     }
 
+    if (photoPath?.startsWith("http://") || photoPath?.startsWith("https://")) {
+      setProfile(prev => ({ ...prev, avatar: photoPath }))
+      return
+    }
+
     try {
       const blobUrl = await fetchClientProfilePhotoBlobUrl()
       if (blobUrl) {
@@ -124,15 +129,21 @@ export default function ConfiguracionClientePage() {
     setLinkedCard(getLinkedCardRaw())
 
     const loadProfile = async () => {
+      const fallbackVal = (val?: string | number | null) => {
+        if (val === undefined || val === null) return "No especificado"
+        const str = String(val).trim()
+        return str === "" || str === "0" || str === "null" || str === "undefined" ? "No especificado" : str
+      }
+
       // Pre-cargar desde localStorage mientras llega la API
       const stored = getStoredUser("customer")
       if (stored) {
         setProfile(prev => ({
           ...prev,
-          name: stored.fullName || "",
-          email: stored.email || "",
-          phone: stored.phone ? String(stored.phone) : "",
-          address: stored.address || "",
+          name: fallbackVal(stored.fullName),
+          email: fallbackVal(stored.email),
+          phone: fallbackVal(stored.phone),
+          address: fallbackVal(stored.address),
         }))
       }
 
@@ -141,10 +152,10 @@ export default function ConfiguracionClientePage() {
         const data = await fetchClientProfile()
         setProfile(prev => ({
           ...prev,
-          name: data.fullName || prev.name,
-          email: data.email || prev.email,
-          phone: data.phone ? String(data.phone) : prev.phone,
-          address: data.address || prev.address || "",
+          name: fallbackVal(data.fullName || prev.name),
+          email: fallbackVal(data.email || prev.email),
+          phone: fallbackVal(data.phone ? String(data.phone) : prev.phone),
+          address: fallbackVal(data.address || prev.address),
         }))
         // Actualizar localStorage con datos frescos
         updateStoredUser({

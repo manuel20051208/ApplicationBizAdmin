@@ -219,13 +219,20 @@ export function saveAuthSession(
   const u = data.usuario ?? {};
 
   const resolvedId: number | null = data.id ?? u.id ?? null;
-  const resolvedUsername: string =
-    data.username ?? u.usuario ?? u.username ?? formData?.userName ?? data.email ?? formData?.email ?? "";
-  const resolvedFullName: string =
-    data.fullName ?? data.nombre ?? u.nombre ?? u.fullName ?? u.name ??
-    formData?.name ?? formData?.userName ?? "";
-  const resolvedEmail: string =
-    data.email ?? u.email ?? formData?.email ?? formData?.userName ?? "";
+  const rawUsername = data.username || u.usuario || u.username || formData?.userName || data.email || formData?.email || "";
+  const resolvedUsername: string = rawUsername.trim() || "No especificado";
+
+  const rawFullName = data.fullName || data.nombre || u.nombre || u.fullName || u.name || formData?.name || formData?.userName || "";
+  const resolvedFullName: string = rawFullName.trim() || "No especificado";
+
+  const rawEmail = data.email || u.email || formData?.email || formData?.userName || "";
+  const resolvedEmail: string = rawEmail.trim() || "No especificado";
+
+  const rawPhone = (data.phone ?? formData?.phone ?? "").toString();
+  const resolvedPhone = rawPhone.trim() && rawPhone.trim() !== "0" ? rawPhone.trim() : "No especificado";
+
+  const rawBusinessName = (data.businessName || formData?.nameBusiness || "").toString();
+  const resolvedBusinessName = rawBusinessName.trim() || "No especificado";
 
   const accountType = normalizeAccountType(data.accountType, role);
   const now = Date.now();
@@ -238,8 +245,8 @@ export function saveAuthSession(
     username: resolvedUsername,
     fullName: resolvedFullName,
     email: resolvedEmail,
-    phone: data.phone ?? formData?.phone ?? "",
-    businessName: data.businessName ?? formData?.nameBusiness ?? "",
+    phone: resolvedPhone,
+    businessName: resolvedBusinessName,
     accountType,
     role,
     token: data.token,
@@ -247,7 +254,7 @@ export function saveAuthSession(
     profilePhoto,
     fotoPerfil,
     photo,
-    address: data.address || formData?.address || "",
+    address: (data.address || formData?.address || "").trim() || "No especificado",
   };
 
   writeSession(role, userData);
