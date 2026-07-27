@@ -38,12 +38,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { 
-  User, 
-  Phone, 
-  Camera, 
-  Trash2, 
-  Edit, 
+import {
+  User,
+  Phone,
+  Camera,
+  Trash2,
+  Edit,
   Plus,
   Shield,
   Upload,
@@ -54,15 +54,14 @@ import {
 } from "lucide-react"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { getStoredUser, updateStoredUser } from "@/lib/services/authService"
-import { fetchAdminProfile, updateAdminProfile, uploadProfilePhoto, getProfilePhotoUrl } from "@/lib/services/adminService"
+import { fetchAdminProfile, updateAdminProfile, updateProfilePhotoUrl, getProfilePhotoUrl } from "@/lib/services/adminService"
 
 interface UserProfile {
   name: string
-  username: string
   email: string
   phone: string
   businessName: string
-  avatar: string | null
+  avatar: string | null  // URL de Google OAuth2 o de Cloudinary
 }
 
 function ProfilePhoto({
@@ -88,7 +87,6 @@ function ProfilePhoto({
 export default function ConfiguracionPage() {
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
-    username: "",
     email: "",
     phone: "",
     businessName: "",
@@ -96,7 +94,6 @@ export default function ConfiguracionPage() {
   })
 
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isSavingAvatar, setIsSavingAvatar] = useState(false)
 
   const loadProfilePhoto = async (photoPath?: string | null) => {
@@ -129,14 +126,15 @@ export default function ConfiguracionPage() {
           }
 
           // Pre-cargar de localStorage inmediatamente (incluyendo la foto si existe)
+          // La foto puede ser: URL de Google (profilePhotoUrl) o URL de Cloudinary (profilePhoto)
+          const photoUrl = stored.profilePhotoUrl || stored.profilePhoto || stored.fotoPerfil || stored.photo || null
           setProfile(prev => ({
             ...prev,
             name: fallbackVal(stored.fullName),
-            username: fallbackVal(stored.username),
             email: fallbackVal(stored.email),
             phone: fallbackVal(stored.phone),
             businessName: fallbackVal(stored.businessName),
-            avatar: storedPhoto ? getProfilePhotoUrl(storedPhoto) || null : null,
+            avatar: photoUrl || null,
           }))
           setEditName(stored.fullName && stored.fullName !== "No especificado" ? stored.fullName : "")
           setEditPhone(stored.phone && String(stored.phone) !== "No especificado" && String(stored.phone) !== "0" ? String(stored.phone) : "")
@@ -149,7 +147,6 @@ export default function ConfiguracionPage() {
               setProfile(prev => ({
                 ...prev,
                 name: fallbackVal(adminData.fullName || prev.name),
-                username: fallbackVal(adminData.userName || prev.username),
                 email: fallbackVal(adminData.email || prev.email),
                 phone: fallbackVal(adminData.phone ? String(adminData.phone) : prev.phone),
                 businessName: fallbackVal(adminData.businessName || prev.businessName),
@@ -158,13 +155,17 @@ export default function ConfiguracionPage() {
               setEditPhone(adminData.phone ? String(adminData.phone) : stored.phone ? String(stored.phone) : "")
               setEditBusinessName(adminData.businessName || stored.businessName || "")
 
-              const apiPhoto = adminData.photo || adminData.profilePhoto || adminData.fotoPerfil
-              updateStoredUser({
-                profilePhoto: apiPhoto || undefined,
-                fotoPerfil: apiPhoto || undefined,
-                photo: apiPhoto || undefined
-              })
-              await loadProfilePhoto(apiPhoto)
+              // Foto: Google OAuth2 (profilePhotoUrl) tiene prioridad, luego Cloudinary (profilePhoto)
+              const apiPhoto = adminData.profilePhotoUrl || adminData.profilePhoto || adminData.photo || adminData.fotoPerfil || null
+              if (apiPhoto) {
+                setProfile(prev => ({ ...prev, avatar: apiPhoto }))
+                updateStoredUser({
+                  profilePhotoUrl: apiPhoto,
+                  profilePhoto: apiPhoto,
+                  photo: apiPhoto,
+                  fotoPerfil: apiPhoto,
+                })
+              }
             } catch (profileErr) {
               console.error("Error al cargar perfil del administrador", profileErr)
               // Show error to user but continue (data from localStorage is already loaded)
@@ -179,25 +180,22 @@ export default function ConfiguracionPage() {
         setIsLoading(false)
       }
     }
-    
+
     fetchProfile()
 
     return () => undefined
   }, [])
-  
+
   const [editName, setEditName] = useState("")
   const [editPhone, setEditPhone] = useState("")
   const [editBusinessName, setEditBusinessName] = useState("")
   const [newPhone, setNewPhone] = useState("")
-  
+
   const [isEditNameOpen, setIsEditNameOpen] = useState(false)
   const [isEditBusinessNameOpen, setIsEditBusinessNameOpen] = useState(false)
   const [isEditPhoneOpen, setIsEditPhoneOpen] = useState(false)
   const [isAddPhoneOpen, setIsAddPhoneOpen] = useState(false)
   const [isAvatarOpen, setIsAvatarOpen] = useState(false)
-  
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   // Estados para Cambio de Contraseña
   const [isPasswordOpen, setIsPasswordOpen] = useState(false)
@@ -241,17 +239,16 @@ export default function ConfiguracionPage() {
   const handleSaveName = async () => {
     const user = getStoredUser();
     if (!user?.id) return;
-    
+
     try {
       const updatedProfile = await updateAdminProfile({
         id: user.id,
-        userName: profile.username,
         fullName: editName,
         email: profile.email,
         phone: Number(profile.phone.replace(/\D/g, "")) || 0,
-        businessName: profile.businessName
+        businessName: profile.businessName,
       });
-      
+
       setProfile({ ...profile, name: updatedProfile.fullName });
       updateStoredUser({ fullName: updatedProfile.fullName });
       setIsEditNameOpen(false);
@@ -269,7 +266,6 @@ export default function ConfiguracionPage() {
     try {
       const updatedProfile = await updateAdminProfile({
         id: user.id,
-        userName: profile.username,
         fullName: profile.name,
         email: profile.email,
         phone: Number(profile.phone.replace(/\D/g, "")) || 0,
@@ -290,17 +286,16 @@ export default function ConfiguracionPage() {
   const savePhoneToApi = async (newPhoneStr: string) => {
     const user = getStoredUser();
     if (!user?.id) return false;
-    
+
     try {
       // Extraemos solo los dígitos para el campo phone numérico
       const phoneNum = Number(newPhoneStr.replace(/\D/g, '')) || 0;
       const updatedProfile = await updateAdminProfile({
         id: user.id,
-        userName: profile.username,
         fullName: profile.name,
         email: profile.email,
         phone: phoneNum,
-        businessName: profile.businessName
+        businessName: profile.businessName,
       });
       setProfile({ ...profile, phone: newPhoneStr });
       updateStoredUser({ phone: updatedProfile.phone });
@@ -328,6 +323,10 @@ export default function ConfiguracionPage() {
   const handleDeletePhone = async () => {
     await savePhoneToApi("");
   }
+  // Estado de archivo local seleccionado para subir a Cloudinary
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -348,50 +347,55 @@ export default function ConfiguracionPage() {
       return
     }
 
+    if (!selectedFile) {
+      toast.error("Selecciona una foto desde tu dispositivo")
+      return
+    }
+
     try {
       setIsSavingAvatar(true)
-      if (selectedFile) {
-        await uploadProfilePhoto(selectedFile)
-        toast.success("Foto de perfil actualizada exitosamente")
+      const { uploadToCloudinary } = await import("@/lib/services/cloudinaryService")
+      const cloudinaryUrl = await uploadToCloudinary(selectedFile)
 
-        if (user.accountType === "ADMIN") {
-          const adminData = await fetchAdminProfile()
-          const apiPhoto = adminData.photo || adminData.profilePhoto || adminData.fotoPerfil
-          updateStoredUser({
-            profilePhoto: apiPhoto || undefined,
-            fotoPerfil: apiPhoto || undefined,
-            photo: apiPhoto || undefined,
-          })
-          await loadProfilePhoto(apiPhoto)
-        } else if (previewImage) {
-          setProfile(prev => ({ ...prev, avatar: previewImage }))
-        }
+      const updated = await updateProfilePhotoUrl(cloudinaryUrl)
+      const savedPhoto = updated.profilePhotoUrl || updated.profilePhoto || cloudinaryUrl
 
-        window.dispatchEvent(new Event("user-profile-updated"))
-      } else if (previewImage) {
-        // Fallback for visual preview if no file was uploaded
-        setProfile({ ...profile, avatar: previewImage })
-      }
-      
-      setPreviewImage(null)
+      setProfile(prev => ({ ...prev, avatar: savedPhoto }))
+      updateStoredUser({
+        profilePhotoUrl: savedPhoto,
+        profilePhoto: savedPhoto,
+        photo: savedPhoto,
+        fotoPerfil: savedPhoto,
+      })
+      window.dispatchEvent(new Event("user-profile-updated"))
+      toast.success("Foto de perfil actualizada exitosamente")
+
       setSelectedFile(null)
+      setPreviewImage(null)
       setIsAvatarOpen(false)
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error al guardar avatar:", err)
-      toast.error("No se pudo guardar la foto de perfil")
+      const msg = err instanceof Error ? err.message : "No se pudo subir la foto a Cloudinary"
+      toast.error(msg)
     } finally {
       setIsSavingAvatar(false)
     }
   }
 
-  const handleDeleteAvatar = () => {
-    setProfile({ ...profile, avatar: null })
-    setPreviewImage(null)
+  const handleDeleteAvatar = async () => {
+    try {
+      await updateProfilePhotoUrl("")
+    } catch {
+      // silencioso — limpiamos local igual
+    }
+    setProfile(prev => ({ ...prev, avatar: null }))
     setSelectedFile(null)
-    // Clear storage fields
+    setPreviewImage(null)
     updateStoredUser({
+      profilePhotoUrl: undefined,
       profilePhoto: undefined,
-      fotoPerfil: undefined
+      fotoPerfil: undefined,
+      photo: undefined,
     })
     window.dispatchEvent(new Event("user-profile-updated"))
     toast.success("Foto de perfil eliminada")
@@ -480,46 +484,30 @@ export default function ConfiguracionPage() {
                           {profile.avatar ? "Modificar" : "Agregar"} Foto
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="sm:max-w-md">
                         <DialogHeader>
                           <DialogTitle>Foto de Perfil</DialogTitle>
+                          <DialogDescription>
+                            Selecciona una imagen desde tu dispositivo. Se guardará de forma segura en tu cuenta.
+                          </DialogDescription>
                         </DialogHeader>
                         <div className="flex flex-col items-center gap-4 py-4">
-                          {previewImage ? (
-                            <div className="relative">
-                              <div className="relative h-32 w-32 overflow-hidden rounded-full border-2 border-border">
-                                <ProfilePhoto
-                                  src={previewImage || "/avatar-placeholder.png"}
-                                  alt="Preview"
-                                />
-                              </div>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="icon"
-                                className="absolute -right-1 -top-1 h-6 w-6"
-                                onClick={handleRemovePreview}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          ) : profile.avatar ? (
+                          {/* Preview de la foto */}
+                          {(previewImage || profile.avatar) ? (
                             <div className="relative h-32 w-32 overflow-hidden rounded-full border-2 border-border">
                               <ProfilePhoto
-                                src={profile.avatar || "/avatar-placeholder.png"}
-                                alt={profile.name || "Usuario"}
+                                src={previewImage || profile.avatar}
+                                alt="Preview"
                               />
                             </div>
                           ) : (
-                            <div 
-                              className="flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-full border-2 border-dashed border-border bg-secondary/50 transition-colors hover:border-primary hover:bg-secondary"
-                              onClick={() => fileInputRef.current?.click()}
-                            >
+                            <div className="flex h-32 w-32 flex-col items-center justify-center rounded-full border-2 border-dashed border-border bg-secondary/50">
                               <Camera className="mb-2 h-8 w-8 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">Subir foto</span>
+                              <span className="text-xs text-muted-foreground">Sin foto</span>
                             </div>
                           )}
-                          
+
+                          {/* Selección de archivo local */}
                           <input
                             ref={fileInputRef}
                             type="file"
@@ -527,53 +515,40 @@ export default function ConfiguracionPage() {
                             className="hidden"
                             onChange={handleImageUpload}
                           />
-                          
-                          <div className="flex gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className="gap-2"
-                              onClick={() => fileInputRef.current?.click()}
-                            >
-                              <Upload className="h-4 w-4" />
-                              {previewImage || profile.avatar ? "Cambiar" : "Subir"} Archivo
-                            </Button>
-                            {(previewImage || profile.avatar) && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                className="gap-2 text-destructive hover:bg-destructive/20 hover:text-destructive"
-                                onClick={() => {
-                                  handleRemovePreview()
-                                  if (profile.avatar) handleDeleteAvatar()
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                                Eliminar
-                              </Button>
-                            )}
-                          </div>
+
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full gap-2"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            <Upload className="h-4 w-4" />
+                            {selectedFile ? `Archivo: ${selectedFile.name}` : "Seleccionar imagen local"}
+                          </Button>
                         </div>
                         <DialogFooter>
                           <DialogClose asChild>
                             <Button variant="outline">Cancelar</Button>
                           </DialogClose>
-                          <Button onClick={handleSaveAvatar} disabled={isSavingAvatar || (!previewImage && !profile.avatar)}>
+                          <Button
+                            onClick={handleSaveAvatar}
+                            disabled={isSavingAvatar || !selectedFile}
+                          >
                             {isSavingAvatar ? (
                               <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Guardando...
                               </>
                             ) : (
-                              "Guardar"
+                              "Guardar Foto"
                             )}
                           </Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
                     {profile.avatar && (
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         className="gap-2 text-destructive hover:bg-destructive/20 hover:text-destructive"
                         onClick={handleDeleteAvatar}
                       >
@@ -752,8 +727,8 @@ export default function ConfiguracionPage() {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         className="gap-2 text-destructive hover:bg-destructive/20 hover:text-destructive"
                         onClick={handleDeletePhone}
@@ -777,16 +752,16 @@ export default function ConfiguracionPage() {
                           Agrega un número para que te contacten.
                         </DialogDescription>
                       </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="new-phone">Número de teléfono</Label>
-                            <PhoneInput
-                              id="new-phone"
-                              value={newPhone}
-                              onChange={(val) => setNewPhone(val)}
-                            />
-                          </div>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="new-phone">Número de teléfono</Label>
+                          <PhoneInput
+                            id="new-phone"
+                            value={newPhone}
+                            onChange={(val) => setNewPhone(val)}
+                          />
                         </div>
+                      </div>
                       <DialogFooter>
                         <DialogClose asChild>
                           <Button variant="outline">Cancelar</Button>
@@ -863,10 +838,10 @@ export default function ConfiguracionPage() {
                             <p className="text-sm text-muted-foreground">
                               Ingresa el código de 6 dígitos enviado por {verificationMethod === "email" ? "correo" : "SMS"}.
                             </p>
-                            <Input 
-                              placeholder="000000" 
-                              value={verificationCode} 
-                              onChange={(e) => setVerificationCode(e.target.value)} 
+                            <Input
+                              placeholder="000000"
+                              value={verificationCode}
+                              onChange={(e) => setVerificationCode(e.target.value)}
                               maxLength={6}
                               className="text-center text-lg tracking-widest"
                             />
@@ -907,8 +882,8 @@ export default function ConfiguracionPage() {
               <CardContent>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full gap-2 border-destructive/50 text-destructive hover:bg-destructive/20 hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -925,7 +900,7 @@ export default function ConfiguracionPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction 
+                      <AlertDialogAction
                         onClick={handleDeleteUser}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       >

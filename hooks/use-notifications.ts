@@ -13,30 +13,6 @@ export interface Notification {
 
 const STORAGE_KEY = "biz-notifications"
 
-const DEFAULT_NOTIFICATIONS: Notification[] = [
-  {
-    id: "1",
-    tipo: "VENTA_NUEVA",
-    mensaje: "Nueva venta registrada: #V-1024 por $1,250.00 MXN",
-    leida: false,
-    timestamp: new Date(Date.now() - 10 * 60 * 1000), // Hace 10 min
-  },
-  {
-    id: "2",
-    tipo: "STOCK_BAJO",
-    mensaje: "Stock crítico: Producto 'Laptop Pro' tiene 2 unidades disponibles",
-    leida: false,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // Hace 2 horas
-  },
-  {
-    id: "3",
-    tipo: "CLIENTE_NUEVO",
-    mensaje: "Nuevo cliente registrado: María López (maria@example.com)",
-    leida: true,
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // Hace 1 día
-  },
-]
-
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([])
 
@@ -53,11 +29,11 @@ export function useNotifications() {
         }))
         setNotifications(loaded)
       } catch {
-        setNotifications(DEFAULT_NOTIFICATIONS)
+        setNotifications([])
       }
     } else {
-      setNotifications(DEFAULT_NOTIFICATIONS)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_NOTIFICATIONS))
+      setNotifications([])
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([]))
     }
   }
 

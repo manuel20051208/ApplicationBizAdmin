@@ -15,7 +15,6 @@ export type AuthRole = "admin" | "customer";
 
 export interface UserData {
   id: number | null;
-  username: string;
   fullName: string;
   email: string;
   phone: number | string;
@@ -24,7 +23,8 @@ export interface UserData {
   role: AuthRole;
   token?: string;
   lastActivityAt?: number;
-  profilePhoto?: string;
+  profilePhoto?: string;    // URL de Cloudinary (subida por el usuario)
+  profilePhotoUrl?: string; // URL de Google OAuth2
   fotoPerfil?: string;
   photo?: string;
   address?: string;
@@ -55,6 +55,7 @@ export interface AuthApiResponse {
   message?: string;
   mensaje?: string;    // alias español de message
   profilePhoto?: string;
+  profilePhotoUrl?: string;
   fotoPerfil?: string;
   photo?: string;
   address?: string;
@@ -204,7 +205,6 @@ export function saveAuthSession(
   data: AuthApiResponse,
   role: AuthRole,
   formData?: {
-    userName?: string;
     name?: string;
     email?: string;
     phone?: string;
@@ -219,30 +219,29 @@ export function saveAuthSession(
   const u = data.usuario ?? {};
 
   const resolvedId: number | null = data.id ?? u.id ?? null;
-  const rawUsername = data.username || u.usuario || u.username || formData?.userName || data.email || formData?.email || "";
-  const resolvedUsername: string = rawUsername.trim() || "No especificado";
 
-  const rawFullName = data.fullName || data.nombre || u.nombre || u.fullName || u.name || formData?.name || formData?.userName || "";
+  const rawFullName = data.fullName || data.nombre || u.nombre || u.fullName || u.name || formData?.name || "";
   const resolvedFullName: string = rawFullName.trim() || "No especificado";
 
-  const rawEmail = data.email || u.email || formData?.email || formData?.userName || "";
+  const rawEmail = data.email || u.email || formData?.email || "";
   const resolvedEmail: string = rawEmail.trim() || "No especificado";
 
   const rawPhone = (data.phone ?? formData?.phone ?? "").toString();
-  const resolvedPhone = rawPhone.trim() && rawPhone.trim() !== "0" ? rawPhone.trim() : "No especificado";
+  const resolvedPhone = rawPhone.trim() && rawPhone.trim() !== "0" && rawPhone.trim() !== "null" ? rawPhone.trim() : "No especificado";
 
   const rawBusinessName = (data.businessName || formData?.nameBusiness || "").toString();
   const resolvedBusinessName = rawBusinessName.trim() || "No especificado";
 
   const accountType = normalizeAccountType(data.accountType, role);
   const now = Date.now();
-  const photo = data.photo ?? data.profilePhoto ?? data.fotoPerfil;
-  const profilePhoto = data.profilePhoto ?? data.fotoPerfil ?? data.photo;
-  const fotoPerfil = data.fotoPerfil ?? data.profilePhoto ?? data.photo;
+
+  const photo = data.photo ?? data.profilePhotoUrl ?? data.profilePhoto ?? data.fotoPerfil;
+  const profilePhotoUrl = data.profilePhotoUrl ?? data.photo ?? data.profilePhoto;
+  const profilePhoto = data.profilePhoto ?? data.photo ?? data.profilePhotoUrl;
+  const fotoPerfil = data.fotoPerfil ?? data.photo ?? data.profilePhotoUrl;
 
   const userData: UserData = {
     id: resolvedId,
-    username: resolvedUsername,
     fullName: resolvedFullName,
     email: resolvedEmail,
     phone: resolvedPhone,
@@ -251,6 +250,7 @@ export function saveAuthSession(
     role,
     token: data.token,
     lastActivityAt: now,
+    profilePhotoUrl,
     profilePhoto,
     fotoPerfil,
     photo,

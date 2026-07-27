@@ -21,7 +21,7 @@ export interface LinkedCard {
 function getUserStorageKey(): string | null {
   const user = getStoredUser()
   if (!user) return null
-  const key = user.username || String(user.id ?? user.email)
+  const key = user.email || user.fullName || String(user.id ?? "")
   return key ? String(key) : null
 }
 

@@ -41,8 +41,8 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { getStoredUser, logout } from "@/lib/services/authService"
-import { getProfilePhotoUrl } from "@/lib/services/adminService"
+import { getStoredUser, logout, updateStoredUser } from "@/lib/services/authService"
+import { fetchAdminProfile, getProfilePhotoUrl } from "@/lib/services/adminService"
 
 const navItems = [
   {
@@ -75,20 +75,47 @@ export function AppSidebar() {
   const { notifications, unreadCount, markAllAsRead, clearAll, markAsRead } = useNotifications()
   // Leer datos del usuario desde localStorage
   const [businessName, setBusinessName] = useState("Mi Negocio")
-  const [userName, setUserName] = useState("admin")
   const [fullName, setFullName] = useState("Administrador")
   const [avatarUrl, setAvatarUrl] = useState("")
 
   const loadUserData = async () => {
+    // 1. Leer inmediatamente desde localStorage
     const userData = getStoredUser("admin")
     if (userData) {
-      setBusinessName(userData.businessName || "Mi Negocio")
-      setUserName(userData.username || "admin")
-      setFullName(userData.fullName || userData.username || "Administrador")
+      if (userData.businessName && userData.businessName !== "No especificado") {
+        setBusinessName(userData.businessName)
+      }
+      if (userData.fullName && userData.fullName !== "No especificado") {
+        setFullName(userData.fullName)
+      }
+      const photoPath = userData.photo || userData.profilePhotoUrl || userData.profilePhoto || userData.fotoPerfil
+      if (photoPath) {
+        setAvatarUrl(getProfilePhotoUrl(photoPath))
+      }
+    }
 
-      const photoPath = userData.profilePhoto || userData.fotoPerfil || userData.photo
-      const fallback = photoPath ? getProfilePhotoUrl(photoPath) : ""
-      setAvatarUrl(fallback)
+    // 2. Refrescar datos desde la API de Spring Boot al entrar a la app
+    try {
+      const profile = await fetchAdminProfile()
+      if (profile) {
+        const freshName = profile.fullName || userData?.fullName || "Administrador"
+        const freshBusiness = profile.businessName || userData?.businessName || ""
+        const freshPhoto = profile.photo || profile.profilePhotoUrl || profile.profilePhoto || profile.fotoPerfil || ""
+
+        setFullName(freshName)
+        if (freshBusiness) setBusinessName(freshBusiness)
+        if (freshPhoto) setAvatarUrl(getProfilePhotoUrl(freshPhoto))
+
+        updateStoredUser({
+          fullName: freshName,
+          businessName: freshBusiness || undefined,
+          photo: freshPhoto || undefined,
+          profilePhotoUrl: freshPhoto || undefined,
+          profilePhoto: freshPhoto || undefined,
+        })
+      }
+    } catch (err) {
+      console.warn("[AppSidebar] No se pudo refrescar perfil desde API:", err)
     }
   }
 
@@ -167,85 +194,83 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton tooltip="Notificaciones" className="relative">
-                    <div className="relative">
-                      <Bell className="size-4" />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-                          {unreadCount > 9 ? "9+" : unreadCount}
-                        </span>
-                      )}
-                    </div>
-                    <span>Notificaciones</span>
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="right" align="end" className="w-80">
-                  <DropdownMenuLabel className="flex items-center justify-between">
-                    <span>Notificaciones</span>
-                    {notifications.length > 0 && (
-                      <button
-                        onClick={clearAll}
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        Limpiar todo
-                      </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton tooltip="Notificaciones" className="relative">
+                  <div className="relative">
+                    <Bell className="size-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
                     )}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {notifications.length === 0 ? (
-                    <div className="py-6 text-center text-sm text-muted-foreground">
-                      Sin notificaciones
-                    </div>
-                  ) : (
-                    notifications.map(n => (
-                      <DropdownMenuItem
-                        key={n.id}
-                        onClick={() => markAsRead(n.id)}
-                        className={`flex flex-col items-start gap-1 py-3 px-3.5 cursor-pointer transition-all duration-200 focus:bg-muted ${
-                          !n.leida
-                            ? "bg-primary/5 border-l-2 border-primary"
-                            : "border-l-2 border-transparent"
+                  </div>
+                  <span>Notificaciones</span>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="end" className="w-80">
+                <DropdownMenuLabel className="flex items-center justify-between">
+                  <span>Notificaciones</span>
+                  {notifications.length > 0 && (
+                    <button
+                      onClick={clearAll}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Limpiar todo
+                    </button>
+                  )}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {notifications.length === 0 ? (
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    Sin notificaciones
+                  </div>
+                ) : (
+                  notifications.map(n => (
+                    <DropdownMenuItem
+                      key={n.id}
+                      onClick={() => markAsRead(n.id)}
+                      className={`flex flex-col items-start gap-1 py-3 px-3.5 cursor-pointer transition-all duration-200 focus:bg-muted ${!n.leida
+                          ? "bg-primary/5 border-l-2 border-primary"
+                          : "border-l-2 border-transparent"
                         }`}
-                      >
-                        <div className="flex w-full items-center justify-between">
-                          <span className={`text-xs font-semibold ${
-                            n.tipo === "VENTA_NUEVA" ? "text-primary" :
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <span className={`text-xs font-semibold ${n.tipo === "VENTA_NUEVA" ? "text-primary" :
                             n.tipo === "STOCK_BAJO" ? "text-yellow-500" :
-                            "text-blue-500"
+                              "text-blue-500"
                           }`}>
-                            {n.tipo === "VENTA_NUEVA" ? "Venta nueva" :
-                              n.tipo === "STOCK_BAJO" ? "Stock bajo" : "Cliente nuevo"}
-                          </span>
-                          {!n.leida && (
-                            <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-                          )}
-                        </div>
-                        <span className="text-sm font-medium">{n.mensaje}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {n.timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                          {n.tipo === "VENTA_NUEVA" ? "Venta nueva" :
+                            n.tipo === "STOCK_BAJO" ? "Stock bajo" : "Cliente nuevo"}
                         </span>
-                      </DropdownMenuItem>
-                    ))
-                  )}
-                  {notifications.length > 0 && unreadCount > 0 && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={markAllAsRead} className="justify-center text-xs text-muted-foreground hover:text-foreground cursor-pointer">
-                        Marcar todas como leídas
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Cerrar sesión" onClick={handleLogout}>
-                <LogOut className="size-4" />
-                <span>Cerrar sesión</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+                        {!n.leida && (
+                          <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+                        )}
+                      </div>
+                      <span className="text-sm font-medium">{n.mensaje}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {n.timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </DropdownMenuItem>
+                  ))
+                )}
+                {notifications.length > 0 && unreadCount > 0 && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={markAllAsRead} className="justify-center text-xs text-muted-foreground hover:text-foreground cursor-pointer">
+                      Marcar todas como leídas
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Cerrar sesión" onClick={handleLogout}>
+              <LogOut className="size-4" />
+              <span>Cerrar sesión</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Cambiar tema"
@@ -262,13 +287,13 @@ export function AppSidebar() {
 
         <Link href="/configuracion" className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center">
           <Avatar className="size-9">
-            <AvatarImage src={avatarUrl || "/avatar-placeholder.png"} alt="Usuario" />
+            <AvatarImage src={avatarUrl || "/avatar-placeholder.png"} alt={fullName} />
             <AvatarFallback className="bg-primary/20 text-primary text-sm uppercase">
-              {userName.substring(0, 2)}
+              {fullName.substring(0, 2)}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-medium text-foreground">@{userName}</span>
+            <span className="text-sm font-medium text-foreground">{fullName}</span>
             <span className="text-xs text-muted-foreground">Administrador</span>
           </div>
         </Link>

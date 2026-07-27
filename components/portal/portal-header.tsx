@@ -22,7 +22,7 @@ export function PortalHeader() {
   const loadUserData = async () => {
     const userData = getStoredUser("customer")
     if (userData) {
-      setClientName(userData.fullName || userData.username || "Cliente")
+      setClientName(userData.fullName || "Cliente")
 
       if (currentHeaderBlobUrlRef.current) {
         URL.revokeObjectURL(currentHeaderBlobUrlRef.current)
@@ -103,11 +103,10 @@ export function PortalHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
+                  }`}
               >
                 <item.icon className="size-4" />
                 {item.label}
@@ -130,7 +129,7 @@ export function PortalHeader() {
               <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
           )}
-          
+
           <div className="flex items-center gap-2 rounded-full px-3 py-1.5 bg-muted">
             <Avatar className="size-7">
               <AvatarImage src={avatarUrl} alt={clientName} />
@@ -160,11 +159,10 @@ export function PortalHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-                isActive
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${isActive
                   ? "bg-primary/10 text-primary"
                   : "bg-muted text-muted-foreground"
-              }`}
+                }`}
             >
               <item.icon className="size-3.5" />
               {item.label}

@@ -34,7 +34,7 @@ interface LinkCardDialogProps {
 export function LinkCardDialog({ open, onOpenChange, onLinked }: LinkCardDialogProps) {
   const user = getStoredUser()
   const [cardNumber, setCardNumber] = useState("")
-  const [holderName, setHolderName] = useState(user?.fullName || user?.username || "")
+  const [holderName, setHolderName] = useState(user?.fullName || "")
   const [expiry, setExpiry] = useState("")
   const [cvv, setCvv] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -85,7 +85,7 @@ export function LinkCardDialog({ open, onOpenChange, onLinked }: LinkCardDialogP
     }
 
     setIsSaving(true)
-    
+
     let cardId: number | undefined;
     if (user?.id) {
       try {

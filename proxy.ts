@@ -8,18 +8,20 @@ export function proxy(request: NextRequest) {
   const adminToken = request.cookies.get('biz-admin-token')
   const customerToken = request.cookies.get('biz-customer-token')
 
+  // NUEVO: si viene un token de Google OAuth2 en la URL, dejar pasar
+  // aunque todavía no exista la cookie (se va a crear del lado del cliente)
+  const hasOAuthToken = request.nextUrl.searchParams.has('token')
+
   // La página de login es pública para todos
   const isLoginRoute = pathname.startsWith('/login')
 
-  // Imágenes de productos (proxy → Spring Boot); deben ser públicas para el portal de clientes
   if (pathname.startsWith('/uploads')) {
     return NextResponse.next()
   }
 
   // --- Rutas del Portal de Clientes (/portal) ---
   if (pathname.startsWith('/portal')) {
-    // Si no tiene token de cliente, redirigir al login unificado
-    if (!customerToken) {
+    if (!customerToken && !hasOAuthToken) {   // CAMBIO: agregado !hasOAuthToken
       return NextResponse.redirect(new URL('/login', request.url))
     }
     return NextResponse.next()
@@ -27,15 +29,12 @@ export function proxy(request: NextRequest) {
 
   // --- Rutas del Admin (todo lo demás excepto login) ---
   if (!isLoginRoute) {
-    // Si no hay token de admin, redirigir al login
-    if (!adminToken) {
+    if (!adminToken && !hasOAuthToken) {      // CAMBIO: agregado !hasOAuthToken
       return NextResponse.redirect(new URL('/login', request.url))
     }
     return NextResponse.next()
   }
 
-  // --- Ruta /login ---
-  // Si ya tiene token de admin, redirigir al dashboard
   if (adminToken && isLoginRoute) {
     return NextResponse.redirect(new URL('/', request.url))
   }

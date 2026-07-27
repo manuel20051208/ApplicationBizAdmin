@@ -6,12 +6,12 @@ import { getStoredUser } from "@/lib/auth/session";
 
 export interface AdminProfile {
   id: number;
-  userName: string;
   fullName: string;
   email: string;
   phone: number;
   businessName: string;
-  profilePhoto?: string;
+  profilePhoto?: string;    // foto subida manualmente (path local)
+  profilePhotoUrl?: string; // foto de Google OAuth2 (URL externa)
   fotoPerfil?: string;
   photo?: string;
 }
@@ -97,19 +97,29 @@ export async function updateAdminProfile(profile: AdminProfile): Promise<AdminPr
   return res.json();
 }
 
-export async function uploadProfilePhoto(file: File): Promise<void> {
-  const formData = new FormData();
-  formData.append("profilePhoto", file);
+/**
+ * Actualiza la foto de perfil del administrador enviando una URL externa
+ * (puede ser de Google OAuth2 o de Cloudinary).
+ * El backend la guarda en el campo profilePhoto del entity UserAdmin.
+ */
+export async function updateProfilePhotoUrl(photoUrl: string): Promise<AdminProfile> {
+  const user = getStoredUser("admin");
+  if (!user?.id) throw new Error("Usuario no autenticado");
 
-  const res = await fetchClient(`api/user/upload-profile`, {
+  // Traemos el perfil actual para hacer un PATCH parcial sin pisar otros campos
+  const current = await fetchAdminProfile();
+
+  const res = await fetchClient(`api/user/modify`, {
     method: "PATCH",
-    body: formData,
+    body: JSON.stringify({
+      ...current,
+      profilePhoto: photoUrl,     // Cloudinary URL o URL de Google
+      profilePhotoUrl: photoUrl,  // También se guarda aquí para OAuth2
+    }),
   });
 
-  if (!res.ok) throw new Error("Error al subir la foto de perfil");
-
-  // El backend devuelve la imagen como Resource; consumimos el body.
-  await res.blob();
+  if (!res.ok) throw new Error("Error al actualizar la foto de perfil");
+  return res.json();
 }
 
 export function getProfilePhotoUrl(photoPath?: string | null): string {
@@ -154,7 +164,7 @@ export async function fetchDashboardData(userId?: number | null): Promise<Dashbo
 
     let monthlyDataRaw: Record<string, number> = {};
     if (graphicRes.status === "fulfilled" && graphicRes.value.ok) {
-      try { monthlyDataRaw = await graphicRes.value.json(); } catch {}
+      try { monthlyDataRaw = await graphicRes.value.json(); } catch { }
     }
 
     const SPANISH_MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -178,7 +188,7 @@ export async function fetchDashboardData(userId?: number | null): Promise<Dashbo
           content,
           page: data.page || { size: content.length, number: 0, totalElements: content.length, totalPages: 1 },
         };
-      } catch {}
+      } catch { }
     }
 
     return {
