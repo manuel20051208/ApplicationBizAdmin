@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { toast } from "sonner"
+import { formatCurrency } from "@/lib/format"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -171,7 +172,7 @@ export default function InventarioPage() {
   const loadProducts = useCallback(async () => {
     try {
       setLoading(true)
-      const data = await fetchAllProducts()
+      const data = await fetchAllProducts(sizeLimit)
       setProducts(data.map((p: any) => ({ ...p, images: p.images || [] })))
     } catch (err) {
       import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
@@ -181,13 +182,13 @@ export default function InventarioPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [sizeLimit])
 
   useEffect(() => {
     loadProducts()
   }, [loadProducts])
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = useMemo(() => products.filter(product => {
     // Filtrar productos inactivos (eliminados lógicamente)
     if (product.active === false) return false
 
@@ -198,7 +199,7 @@ export default function InventarioPage() {
       product.category.toLowerCase().includes(t) ||
       desc.includes(t)
     )
-  })
+  }), [products, searchTerm])
 
   const handleAddProduct = async () => {
     if (!checkProfileOrWarn()) return
@@ -311,13 +312,6 @@ export default function InventarioPage() {
       console.error("Error al eliminar imagen:", err)
       toast.error("Error al eliminar imagen")
     }
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(amount)
   }
 
   const openStorePreviewFromNew = () => {
@@ -592,7 +586,7 @@ export default function InventarioPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="gap-1.5 transition-all duration-200 hover:bg-emerald-500/20 hover:border-emerald-500/50 hover:text-emerald-500 hover:shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+                              className="gap-1.5 transition-all duration-200 hover:bg-primary/20 hover:border-primary/50 hover:text-primary"
                               onClick={() => handleOpenEdit(product)}
                             >
                               <Pencil className="h-3.5 w-3.5" />

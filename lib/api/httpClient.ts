@@ -5,9 +5,9 @@ import {
   isSessionExpired,
   touchSession,
 } from "@/lib/auth/session";
+import { API_BASE_URL } from "@/lib/config";
 
-/** Base vacía: las rutas usan prefijo `api/...` y Next rewrites a localhost:8080/api */
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+export { API_BASE_URL };
 
 export interface FetchOptions extends RequestInit {
   /** Si true (default), envía Authorization: Bearer &lt;token&gt; */

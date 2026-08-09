@@ -39,12 +39,30 @@ import {
 } from "@/lib/portal-store"
 import { StoreCheckoutBar } from "@/components/portal/store-checkout-bar"
 import { GoogleCallbackClient } from "@/components/auth/GoogleCallbackClient"
+import { formatCurrency } from "@/lib/format"
 
 // Producto con imágenes cargadas para la tienda
 interface StoreProduct extends Product {
   loadedImages: ProductImage[];
   imageLoading: boolean;
   provider?: any;
+}
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length)
+  let index = 0
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (index < items.length) {
+      const i = index++
+      results[i] = await fn(items[i], i)
+    }
+  })
+  await Promise.all(workers)
+  return results
 }
 
 export default function TiendaPage() {
@@ -105,8 +123,9 @@ function TiendaPageContent() {
       }))
       setProducts(storeProducts)
 
-      // Cargar imágenes de cada producto en paralelo
-      const imagePromises = storeProducts.map(async (product) => {
+      // Cargar imágenes de cada producto en paralelo (con límite de concurrencia
+      // para no saturar el backend con decenas de peticiones simultáneas)
+      const imageTasks = storeProducts.map(async (product) => {
         // Si el JSON ya incluyó imágenes, no volvemos a pedirlas
         if (product.loadedImages.length > 0) return { id: product.id, images: product.loadedImages }
         try {
@@ -117,16 +136,14 @@ function TiendaPageContent() {
         }
       })
 
-      const results = await Promise.allSettled(imagePromises)
+      const results = await mapWithConcurrency(imageTasks, 6, (task) => task)
 
       setProducts(prev =>
         prev.map(p => {
-          const result = results.find((r): r is PromiseFulfilledResult<{ id: number; images: ProductImage[] }> =>
-            r.status === "fulfilled" && r.value.id === p.id
-          )
+          const result = results.find((r) => r.id === p.id)
           return {
             ...p,
-            loadedImages: result?.value.images || p.loadedImages,
+            loadedImages: result?.images || p.loadedImages,
             imageLoading: false,
           }
         })
@@ -148,6 +165,17 @@ function TiendaPageContent() {
   useEffect(() => {
     setCart(getPortalCart())
   }, [])
+
+  // Mapas O(1) para evitar búsquedas lineales en cada tarjeta del grid
+  const productsById = React.useMemo(
+    () => new Map(products.map(p => [p.id, p])),
+    [products]
+  )
+
+  const cartMap = React.useMemo(
+    () => new Map(cart.map(i => [i.productId, i.quantity])),
+    [cart]
+  )
 
   // Extraer categorías dinámicamente de los productos
   const dynamicCategories = React.useMemo(() => Array.from(
@@ -185,10 +213,10 @@ function TiendaPageContent() {
   }
 
   const getCartQuantity = (productId: number) =>
-    cart.find((i) => i.productId === productId)?.quantity ?? 0
+    cartMap.get(productId) ?? 0
 
   const addToCart = (id: number) => {
-    const product = products.find((p) => p.id === id)
+    const product = productsById.get(id)
     if (!product || product.stock <= 0) return
 
     setCart((prev) => {
@@ -208,14 +236,7 @@ function TiendaPageContent() {
   }
 
   const getProductImages = (productId: number) =>
-    products.find((p) => p.id === productId)?.loadedImages ?? []
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(amount)
-  }
+    productsById.get(productId)?.loadedImages ?? []
 
   // Loading skeleton
   if (isLoading) {
@@ -425,7 +446,7 @@ function TiendaPageContent() {
                 {/* Stock info */}
                 <div className="flex items-center gap-1.5 mb-3">
                   {inStock ? (
-                    <span className="text-[11px] font-medium" style={{ color: "hsl(145, 60%, 45%)" }}>
+                    <span className="text-[11px] font-medium text-primary">
                       En stock ({product.stock} disponibles)
                     </span>
                   ) : (
@@ -477,8 +498,8 @@ function TiendaPageContent() {
 
                 {/* Free shipping badge */}
                 <div className="flex items-center gap-1 mb-3">
-                  <Truck className="size-3" style={{ color: "hsl(145, 60%, 45%)" }} />
-                  <span className="text-[11px] font-medium" style={{ color: "hsl(145, 60%, 50%)" }}>Envío disponible</span>
+                  <Truck className="size-3 text-primary" />
+                  <span className="text-[11px] font-medium text-primary">Envío disponible</span>
                 </div>
 
                 {/* Add to cart button */}
@@ -584,7 +605,7 @@ function TiendaPageContent() {
                       {selectedProduct.name}
                     </h2>
                     <p className="mt-1 text-lg font-bold text-primary">
-                      {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(selectedProduct.price)}
+                      {formatCurrency(selectedProduct.price)}
                     </p>
                   </div>
 

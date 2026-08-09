@@ -17,6 +17,7 @@ import {
   fetchClientHistory,
   type ClientHistoryProjection,
 } from "@/lib/services/clientService"
+import { formatCurrency as fmtMoney } from "@/lib/format"
 
 // ── Tipos internos ──────────────────────────────────────────────
 interface SaleGroup {
@@ -55,10 +56,6 @@ function fmtDate(iso: string, opts?: Intl.DateTimeFormatOptions): string {
   return parseDate(iso).toLocaleDateString("es-ES", opts ?? {
     day: "numeric", month: "short", year: "numeric",
   })
-}
-
-function fmtMoney(n: number): string {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n)
 }
 
 // Agrupa items por fecha (para agrupar las compras simultáneas)

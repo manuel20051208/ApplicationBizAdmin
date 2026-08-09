@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { toast } from "sonner"
+import { formatCurrency, formatDate } from "@/lib/format"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { getStoredUser } from "@/lib/auth/session"
 import { Separator } from "@/components/ui/separator"
@@ -34,6 +35,22 @@ import {
 import { ShoppingCart, Search, TrendingUp, DollarSign, Package, Loader2, RefreshCw } from "lucide-react"
 import { fetchSalesItems, type SaleItemView } from "@/lib/services/saleService"
 
+const STATUS_STYLES: Record<string, string> = {
+  completada: "bg-primary/20 text-primary border-primary/30",
+  pendiente: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
+  cancelada: "bg-destructive/20 text-destructive border-destructive/30",
+}
+
+function getStatusBadge(status: string | undefined) {
+  if (!status) return <Badge variant="outline">Desconocido</Badge>
+  const style = STATUS_STYLES[status.toLowerCase()] || "bg-secondary text-secondary-foreground"
+  return (
+    <Badge variant="outline" className={`${style} capitalize`}>
+      {status}
+    </Badge>
+  )
+}
+
 export default function VentasPage() {
   const [sales, setSales] = useState<SaleItemView[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -53,7 +70,6 @@ export default function VentasPage() {
       }
 
       const data = await fetchSalesItems(adminId, sizeLimit)
-      console.log("Datos recibidos de la API (Ventas):", data)
 
       setSales(data)
     } catch (err) {
@@ -70,73 +86,17 @@ export default function VentasPage() {
     loadSales()
   }, [loadSales])
 
-  const filteredSales = sales.filter(sale => {
+  const filteredSales = useMemo(() => sales.filter(sale => {
     const cliente = sale.client_name || sale.full_name || sale.clientName || ""
     const producto = sale.product_name || sale.name || sale.productName || ""
     return cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
       producto.toLowerCase().includes(searchTerm.toLowerCase()) ||
       String(sale.id).includes(searchTerm)
-  })
+  }), [sales, searchTerm])
 
-  const totalRevenue = sales.reduce((sum, s) => sum + (s.total_calculated ?? s.totalCalculated ?? s.totalPrice ?? 0), 0)
-  const totalItems = sales.reduce((sum, s) => sum + (s.quantity || 0), 0)
-  const uniqueClients = new Set(sales.map(s => (s.client_name || s.full_name || s.clientName || "").toLowerCase())).size
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(amount)
-  }
-
-  const formatDate = (dateValue: any) => {
-    if (!dateValue) return "—"
-    try {
-      let dateObj: Date
-
-      // Spring Boot a veces manda los LocalDate como arreglos [yyyy, m, d]
-      if (Array.isArray(dateValue)) {
-        const [year, month, day] = dateValue
-        dateObj = new Date(year, month - 1, day || 1)
-      } else {
-        const dateStr = String(dateValue)
-        // If it's a date-only string (e.g. "2026-06-12") parse it as local time
-        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-          const [year, month, day] = dateStr.split("-")
-          dateObj = new Date(Number(year), Number(month) - 1, Number(day))
-        } else {
-          dateObj = new Date(dateValue)
-        }
-      }
-
-      // Si la fecha es inválida, devolvemos el texto puro
-      if (isNaN(dateObj.getTime())) return String(dateValue)
-
-      const dd = String(dateObj.getDate()).padStart(2, '0')
-      const mm = String(dateObj.getMonth() + 1).padStart(2, '0')
-      const yyyy = dateObj.getFullYear()
-
-      return `${yyyy}-${mm}-${dd}`
-    } catch {
-      return String(dateValue)
-    }
-  }
-
-  const getStatusBadge = (status: string | undefined) => {
-    if (!status) return <Badge variant="outline">Desconocido</Badge>
-    const normalizedStatus = status.toLowerCase()
-    const styles: Record<string, string> = {
-      completada: "bg-primary/20 text-primary border-primary/30",
-      pendiente: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
-      cancelada: "bg-destructive/20 text-destructive border-destructive/30",
-    }
-    const style = styles[normalizedStatus] || "bg-secondary text-secondary-foreground"
-    return (
-      <Badge variant="outline" className={`${style} capitalize`}>
-        {status}
-      </Badge>
-    )
-  }
+  const totalRevenue = useMemo(() => sales.reduce((sum, s) => sum + (s.total_calculated ?? s.totalCalculated ?? s.totalPrice ?? 0), 0), [sales])
+  const totalItems = useMemo(() => sales.reduce((sum, s) => sum + (s.quantity || 0), 0), [sales])
+  const uniqueClients = useMemo(() => new Set(sales.map(s => (s.client_name || s.full_name || s.clientName || "").toLowerCase())).size, [sales])
 
   return (
     <SidebarProvider>

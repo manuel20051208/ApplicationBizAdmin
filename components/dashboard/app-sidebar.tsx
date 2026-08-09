@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
@@ -78,7 +78,7 @@ export function AppSidebar() {
   const [fullName, setFullName] = useState("Administrador")
   const [avatarUrl, setAvatarUrl] = useState("")
 
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     // 1. Leer inmediatamente desde localStorage
     const userData = getStoredUser("admin")
     if (userData) {
@@ -117,7 +117,7 @@ export function AppSidebar() {
     } catch (err) {
       console.warn("[AppSidebar] No se pudo refrescar perfil desde API:", err)
     }
-  }
+  }, [])
 
   useEffect(() => {
     setMounted(true)

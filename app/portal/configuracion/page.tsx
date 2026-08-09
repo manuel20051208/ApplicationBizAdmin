@@ -23,6 +23,7 @@ import {
 } from "@/lib/portal-store"
 import { toast } from "sonner"
 import { getStoredUser, updateStoredUser } from "@/lib/services/authService"
+import { toHttps } from "@/lib/config"
 import { fetchClientProfilePhotoBlobUrl, uploadClientProfilePhoto, getPaymentCards, updatePaymentCardStatus, fetchClientProfile, updateClientProfile, type PaymentCardResponseDTO } from "@/lib/services/clientService"
 import {
   Dialog,
@@ -70,7 +71,7 @@ export default function ConfiguracionClientePage() {
     }
 
     if (photoPath?.startsWith("http://") || photoPath?.startsWith("https://")) {
-      setProfile(prev => ({ ...prev, avatar: photoPath }))
+      setProfile(prev => ({ ...prev, avatar: toHttps(photoPath) }))
       return
     }
 

@@ -11,10 +11,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { SaleItemView } from "@/lib/services/saleService"
+import { formatCurrency } from "@/lib/format"
 
 interface RecentSalesTableProps {
   sales: SaleItemView[]
   loading?: boolean
+  totalElements?: number
 }
 
 function getStatusVariant(status: string): "default" | "secondary" | "outline" {
@@ -42,11 +44,7 @@ function getStatusClass(status: string): string {
   return "bg-gray-500/10 text-gray-500 hover:bg-gray-500/20"
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(amount)
-}
-
-export function RecentSalesTable({ sales, loading }: RecentSalesTableProps) {
+export function RecentSalesTable({ sales, loading, totalElements }: RecentSalesTableProps) {
   return (
     <Card className="border-border/50 bg-card">
       <CardHeader>
@@ -54,7 +52,9 @@ export function RecentSalesTable({ sales, loading }: RecentSalesTableProps) {
           Ventas Recientes
         </CardTitle>
         <CardDescription>
-          Últimas transacciones de tu negocio
+          {typeof totalElements === "number" && totalElements > 0
+            ? `Mostrando ${Array.isArray(sales) ? sales.length : 0} de ${totalElements} transacciones`
+            : "Últimas transacciones de tu negocio"}
         </CardDescription>
       </CardHeader>
       <CardContent>

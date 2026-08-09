@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { toast } from "sonner"
 import { fetchClientsSummary } from "@/lib/services/clientService"
 import { getStoredUser } from "@/lib/auth/session"
+import { formatCurrency, formatRelativeDate } from "@/lib/format"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { Separator } from "@/components/ui/separator"
@@ -51,7 +52,6 @@ export default function ClientesPage() {
         }
 
         const data = await fetchClientsSummary(adminId)
-        console.log("Datos recibidos de la API (Clientes):", data)
 
         let clientArray = []
         if (Array.isArray(data)) {
@@ -83,66 +83,16 @@ export default function ClientesPage() {
     loadCustomers()
   }, [])
 
-  const filteredCustomers = customers.filter(customer =>
+  const filteredCustomers = useMemo(() => customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  ), [customers, searchTerm])
 
   const totalCustomers = customers.length
-  const totalRevenue = customers.reduce((sum, c) => sum + c.totalSpent, 0)
-  const avgPurchases = customers.length > 0
+  const totalRevenue = useMemo(() => customers.reduce((sum, c) => sum + c.totalSpent, 0), [customers])
+  const avgPurchases = useMemo(() => customers.length > 0
     ? Math.round(customers.reduce((sum, c) => sum + c.totalPurchases, 0) / customers.length)
-    : 0
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(amount)
-  }
-
-  const formatDate = (dateValue: any) => {
-    if (!dateValue || dateValue === "—") return "—"
-    try {
-      let dateObj: Date
-      if (Array.isArray(dateValue)) {
-        const [year, month, day, hour = 0, minute = 0, second = 0] = dateValue
-        dateObj = new Date(year, month - 1, day || 1, hour, minute, second)
-      } else {
-        const dateStr = String(dateValue)
-        // Parse date-only string (e.g. "2026-06-12") as local time
-        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-          const [year, month, day] = dateStr.split("-")
-          dateObj = new Date(Number(year), Number(month) - 1, Number(day))
-        } else {
-          dateObj = new Date(dateValue)
-        }
-      }
-      if (isNaN(dateObj.getTime())) return String(dateValue)
-
-      const now = new Date()
-      // Diferencia en milisegundos
-      const diffMs = now.getTime() - dateObj.getTime()
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-
-      // Si fue en menos de 24 horas y no es fecha del futuro
-      if (diffHours >= 0 && diffHours < 24) {
-        if (diffHours === 0) {
-          const diffMins = Math.floor(diffMs / (1000 * 60))
-          if (diffMins <= 1) return "Hace un momento"
-          return `Hace ${diffMins} minutos`
-        }
-        return diffHours === 1 ? "Hace 1 hora" : `Hace ${diffHours} horas`
-      }
-
-      const dd = String(dateObj.getDate()).padStart(2, '0')
-      const mm = String(dateObj.getMonth() + 1).padStart(2, '0')
-      const yyyy = dateObj.getFullYear()
-      return `${yyyy}-${mm}-${dd}`
-    } catch {
-      return String(dateValue)
-    }
-  }
+    : 0, [customers])
 
 
 
@@ -271,7 +221,7 @@ export default function ClientesPage() {
                             {formatCurrency(customer.totalSpent)}
                           </TableCell>
                           <TableCell className="text-muted-foreground">
-                            {formatDate(customer.lastPurchase)}
+                            {formatRelativeDate(customer.lastPurchase)}
                           </TableCell>
                         </TableRow>
                       )))}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { getStoredUser } from "@/lib/auth/session"
+import { backendUrl } from "@/lib/config"
 
 export interface Notification {
   id: string
@@ -72,6 +73,7 @@ export function useNotifications() {
     let active = true
     let controller = new AbortController()
     let reconnectTimeout: NodeJS.Timeout
+    let retryCount = 0
 
     const connectSSE = async () => {
       const user = getStoredUser("admin")
@@ -80,7 +82,7 @@ export function useNotifications() {
       }
 
       try {
-        const url = `http://localhost:8080/api/notification/stream`
+        const url = backendUrl("/api/notification/stream")
         const response = await fetch(url, {
           signal: controller.signal,
           headers: {
@@ -100,6 +102,8 @@ export function useNotifications() {
           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
           throw new Error(`SSE HTTP error: ${response.status}`)
         }
+
+        retryCount = 0
 
         const reader = response.body?.getReader()
         if (!reader) {
@@ -209,10 +213,13 @@ export function useNotifications() {
           return
         }
         console.error("Error en conexión SSE (Notificaciones):", err)
-        // Intentar reconectar en 5 segundos con un nuevo controlador
+        // Reintentar con backoff exponencial (5s → 10s → 20s → 40s → 60s máx)
+        // para no saturar la CPU/red si el backend está caído.
         if (active) {
           controller = new AbortController()
-          reconnectTimeout = setTimeout(connectSSE, 5000)
+          const delay = Math.min(60_000, 5_000 * 2 ** retryCount)
+          retryCount += 1
+          reconnectTimeout = setTimeout(connectSSE, delay)
         }
       }
     }

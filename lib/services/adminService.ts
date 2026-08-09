@@ -1,4 +1,5 @@
-import { fetchClient, API_BASE_URL } from "../api/httpClient";
+import { fetchClient } from "../api/httpClient";
+import { resolveMediaUrl } from "@/lib/config";
 import { SaleItemView } from "./saleService";
 import { getStoredUser } from "@/lib/auth/session";
 
@@ -33,14 +34,29 @@ export interface LatestSaleItem {
   email: string;
 }
 
+export interface PageableInfo {
+  page: number;
+  size: number;
+}
+
+export interface PageSortInfo {
+  empty: boolean;
+  sorted: boolean;
+  unsorted: boolean;
+}
+
 export interface DashboardShowLatestSales {
   content: LatestSaleItem[];
-  page: {
-    size: number;
-    number: number;
-    totalElements: number;
-    totalPages: number;
-  };
+  pageable: PageableInfo;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  first: boolean;
+  number: number;
+  size: number;
+  sort: PageSortInfo;
+  numberOfElements: number;
+  empty: boolean;
 }
 
 export interface DashboardDataResponse {
@@ -125,83 +141,42 @@ export async function updateProfilePhotoUrl(photoUrl: string): Promise<AdminProf
 export function getProfilePhotoUrl(photoPath?: string | null): string {
   if (!photoPath) return "";
   if (photoPath.startsWith("data:") || photoPath.startsWith("blob:")) return photoPath;
-  if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) return photoPath;
+  if (/^https?:\/\//i.test(photoPath)) return resolveMediaUrl(photoPath);
 
   const path = photoPath.startsWith("/") ? photoPath : `/${photoPath}`;
-  if (path.startsWith("/uploads/")) return `${API_BASE_URL}${path}`;
-  if (path.startsWith("/")) return `${API_BASE_URL}${path}`;
-  return `${API_BASE_URL}/uploads/perfiles/${photoPath}`;
+  return resolveMediaUrl(path);
 }
 
 const DASHBOARD_API = "dashboard-controller";
 
-export async function fetchDashboardData(userId?: number | null): Promise<DashboardDataResponse> {
-  const user = getStoredUser("admin");
-  const id = userId ?? user?.id;
-
-  if (!id) {
-    return {
-      totalSales: 0,
-      totalProducts: 0,
-      totalClients: 0,
-      monthlyData: [],
-      showLatestSales: { content: [], page: { size: 0, number: 0, totalElements: 0, totalPages: 0 } },
-    };
+/**
+ * Obtiene todos los datos del dashboard en una sola petición
+ * (GET /dashboard-controller/get-data-dashboard).
+ * El backend resuelve el usuario autenticado (id()) y devuelve el DashboardDTO completo.
+ * showLatestSales se serializa como Page<ClientSummaryProjection> e incluye los metadatos
+ * de paginación (pageable, totalElements, totalPages, first, last, sort, ...).
+ */
+export async function fetchDashboardData(): Promise<DashboardDataResponse> {
+  const res = await fetchClient(`${DASHBOARD_API}/get-data-dashboard`, {
+    requireAuth: true,
+  });
+  if (!res.ok) {
+    console.error(`fetchDashboardData status: ${res.status}`);
+    throw new Error("Error al obtener datos del dashboard");
   }
+  return res.json();
+}
 
-  try {
-    const [sumRes, stockRes, clientsRes, graphicRes, salesRes] = await Promise.allSettled([
-      fetchClient(`${DASHBOARD_API}/sum/${id}`),
-      fetchClient(`${DASHBOARD_API}/stock/${id}`),
-      fetchClient(`${DASHBOARD_API}/count-clients/${id}`),
-      fetchClient(`${DASHBOARD_API}/data-graphic/${id}`),
-      fetchClient(`${DASHBOARD_API}/latest-sales/${id}?pageSize=10`),
-    ]);
-
-    const totalSales = sumRes.status === "fulfilled" && sumRes.value.ok ? await sumRes.value.json() : 0;
-    const totalProducts = stockRes.status === "fulfilled" && stockRes.value.ok ? await stockRes.value.json() : 0;
-    const totalClients = clientsRes.status === "fulfilled" && clientsRes.value.ok ? await clientsRes.value.json() : 0;
-
-    let monthlyDataRaw: Record<string, number> = {};
-    if (graphicRes.status === "fulfilled" && graphicRes.value.ok) {
-      try { monthlyDataRaw = await graphicRes.value.json(); } catch { }
-    }
-
-    const SPANISH_MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    const monthlyData = Object.entries(monthlyDataRaw).map(([key, val]) => {
-      const monthNum = parseInt(key, 10);
-      const monthName = !isNaN(monthNum) && monthNum >= 1 && monthNum <= 12 ? SPANISH_MONTHS[monthNum - 1] : key;
-      return {
-        monthName,
-        monthlyTotal: Number(val) || 0,
-        numberOfProducts: 0,
-        countClients: 0,
-      };
-    });
-
-    let showLatestSalesData = { content: [], page: { size: 10, number: 0, totalElements: 0, totalPages: 0 } };
-    if (salesRes.status === "fulfilled" && salesRes.value.ok) {
-      try {
-        const data = await salesRes.value.json();
-        const content = Array.isArray(data) ? data : (data.content || []);
-        showLatestSalesData = {
-          content,
-          page: data.page || { size: content.length, number: 0, totalElements: content.length, totalPages: 1 },
-        };
-      } catch { }
-    }
-
-    return {
-      totalSales: Number(totalSales) || 0,
-      totalProducts: Number(totalProducts) || 0,
-      totalClients: Number(totalClients) || 0,
-      monthlyData,
-      showLatestSales: showLatestSalesData,
-    };
-  } catch (err) {
-    console.error("Error al obtener datos del dashboard:", err);
-    throw err;
-  }
+/**
+ * Descarga el reporte del dashboard en Excel
+ * (GET /dashboard-controller/excel, respuesta binaria .xlsx, Content-Disposition: attachment).
+ */
+export async function fetchDashboardExcel(): Promise<Blob> {
+  const res = await fetchClient(`${DASHBOARD_API}/excel`, {
+    requireAuth: true,
+  });
+  if (!res.ok) throw new Error("Error al descargar el reporte Excel");
+  return res.blob();
 }
 
 export async function fetchDashboardSum(): Promise<number> {

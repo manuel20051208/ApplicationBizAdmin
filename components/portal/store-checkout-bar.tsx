@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
+import dynamic from "next/dynamic"
 import { CheckCircle2, CreditCard, Loader2, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,8 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { CartSheet } from "@/components/portal/cart-sheet"
-import { LinkCardDialog } from "@/components/portal/link-card-dialog"
 import { toast } from "sonner"
 import { getStoredUser } from "@/lib/services/authService"
 import { type Product, type ProductImage } from "@/lib/services/productService"
@@ -22,6 +21,15 @@ import {
   type CartItem,
   type LinkedCard,
 } from "@/lib/portal-store"
+
+const CartSheet = dynamic(
+  () => import("@/components/portal/cart-sheet").then((m) => m.CartSheet),
+  { ssr: false }
+)
+const LinkCardDialog = dynamic(
+  () => import("@/components/portal/link-card-dialog").then((m) => m.LinkCardDialog),
+  { ssr: false }
+)
 
 interface StoreCheckoutBarProps {
   cart: CartItem[]
@@ -50,7 +58,12 @@ export function StoreCheckoutBar({
 
   const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0)
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const productsById = useMemo(
+    () => new Map(products.map(p => [p.id, p])),
+    [products]
+  )
+
+  const updateQuantity = useCallback((productId: number, quantity: number) => {
     if (quantity <= 0) {
       const next = cart.filter((i) => i.productId !== productId)
       onCartChange(next)
@@ -62,13 +75,13 @@ export function StoreCheckoutBar({
     )
     onCartChange(next)
     savePortalCart(next)
-  }
+  }, [cart, onCartChange])
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = useCallback((productId: number) => {
     const next = cart.filter((i) => i.productId !== productId)
     onCartChange(next)
     savePortalCart(next)
-  }
+  }, [cart, onCartChange])
 
   const handleBuy = async () => {
     if (totalItems === 0) {
@@ -101,7 +114,7 @@ export function StoreCheckoutBar({
 
     const purchaseLines = cart
       .map((item) => {
-        const product = products.find((p) => p.id === item.productId)
+        const product = productsById.get(item.productId)
         if (!product) return null
         return {
           product,

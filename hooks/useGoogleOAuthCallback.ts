@@ -8,6 +8,7 @@
  */
 import { useEffect } from "react"
 import { saveAuthSession } from "@/lib/auth/session"
+import { toHttps } from "@/lib/config"
 import type { AuthRole } from "@/lib/auth/session"
 import { toast } from "sonner"
 
@@ -67,10 +68,10 @@ export function useGoogleOAuthCallback(role: AuthRole) {
 
     // Leer la foto de la URL o directamente del JWT payload
     const photo =
-      photoParam ||
-      (payload.profilePhotoUrl as string) ||
-      (payload.photo as string) ||
-      (payload.picture as string) ||
+      toHttps(photoParam) ||
+      toHttps(payload.profilePhotoUrl as string) ||
+      toHttps(payload.photo as string) ||
+      toHttps(payload.picture as string) ||
       ""
 
     const accountType = role === "admin" ? "ADMIN" : "CLIENT"

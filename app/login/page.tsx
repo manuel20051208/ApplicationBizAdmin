@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Package, ShoppingBag, Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Store, Building2, Sun, Moon, UserRound } from "lucide-react"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { useTheme } from "next-themes"
+import { backendUrl } from "@/lib/config"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -418,11 +419,11 @@ export default function LoginPage() {
                 onClick={() => {
                   // URLs exactas del backend Spring Security OAuth2
                   const url = isAdmin
-                    ? "http://localhost:8080/oauth2/authorization/google-admin"
-                    : "http://localhost:8080/oauth2/authorization/google-client"
+                    ? backendUrl("/oauth2/authorization/google-admin")
+                    : backendUrl("/oauth2/authorization/google-client")
                   window.location.href = url
                 }}
-                className="flex w-full items-center justify-center gap-3 rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-accent hover:shadow-md active:scale-[0.98]"
+                className="flex w-full items-center justify-center gap-3 rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-[0.98]"
               >
                 <svg viewBox="0 0 24 24" className="h-5 w-5" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

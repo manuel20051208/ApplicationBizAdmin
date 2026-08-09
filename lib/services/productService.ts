@@ -1,4 +1,5 @@
-import { fetchClient, API_BASE_URL } from "../api/httpClient";
+import { fetchClient } from "../api/httpClient";
+import { resolveMediaUrl, toHttps } from "@/lib/config";
 import { getStoredUser } from "./authService";
 
 const API_BASE = "api/product";
@@ -76,8 +77,9 @@ export async function fetchProductImages(productId: number): Promise<ProductImag
 
 // Rutas Protegidas (requireAuth: true)
 
-export async function fetchAllProducts(): Promise<Product[]> {
-  const res = await fetchClient(`${API_BASE}/search/with-images`);
+export async function fetchAllProducts(sizePage?: number): Promise<Product[]> {
+  const params = sizePage && sizePage > 0 ? new URLSearchParams({ sizePage: String(sizePage) }) : null;
+  const res = await fetchClient(`${API_BASE}/search/with-images${params ? `?${params.toString()}` : ""}`);
   if (!res.ok) throw new Error("Error al obtener todos los productos");
   return res.json();
 }
@@ -161,14 +163,13 @@ export function getImageUrl(imageOrPath: ProductImage | string): string {
 
   if (typeof imageOrPath === 'object') {
     if (imageOrPath.url) {
-      return toProxiedUploadPath(imageOrPath.url);
+      return resolveMediaUrl(imageOrPath.url);
     }
     return getImageUrl(imageOrPath.filePath ?? "");
   }
 
   const filePath = toProxiedUploadPath(imageOrPath);
-  if (filePath.startsWith("http")) return filePath;
-  if (filePath.startsWith("/uploads/")) return `${API_BASE_URL}${filePath}`;
-  if (filePath.startsWith("/")) return `${API_BASE_URL}${filePath}`;
-  return `${API_BASE_URL}/uploads/${filePath}`;
+  if (!filePath) return "";
+  if (/^https?:\/\//i.test(filePath)) return toHttps(filePath);
+  return resolveMediaUrl(filePath.startsWith("/") ? filePath : `/uploads/${filePath}`);
 }

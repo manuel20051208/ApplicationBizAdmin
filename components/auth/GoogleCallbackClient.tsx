@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { saveAuthSession } from "@/lib/auth/session"
+import { toHttps } from "@/lib/config"
 import { toast } from "sonner"
 
 /**
@@ -64,10 +65,10 @@ export function GoogleCallbackClient({ children }: { children?: React.ReactNode 
           : null
 
     const photo =
-      photoParam ||
-      (payload.profilePhotoUrl as string) ||
-      (payload.photo as string) ||
-      (payload.picture as string) ||
+      toHttps(photoParam) ||
+      toHttps(payload.profilePhotoUrl as string) ||
+      toHttps(payload.photo as string) ||
+      toHttps(payload.picture as string) ||
       ""
 
     const accountType = (payload.accountType as string) || "CLIENT"

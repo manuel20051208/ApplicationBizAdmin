@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { saveAuthSession } from "@/lib/auth/session"
+import { toHttps } from "@/lib/config"
 import { toast } from "sonner"
 
 /**
@@ -11,7 +12,7 @@ import { toast } from "sonner"
  * El backend debe redirigir a esta URL tras autenticar con Google:
  *   /auth/google/callback?token=JWT&id=1&email=a@b.com&name=Fulano&photo=URL&role=customer&accountType=CLIENT
  */
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const router = useRouter()
   const params = useSearchParams()
   const [status, setStatus] = useState<"loading" | "error">("loading")
@@ -21,7 +22,7 @@ export default function GoogleCallbackPage() {
     const id          = params.get("id")
     const email       = params.get("email")
     const name        = params.get("name") ?? params.get("fullName") ?? ""
-    const photo       = params.get("photo") ?? params.get("picture") ?? params.get("profilePhoto") ?? ""
+    const photo       = toHttps(params.get("photo") ?? params.get("picture") ?? params.get("profilePhoto") ?? "")
     const roleParam   = params.get("role")
     const accountType = params.get("accountType")
 
@@ -66,5 +67,13 @@ export default function GoogleCallbackPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={null}>
+      <GoogleCallbackContent />
+    </Suspense>
   )
 }
