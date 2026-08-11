@@ -53,3 +53,31 @@ export function resolveMediaUrl(pathOrUrl: string): string {
   const p = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
   return API_BASE_URL ? `${API_BASE_URL}${p}` : p;
 }
+
+/**
+ * Optimiza URLs de Cloudinary para servir WebP/AVIF automático (f_auto),
+ * calidad óptima (q_auto) y, opcionalmente, un ancho máximo (w_).
+ * Solo afecta a URLs de res.cloudinary.com; cualquier otra URL se devuelve intacta.
+ *
+ * Ejemplo:
+ *   https://res.cloudinary.com/xyz/image/upload/v123/foto.png
+ *   → https://res.cloudinary.com/xyz/image/upload/f_auto,q_auto,w_400/v123/foto.png
+ */
+export function optimizeCloudinaryUrl(
+  url: string | null | undefined,
+  options: { width?: number } = {}
+): string {
+  if (!url || !url.includes("res.cloudinary.com")) return url ?? "";
+
+  const [base, query] = url.split("?");
+  const marker = "/image/upload/";
+  const idx = base.indexOf(marker);
+  if (idx === -1) return url;
+
+  const transforms = ["f_auto", "q_auto"];
+  if (options.width) transforms.push(`w_${Math.round(options.width)}`);
+
+  const insertAt = idx + marker.length;
+  const optimized = `${base.slice(0, insertAt)}${transforms.join(",")}/${base.slice(insertAt)}`;
+  return query ? `${optimized}?${query}` : optimized;
+}

@@ -55,6 +55,7 @@ import {
 import { PhoneInput } from "@/components/ui/phone-input"
 import { getStoredUser, updateStoredUser } from "@/lib/services/authService"
 import { fetchAdminProfile, updateAdminProfile, updateProfilePhotoUrl, getProfilePhotoUrl } from "@/lib/services/adminService"
+import { optimizeCloudinaryUrl } from "@/lib/config"
 
 interface UserProfile {
   name: string
@@ -78,7 +79,7 @@ function ProfilePhoto({
   }
 
   if (src.startsWith("blob:") || src.startsWith("data:")) {
-    return <img src={src} alt={alt} className={`h-full w-full ${className}`} />
+    return <img src={src} alt={alt} decoding="async" className={`h-full w-full ${className}`} />
   }
 
   return <Image src={src} alt={alt} fill className={className} />
@@ -127,7 +128,9 @@ export default function ConfiguracionPage() {
 
           // Pre-cargar de localStorage inmediatamente (incluyendo la foto si existe)
           // La foto puede ser: URL de Google (profilePhotoUrl) o URL de Cloudinary (profilePhoto)
-          const photoUrl = stored.profilePhotoUrl || stored.profilePhoto || stored.fotoPerfil || stored.photo || null
+          const photoUrl = optimizeCloudinaryUrl(
+            stored.profilePhotoUrl || stored.profilePhoto || stored.fotoPerfil || stored.photo || null
+          ) || null
           setProfile(prev => ({
             ...prev,
             name: fallbackVal(stored.fullName),
@@ -156,7 +159,9 @@ export default function ConfiguracionPage() {
               setEditBusinessName(adminData.businessName || stored.businessName || "")
 
               // Foto: Google OAuth2 (profilePhotoUrl) tiene prioridad, luego Cloudinary (profilePhoto)
-              const apiPhoto = adminData.profilePhotoUrl || adminData.profilePhoto || adminData.photo || adminData.fotoPerfil || null
+              const apiPhoto = optimizeCloudinaryUrl(
+                adminData.profilePhotoUrl || adminData.profilePhoto || adminData.photo || adminData.fotoPerfil || null
+              ) || null
               if (apiPhoto) {
                 setProfile(prev => ({ ...prev, avatar: apiPhoto }))
                 updateStoredUser({

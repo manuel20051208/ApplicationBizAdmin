@@ -59,9 +59,30 @@ export function RecentSalesTable({ sales, loading, totalElements }: RecentSalesT
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="flex h-40 items-center justify-center text-muted-foreground">
-            Cargando ventas...
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border/50 hover:bg-transparent">
+                <TableHead className="text-muted-foreground">ID</TableHead>
+                <TableHead className="text-muted-foreground">Cliente</TableHead>
+                <TableHead className="text-muted-foreground hidden md:table-cell">Producto</TableHead>
+                <TableHead className="text-muted-foreground">Monto</TableHead>
+                <TableHead className="text-muted-foreground">Estado</TableHead>
+                <TableHead className="text-muted-foreground text-right hidden sm:table-cell">Fecha</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i} className="border-border/50">
+                  <TableCell><div className="h-6 w-16 animate-pulse rounded-full bg-muted/50" /></TableCell>
+                  <TableCell><div className="h-4 w-28 animate-pulse rounded-md bg-muted/50" /></TableCell>
+                  <TableCell className="hidden md:table-cell"><div className="h-4 w-24 animate-pulse rounded-md bg-muted/40" /></TableCell>
+                  <TableCell><div className="h-4 w-16 animate-pulse rounded-md bg-muted/50" /></TableCell>
+                  <TableCell><div className="h-5 w-20 animate-pulse rounded-full bg-muted/40" /></TableCell>
+                  <TableCell className="hidden sm:table-cell"><div className="ml-auto h-4 w-20 animate-pulse rounded-md bg-muted/40" /></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         ) : !Array.isArray(sales) || sales.length === 0 ? (
           <div className="flex h-40 items-center justify-center text-muted-foreground">
             No hay ventas recientes

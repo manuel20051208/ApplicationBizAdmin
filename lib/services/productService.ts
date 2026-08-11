@@ -1,5 +1,5 @@
 import { fetchClient } from "../api/httpClient";
-import { resolveMediaUrl, toHttps } from "@/lib/config";
+import { resolveMediaUrl, toHttps, optimizeCloudinaryUrl } from "@/lib/config";
 import { getStoredUser } from "./authService";
 
 const API_BASE = "api/product";
@@ -45,7 +45,7 @@ export async function fetchProducts(adminId: number, sizePage: number = 50): Pro
   return Array.isArray(data) ? data : (data.content || []);
 }
 
-export async function fetchActiveProductsWithImages(adminId: number): Promise<Product[]> {
+export async function fetchActiveProductsWithImages(adminId?: number): Promise<Product[]> {
   const res = await fetchClient(`${API_BASE}/search/active-with-images`);
   if (!res.ok) throw new Error("Error al obtener productos con imágenes");
   return res.json();
@@ -163,13 +163,13 @@ export function getImageUrl(imageOrPath: ProductImage | string): string {
 
   if (typeof imageOrPath === 'object') {
     if (imageOrPath.url) {
-      return resolveMediaUrl(imageOrPath.url);
+      return optimizeCloudinaryUrl(resolveMediaUrl(imageOrPath.url));
     }
     return getImageUrl(imageOrPath.filePath ?? "");
   }
 
   const filePath = toProxiedUploadPath(imageOrPath);
   if (!filePath) return "";
-  if (/^https?:\/\//i.test(filePath)) return toHttps(filePath);
-  return resolveMediaUrl(filePath.startsWith("/") ? filePath : `/uploads/${filePath}`);
+  if (/^https?:\/\//i.test(filePath)) return optimizeCloudinaryUrl(toHttps(filePath));
+  return optimizeCloudinaryUrl(resolveMediaUrl(filePath.startsWith("/") ? filePath : `/uploads/${filePath}`));
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import dynamic from "next/dynamic"
-import { Download, DollarSign, Package, Users } from "lucide-react"
+import { Download, DollarSign, FileText, Package, Users } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,9 +12,11 @@ import { formatCurrency } from "@/lib/format"
 import {
   fetchDashboardData,
   fetchDashboardExcel,
+  fetchDashboardPdf,
   type RevenueDataPoint,
 } from "@/lib/services/adminService"
 import { type SaleItemView } from "@/lib/services/saleService"
+import { cachedFetch, CACHE_KEYS, CACHE_TTL } from "@/lib/api/apiCache"
 
 const RevenueChart = dynamic(
   () => import("./revenue-chart").then((m) => m.RevenueChart),
@@ -50,68 +52,73 @@ export function DashboardContent() {
   const [latestSales, setLatestSales] = useState<SaleItemView[]>([])
   const [latestSalesTotal, setLatestSalesTotal] = useState(0)
   const [exporting, setExporting] = useState(false)
+  const [exportingPdf, setExportingPdf] = useState(false)
   const [loading, setLoading] = useState(true)
 
+  const processDashboardData = useCallback((dashboardData: any) => {
+    setTotalRevenue(dashboardData?.totalSales ?? 0);
+    setTotalStock(dashboardData?.totalProducts ?? 0);
+    setTotalClients(dashboardData?.totalClients ?? 0);
+
+    const SPANISH_MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const MONTH_LABELS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    
+    const currentMonthIndex = new Date().getMonth();
+    const graphicPoints: RevenueDataPoint[] = [];
+    const monthlyData = Array.isArray(dashboardData?.monthlyData) ? dashboardData.monthlyData : [];
+
+    for (let i = 0; i <= currentMonthIndex; i++) {
+      const monthNameFull = SPANISH_MONTHS[i];
+      const monthLabel = MONTH_LABELS[i];
+      
+      const found = monthlyData.find((m: any) => {
+        const monthName = typeof m?.monthName === "string" ? m.monthName : "";
+        return monthName.toLowerCase() === monthNameFull.toLowerCase() ||
+          monthName.toLowerCase().startsWith(monthLabel.toLowerCase());
+      });
+
+      graphicPoints.push({
+        month: monthLabel,
+        ingresos: found?.monthlyTotal ?? 0
+      });
+    }
+    setGraphicData(graphicPoints);
+
+    const salesArr = dashboardData?.showLatestSales?.content || [];
+    const mappedSales = salesArr.map((item: any) => {
+      let dateStr = "—";
+      if (item.latestSale) {
+        const d = new Date(item.latestSale);
+        if (!isNaN(d.getTime())) {
+          dateStr = d.toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" });
+        }
+      }
+
+      return {
+        id: item.id,
+        full_name: item.fullName || "Cliente Desconocido",
+        quantity: item.totalQuantity || 0,
+        totalPrice: item.totalSpent || 0,
+        status: "completado",
+        date: dateStr,
+        productName: `${item.totalQuantity || 1} producto(s)`
+      };
+    });
+    setLatestSales(mappedSales);
+    setLatestSalesTotal(dashboardData?.showLatestSales?.totalElements ?? 0);
+  }, []);
 
   const loadDashboard = useCallback(async () => {
     try {
       setLoading(true)
 
-      const dashboardData = await fetchDashboardData();
+      const dashboardData = await cachedFetch(
+        CACHE_KEYS.DASHBOARD,
+        () => fetchDashboardData(),
+        CACHE_TTL.DASHBOARD
+      );
 
-      setTotalRevenue(dashboardData?.totalSales ?? 0);
-      setTotalStock(dashboardData?.totalProducts ?? 0);
-      setTotalClients(dashboardData?.totalClients ?? 0);
-
-      // Process graphic data with 0 values for missing months
-      const SPANISH_MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-      const MONTH_LABELS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-      
-      const currentMonthIndex = new Date().getMonth(); // 0-indexed
-      const graphicPoints: RevenueDataPoint[] = [];
-
-      const monthlyData = Array.isArray(dashboardData?.monthlyData) ? dashboardData.monthlyData : [];
-
-      for (let i = 0; i <= currentMonthIndex; i++) {
-        const monthNameFull = SPANISH_MONTHS[i];
-        const monthLabel = MONTH_LABELS[i];
-        
-        const found = monthlyData.find((m) => {
-          const monthName = typeof m?.monthName === "string" ? m.monthName : "";
-          return monthName.toLowerCase() === monthNameFull.toLowerCase() ||
-            monthName.toLowerCase().startsWith(monthLabel.toLowerCase());
-        });
-
-        graphicPoints.push({
-          month: monthLabel,
-          ingresos: found?.monthlyTotal ?? 0
-        });
-      }
-      setGraphicData(graphicPoints);
-
-      // Process latest sales list
-      const salesArr = dashboardData?.showLatestSales?.content || [];
-      const mappedSales = salesArr.map((item: any) => {
-        let dateStr = "—";
-        if (item.latestSale) {
-          const d = new Date(item.latestSale);
-          if (!isNaN(d.getTime())) {
-            dateStr = d.toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" });
-          }
-        }
-
-        return {
-          id: item.id, // Using 'id' from the item directly as requested
-          full_name: item.fullName || "Cliente Desconocido",
-          quantity: item.totalQuantity || 0,
-          totalPrice: item.totalSpent || 0,
-          status: "completado",
-          date: dateStr,
-          productName: `${item.totalQuantity || 1} producto(s)`
-        };
-      });
-      setLatestSales(mappedSales);
-      setLatestSalesTotal(dashboardData?.showLatestSales?.totalElements ?? 0);
+      processDashboardData(dashboardData);
 
     } catch (err) {
       console.error("Error al cargar dashboard:", err)
@@ -121,13 +128,14 @@ export function DashboardContent() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [processDashboardData])
 
   useEffect(() => {
     loadDashboard()
   }, [loadDashboard])
 
   const handleExportExcel = useCallback(async () => {
+    const toastId = toast.loading("Generando reporte Excel...")
     try {
       setExporting(true)
       const blob = await fetchDashboardExcel()
@@ -139,11 +147,34 @@ export function DashboardContent() {
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
+      toast.success("Reporte Excel descargado correctamente", { id: toastId })
     } catch (err) {
       console.error("Error al exportar Excel:", err)
-      toast.error("No se pudo descargar el reporte Excel")
+      toast.error("No se pudo descargar el reporte Excel", { id: toastId })
     } finally {
       setExporting(false)
+    }
+  }, [])
+
+  const handleExportPdf = useCallback(async () => {
+    const toastId = toast.loading("Generando reporte PDF...")
+    try {
+      setExportingPdf(true)
+      const blob = await fetchDashboardPdf()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `reporte-dashboard-${new Date().toISOString().slice(0, 10)}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+      toast.success("Reporte PDF descargado correctamente", { id: toastId })
+    } catch (err) {
+      console.error("Error al exportar PDF:", err)
+      toast.error("No se pudo descargar el reporte PDF", { id: toastId })
+    } finally {
+      setExportingPdf(false)
     }
   }, [])
 
@@ -156,47 +187,64 @@ export function DashboardContent() {
             Bienvenido de nuevo. Aquí está el resumen de tu negocio.
           </p>
         </div>
-        <Button
-          onClick={handleExportExcel}
-          disabled={exporting}
-          variant="outline"
-          className="gap-2"
-        >
-          <Download className="h-4 w-4" />
-          {exporting ? "Exportando..." : "Exportar Excel"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            onClick={handleExportPdf}
+            disabled={exportingPdf}
+            variant="outline"
+            className="gap-2 transition-all hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-500"
+          >
+            <FileText className="h-4 w-4 text-red-500" />
+            {exportingPdf ? "Exportando..." : "Exportar PDF"}
+          </Button>
+          <Button
+            onClick={handleExportExcel}
+            disabled={exporting}
+            variant="outline"
+            className="gap-2 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10"
+          >
+            <Download className="h-4 w-4 text-emerald-500" />
+            {exporting ? "Exportando..." : "Exportar Excel"}
+          </Button>
+        </div>
       </div>
-
-
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
           title="Ingresos Totales"
-          value={loading ? "Cargando..." : totalRevenue !== null ? formatCurrency(totalRevenue) : "$0.00"}
-          change={loading ? "" : "Suma total de ventas"}
+          value={totalRevenue !== null ? formatCurrency(totalRevenue) : "$0.00"}
+          change="Suma total de ventas"
           changeType="positive"
           icon={DollarSign}
+          loading={loading && totalRevenue === null}
         />
         <StatCard
           title="Productos en Stock"
-          value={loading ? "Cargando..." : totalStock !== null ? totalStock.toLocaleString() : "0"}
-          change={loading ? "" : "Productos activos"}
+          value={totalStock !== null ? totalStock.toLocaleString() : "0"}
+          change="Productos activos"
           changeType="neutral"
           icon={Package}
+          loading={loading && totalStock === null}
         />
         <StatCard
           title="Clientes Registrados"
-          value={loading ? "Cargando..." : totalClients !== null ? totalClients.toLocaleString() : "0"}
-          change={loading ? "" : "Total de clientes"}
+          value={totalClients !== null ? totalClients.toLocaleString() : "0"}
+          change="Total de clientes"
           changeType="positive"
           icon={Users}
+          loading={loading && totalClients === null}
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {loading ? <RevenueChartSkeleton /> : <RevenueChart data={graphicData} loading={false} />}
-        <RecentSalesTable sales={latestSales} loading={loading} totalElements={latestSalesTotal} />
+        {loading && graphicData.length === 0 ? (
+          <RevenueChartSkeleton />
+        ) : (
+          <RevenueChart data={graphicData} loading={false} />
+        )}
+        <RecentSalesTable sales={latestSales} loading={loading && latestSales.length === 0} totalElements={latestSalesTotal} />
       </div>
     </div>
   )
 }
+

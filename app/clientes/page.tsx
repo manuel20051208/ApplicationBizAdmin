@@ -26,6 +26,9 @@ import {
 } from "@/components/ui/table"
 import { Users, Search, Mail, ShoppingBag } from "lucide-react"
 
+import { useDebounce } from "@/hooks/use-debounce"
+import { cachedFetch, CACHE_KEYS, CACHE_TTL } from "@/lib/api/apiCache"
+
 interface Customer {
   id: string
   name: string
@@ -37,6 +40,7 @@ interface Customer {
 
 export default function ClientesPage() {
   const [searchTerm, setSearchTerm] = useState("")
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [customers, setCustomers] = useState<Customer[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -51,13 +55,16 @@ export default function ClientesPage() {
           throw new Error("No hay usuario logueado")
         }
 
-        const data = await fetchClientsSummary(adminId)
+        const data = await cachedFetch(
+          CACHE_KEYS.CLIENTES(adminId),
+          () => fetchClientsSummary(adminId),
+          CACHE_TTL.CLIENTES
+        )
 
         let clientArray = []
         if (Array.isArray(data)) {
           clientArray = data
         } else if (data && typeof data === 'object') {
-          // Soporte por si el backend devuelve un Page<T> u objeto envuelto
           const objData = data as any
           clientArray = objData.content || objData.data || objData.clients || []
         }
@@ -83,10 +90,11 @@ export default function ClientesPage() {
     loadCustomers()
   }, [])
 
-  const filteredCustomers = useMemo(() => customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-  ), [customers, searchTerm])
+  const filteredCustomers = useMemo(() => customers.filter(customer => {
+    const query = debouncedSearchTerm.toLowerCase()
+    return customer.name.toLowerCase().includes(query) ||
+      customer.email.toLowerCase().includes(query)
+  }), [customers, debouncedSearchTerm])
 
   const totalCustomers = customers.length
   const totalRevenue = useMemo(() => customers.reduce((sum, c) => sum + c.totalSpent, 0), [customers])
@@ -185,13 +193,21 @@ export default function ClientesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {isLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                          Cargando clientes...
-                        </TableCell>
-                      </TableRow>
-
+                    {isLoading && customers.length === 0 ? (
+                      Array.from({ length: 5 }).map((_, i) => (
+                        <TableRow key={i} className="border-border">
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="h-4 w-32 animate-pulse rounded-md bg-muted/50" />
+                              <div className="h-4 w-16 animate-pulse rounded-full bg-muted/40" />
+                            </div>
+                          </TableCell>
+                          <TableCell><div className="h-4 w-40 animate-pulse rounded-md bg-muted/40" /></TableCell>
+                          <TableCell><div className="mx-auto h-5 w-12 animate-pulse rounded-full bg-muted/50" /></TableCell>
+                          <TableCell><div className="ml-auto h-4 w-20 animate-pulse rounded-md bg-muted/50" /></TableCell>
+                          <TableCell><div className="h-4 w-24 animate-pulse rounded-md bg-muted/40" /></TableCell>
+                        </TableRow>
+                      ))
                     ) : filteredCustomers.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">

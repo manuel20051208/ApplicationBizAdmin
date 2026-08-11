@@ -30,7 +30,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { fetchProducts, fetchProductImages, getImageUrl, type Product, type ProductImage } from "@/lib/services/productService"
+import { fetchProducts, fetchActiveProductsWithImages, fetchProductImages, getImageUrl, type Product, type ProductImage } from "@/lib/services/productService"
 import { fetchStoreDescription, getProfilePhotoUrl, type StoreDescription } from "@/lib/services/adminService"
 import {
   getPortalCart,
@@ -97,8 +97,17 @@ function TiendaPageContent() {
     try {
       setIsLoading(true)
 
-      // API antigua: trae todos los activos (sin importar si tienen imagen) y busca imágenes manual
-      const data = await fetchProducts(100)
+      // Endpoint nuevo: trae productos con sus imágenes embebidas (1 sola petición).
+      // Si el backend no lo soporta o responde vacío, caemos al flujo legacy sin romper nada.
+      let data: Product[] | null = null
+      try {
+        data = await fetchActiveProductsWithImages()
+      } catch {
+        data = null
+      }
+      if (!Array.isArray(data) || data.length === 0) {
+        data = await fetchProducts(100)
+      }
 
       // Intentar obtener el adminId real a partir de los productos devueltos
       const firstProductWithAdmin = data.find(p => p.userAdminId != null)
@@ -123,31 +132,34 @@ function TiendaPageContent() {
       }))
       setProducts(storeProducts)
 
-      // Cargar imágenes de cada producto en paralelo (con límite de concurrencia
-      // para no saturar el backend con decenas de peticiones simultáneas)
-      const imageTasks = storeProducts.map(async (product) => {
-        // Si el JSON ya incluyó imágenes, no volvemos a pedirlas
-        if (product.loadedImages.length > 0) return { id: product.id, images: product.loadedImages }
-        try {
-          const images = await fetchProductImages(product.id)
-          return { id: product.id, images }
-        } catch {
-          return { id: product.id, images: [] }
-        }
-      })
-
-      const results = await mapWithConcurrency(imageTasks, 6, (task) => task)
-
-      setProducts(prev =>
-        prev.map(p => {
-          const result = results.find((r) => r.id === p.id)
-          return {
-            ...p,
-            loadedImages: result?.images || p.loadedImages,
-            imageLoading: false,
+      // Solo si el JSON no incluyó imágenes (endpoint legacy), pedirlas una por
+      // una con un límite de concurrencia para no saturar el backend.
+      const needImages = storeProducts.filter((p) => p.loadedImages.length === 0)
+      if (needImages.length > 0) {
+        const imageTasks = needImages.map(async (product) => {
+          try {
+            const images = await fetchProductImages(product.id)
+            return { id: product.id, images }
+          } catch {
+            return { id: product.id, images: [] }
           }
         })
-      )
+
+        const results = await mapWithConcurrency(imageTasks, 6, (task) => task)
+
+        setProducts(prev =>
+          prev.map(p => {
+            const result = results.find((r) => r.id === p.id)
+            return {
+              ...p,
+              loadedImages: result?.images || p.loadedImages,
+              imageLoading: false,
+            }
+          })
+        )
+      } else {
+        setProducts(prev => prev.map(p => ({ ...p, imageLoading: false })))
+      }
     } catch (err) {
       console.error("Error al cargar productos:", err)
       import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
@@ -567,7 +579,7 @@ function TiendaPageContent() {
                       <CarouselContent className="h-full">
                         {[...selectedProduct.loadedImages]
                           .sort((a, b) => a.displayOrder - b.displayOrder)
-                          .map((img) => (
+                          .map((img, idx) => (
                             <CarouselItem key={img.id} className="relative min-h-[min(52vw,260px)] w-full basis-full md:min-h-[min(68vh,22rem)]">
                               <Image
                                 src={getImageUrl(img)}
@@ -575,7 +587,7 @@ function TiendaPageContent() {
                                 fill
                                 className="object-contain p-2"
                                 sizes="(max-width: 768px) 96vw, 45vw"
-                                priority
+                                priority={idx === 0}
                               />
                             </CarouselItem>
                           ))}

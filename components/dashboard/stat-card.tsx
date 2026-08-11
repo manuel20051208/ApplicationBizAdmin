@@ -8,9 +8,10 @@ interface StatCardProps {
   change: string
   changeType: "positive" | "negative" | "neutral"
   icon: LucideIcon
+  loading?: boolean
 }
 
-export function StatCard({ title, value, change, changeType, icon: Icon }: StatCardProps) {
+function StatCardSkeleton({ title, icon: Icon }: { title: string; icon: LucideIcon }) {
   return (
     <Card className="border-border/50 bg-card">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -22,9 +23,32 @@ export function StatCard({ title, value, change, changeType, icon: Icon }: StatC
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold text-foreground">{value}</div>
+        <div className="h-9 w-28 animate-pulse rounded-md bg-muted/60" />
+        <div className="mt-2 h-4 w-24 animate-pulse rounded-md bg-muted/40" />
+      </CardContent>
+    </Card>
+  )
+}
+
+export function StatCard({ title, value, change, changeType, icon: Icon, loading }: StatCardProps) {
+  if (loading) {
+    return <StatCardSkeleton title={title} icon={Icon} />
+  }
+
+  return (
+    <Card className="border-border/50 bg-card">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
+          <Icon className="size-5 text-primary" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold text-foreground animate-in fade-in-0 duration-500">{value}</div>
         <p className={cn(
-          "text-sm mt-1",
+          "text-sm mt-1 animate-in fade-in-0 duration-700",
           changeType === "positive" && "text-emerald-500",
           changeType === "negative" && "text-red-500",
           changeType === "neutral" && "text-muted-foreground"
@@ -35,3 +59,4 @@ export function StatCard({ title, value, change, changeType, icon: Icon }: StatC
     </Card>
   )
 }
+

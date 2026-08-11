@@ -1,5 +1,5 @@
 import { fetchClient } from "../api/httpClient";
-import { resolveMediaUrl } from "@/lib/config";
+import { resolveMediaUrl, optimizeCloudinaryUrl } from "@/lib/config";
 import { SaleItemView } from "./saleService";
 import { getStoredUser } from "@/lib/auth/session";
 
@@ -141,10 +141,10 @@ export async function updateProfilePhotoUrl(photoUrl: string): Promise<AdminProf
 export function getProfilePhotoUrl(photoPath?: string | null): string {
   if (!photoPath) return "";
   if (photoPath.startsWith("data:") || photoPath.startsWith("blob:")) return photoPath;
-  if (/^https?:\/\//i.test(photoPath)) return resolveMediaUrl(photoPath);
+  if (/^https?:\/\//i.test(photoPath)) return optimizeCloudinaryUrl(resolveMediaUrl(photoPath));
 
   const path = photoPath.startsWith("/") ? photoPath : `/${photoPath}`;
-  return resolveMediaUrl(path);
+  return optimizeCloudinaryUrl(resolveMediaUrl(path));
 }
 
 const DASHBOARD_API = "dashboard-controller";
@@ -176,6 +176,18 @@ export async function fetchDashboardExcel(): Promise<Blob> {
     requireAuth: true,
   });
   if (!res.ok) throw new Error("Error al descargar el reporte Excel");
+  return res.blob();
+}
+
+/**
+ * Descarga el reporte del dashboard en PDF
+ * (GET /dashboard-controller/pdf, respuesta binaria .pdf, Content-Disposition: attachment).
+ */
+export async function fetchDashboardPdf(): Promise<Blob> {
+  const res = await fetchClient(`${DASHBOARD_API}/pdf`, {
+    requireAuth: true,
+  });
+  if (!res.ok) throw new Error("Error al descargar el reporte PDF");
   return res.blob();
 }
 

@@ -8,7 +8,7 @@ import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { getStoredUser, logout } from "@/lib/services/authService"
 import { fetchClientProfilePhotoBlobUrl } from "@/lib/services/clientService"
-import { toHttps } from "@/lib/config"
+import { toHttps, optimizeCloudinaryUrl } from "@/lib/config"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function PortalHeader() {
@@ -33,7 +33,7 @@ export function PortalHeader() {
       // Si tiene foto de Google (empieza con http/https), la usamos directamente
       const photoPath = userData.profilePhoto || userData.fotoPerfil || userData.photo
       if (photoPath?.startsWith("http://") || photoPath?.startsWith("https://")) {
-        setAvatarUrl(toHttps(photoPath))
+        setAvatarUrl(optimizeCloudinaryUrl(toHttps(photoPath)))
         return
       }
 

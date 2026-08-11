@@ -35,6 +35,9 @@ import {
 import { ShoppingCart, Search, TrendingUp, DollarSign, Package, Loader2, RefreshCw } from "lucide-react"
 import { fetchSalesItems, type SaleItemView } from "@/lib/services/saleService"
 
+import { useDebounce } from "@/hooks/use-debounce"
+import { cachedFetch, CACHE_KEYS, CACHE_TTL } from "@/lib/api/apiCache"
+
 const STATUS_STYLES: Record<string, string> = {
   completada: "bg-primary/20 text-primary border-primary/30",
   pendiente: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
@@ -54,6 +57,7 @@ function getStatusBadge(status: string | undefined) {
 export default function VentasPage() {
   const [sales, setSales] = useState<SaleItemView[]>([])
   const [searchTerm, setSearchTerm] = useState("")
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [loading, setLoading] = useState(true)
 
   // Limite de registros a traer (usado para el Endpoint con paginación)
@@ -69,7 +73,11 @@ export default function VentasPage() {
         throw new Error("No hay usuario logueado")
       }
 
-      const data = await fetchSalesItems(adminId, sizeLimit)
+      const data = await cachedFetch(
+        CACHE_KEYS.VENTAS(sizeLimit),
+        () => fetchSalesItems(adminId, sizeLimit),
+        CACHE_TTL.VENTAS
+      )
 
       setSales(data)
     } catch (err) {
@@ -89,10 +97,11 @@ export default function VentasPage() {
   const filteredSales = useMemo(() => sales.filter(sale => {
     const cliente = sale.client_name || sale.full_name || sale.clientName || ""
     const producto = sale.product_name || sale.name || sale.productName || ""
-    return cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      producto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      String(sale.id).includes(searchTerm)
-  }), [sales, searchTerm])
+    const query = debouncedSearchTerm.toLowerCase()
+    return cliente.toLowerCase().includes(query) ||
+      producto.toLowerCase().includes(query) ||
+      String(sale.id).includes(query)
+  }), [sales, debouncedSearchTerm])
 
   const totalRevenue = useMemo(() => sales.reduce((sum, s) => sum + (s.total_calculated ?? s.totalCalculated ?? s.totalPrice ?? 0), 0), [sales])
   const totalItems = useMemo(() => sales.reduce((sum, s) => sum + (s.quantity || 0), 0), [sales])
@@ -209,11 +218,33 @@ export default function VentasPage() {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                {loading ? (
-                  <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                    <Loader2 className="h-8 w-8 animate-spin mb-3" />
-                    <p className="text-sm">Cargando ventas...</p>
-                  </div>
+                {loading && sales.length === 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="w-[100px] text-muted-foreground">ID</TableHead>
+                        <TableHead className="min-w-[180px] text-muted-foreground">Cliente</TableHead>
+                        <TableHead className="min-w-[180px] text-muted-foreground">Producto</TableHead>
+                        <TableHead className="w-[100px] text-center text-muted-foreground">Cantidad</TableHead>
+                        <TableHead className="w-[120px] text-right text-muted-foreground">Total</TableHead>
+                        <TableHead className="w-[130px] text-center text-muted-foreground">Estado</TableHead>
+                        <TableHead className="w-[120px] text-right text-muted-foreground">Fecha</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <TableRow key={i} className="border-border">
+                          <TableCell><div className="h-6 w-20 animate-pulse rounded-full bg-muted/50" /></TableCell>
+                          <TableCell><div className="h-4 w-32 animate-pulse rounded-md bg-muted/50" /></TableCell>
+                          <TableCell><div className="h-4 w-36 animate-pulse rounded-md bg-muted/40" /></TableCell>
+                          <TableCell><div className="mx-auto h-4 w-8 animate-pulse rounded-md bg-muted/50" /></TableCell>
+                          <TableCell><div className="ml-auto h-4 w-16 animate-pulse rounded-md bg-muted/50" /></TableCell>
+                          <TableCell><div className="mx-auto h-5 w-20 animate-pulse rounded-full bg-muted/40" /></TableCell>
+                          <TableCell><div className="ml-auto h-4 w-20 animate-pulse rounded-md bg-muted/40" /></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 ) : filteredSales.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                     <ShoppingCart className="h-10 w-10 mb-3 opacity-50" />

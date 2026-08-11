@@ -44,6 +44,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getStoredUser, logout, updateStoredUser } from "@/lib/services/authService"
 import { fetchAdminProfile, getProfilePhotoUrl } from "@/lib/services/adminService"
 
+import { warmCache, CACHE_KEYS, CACHE_TTL } from "@/lib/api/apiCache"
+import { fetchSalesItems } from "@/lib/services/saleService"
+import { fetchClientsSummary } from "@/lib/services/clientService"
+import { fetchAllProducts } from "@/lib/services/productService"
+import { fetchDashboardData } from "@/lib/services/adminService"
+
 const navItems = [
   {
     title: "Dashboard",
@@ -73,6 +79,25 @@ export function AppSidebar() {
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const { notifications, unreadCount, markAllAsRead, clearAll, markAsRead } = useNotifications()
+
+  const handleLinkHover = useCallback((href: string) => {
+    // 1. Next.js router prefetch
+    router.prefetch(href)
+
+    // 2. Pre-warm API cache
+    const userData = getStoredUser("admin")
+    const adminId = userData?.id
+
+    if (href === "/") {
+      warmCache(CACHE_KEYS.DASHBOARD, () => fetchDashboardData(), CACHE_TTL.DASHBOARD)
+    } else if (href === "/inventario") {
+      warmCache(CACHE_KEYS.PRODUCTOS(50), () => fetchAllProducts(50), CACHE_TTL.PRODUCTOS)
+    } else if (href === "/ventas" && adminId) {
+      warmCache(CACHE_KEYS.VENTAS(50), () => fetchSalesItems(adminId, 50), CACHE_TTL.VENTAS)
+    } else if (href === "/clientes" && adminId) {
+      warmCache(CACHE_KEYS.CLIENTES(adminId), () => fetchClientsSummary(adminId), CACHE_TTL.CLIENTES)
+    }
+  }, [router])
   // Leer datos del usuario desde localStorage
   const [businessName, setBusinessName] = useState("Mi Negocio")
   const [fullName, setFullName] = useState("Administrador")
@@ -169,7 +194,7 @@ export function AppSidebar() {
                     isActive={pathname === item.href}
                     tooltip={item.title}
                   >
-                    <Link href={item.href}>
+                    <Link href={item.href} onMouseEnter={() => handleLinkHover(item.href)}>
                       <item.icon className="size-4" />
                       <span>{item.title}</span>
                     </Link>

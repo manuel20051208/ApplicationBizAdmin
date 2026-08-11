@@ -102,9 +102,13 @@ type StorePreviewPayload = {
   images: ProductImage[]
 }
 
+import { useDebounce } from "@/hooks/use-debounce"
+import { cachedFetch, invalidateCacheByPrefix, CACHE_KEYS, CACHE_TTL } from "@/lib/api/apiCache"
+
 export default function InventarioPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [searchTerm, setSearchTerm] = useState("")
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [newProduct, setNewProduct] = useState({ name: "", price: "", stock: "", category: "", description: "" })
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -172,7 +176,11 @@ export default function InventarioPage() {
   const loadProducts = useCallback(async () => {
     try {
       setLoading(true)
-      const data = await fetchAllProducts(sizeLimit)
+      const data = await cachedFetch(
+        CACHE_KEYS.PRODUCTOS(sizeLimit),
+        () => fetchAllProducts(sizeLimit),
+        CACHE_TTL.PRODUCTOS
+      )
       setProducts(data.map((p: any) => ({ ...p, images: p.images || [] })))
     } catch (err) {
       import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
@@ -189,17 +197,16 @@ export default function InventarioPage() {
   }, [loadProducts])
 
   const filteredProducts = useMemo(() => products.filter(product => {
-    // Filtrar productos inactivos (eliminados lógicamente)
     if (product.active === false) return false
 
-    const t = searchTerm.toLowerCase()
+    const t = debouncedSearchTerm.toLowerCase()
     const desc = (product.description ?? "").toLowerCase()
     return (
       product.name.toLowerCase().includes(t) ||
       product.category.toLowerCase().includes(t) ||
       desc.includes(t)
     )
-  }), [products, searchTerm])
+  }), [products, debouncedSearchTerm])
 
   const handleAddProduct = async () => {
     if (!checkProfileOrWarn()) return
@@ -215,9 +222,9 @@ export default function InventarioPage() {
         })
         setNewProduct({ name: "", price: "", stock: "", category: "", description: "" })
         setIsDialogOpen(false)
-        await loadProducts() // Recargar la lista
+        invalidateCacheByPrefix("productos")
+        await loadProducts()
 
-        // Abrir automáticamente el modal de edición para permitir agregar imágenes
         handleOpenEdit(savedProduct)
       } catch (err) {
         console.error("Error al guardar:", err)
@@ -231,18 +238,17 @@ export default function InventarioPage() {
     try {
       await deactivateProduct(deletingProduct.id)
       setDeletingProduct(null)
-      await loadProducts() // Recargar la lista
+      invalidateCacheByPrefix("productos")
+      await loadProducts()
     } catch (err) {
       console.error("Error al desactivar:", err)
       toast.error("Error al desactivar el producto")
     }
   }
 
-  // Abrir modal de edición con los datos del producto
   const handleOpenEdit = async (product: Product) => {
     setEditingProduct({ ...product, images: [] })
     setIsEditDialogOpen(true)
-    // Cargar imágenes del producto desde la API
     try {
       const images = await fetchProductImages(product.id)
       setEditingProduct(prev => prev ? { ...prev, images } : null)
@@ -251,7 +257,6 @@ export default function InventarioPage() {
     }
   }
 
-  // Guardar cambios del modal de edición
   const handleSaveEdit = async () => {
     if (editingProduct) {
       try {
@@ -264,7 +269,8 @@ export default function InventarioPage() {
         })
         setIsEditDialogOpen(false)
         setEditingProduct(null)
-        await loadProducts() // Recargar la lista
+        invalidateCacheByPrefix("productos")
+        await loadProducts()
       } catch (err) {
         console.error("Error al actualizar:", err)
         toast.error("Error al actualizar el producto")
@@ -551,7 +557,18 @@ export default function InventarioPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredProducts.map((product) => (
+                    {loading && products.length === 0 ? (
+                      Array.from({ length: 6 }).map((_, i) => (
+                        <TableRow key={i} className="border-border">
+                          <TableCell><div className="h-6 w-20 animate-pulse rounded-full bg-muted/50" /></TableCell>
+                          <TableCell><div className="h-4 w-36 animate-pulse rounded-md bg-muted/50" /></TableCell>
+                          <TableCell><div className="h-5 w-24 animate-pulse rounded-full bg-muted/40" /></TableCell>
+                          <TableCell><div className="ml-auto h-4 w-16 animate-pulse rounded-md bg-muted/50" /></TableCell>
+                          <TableCell><div className="mx-auto h-5 w-12 animate-pulse rounded-full bg-muted/40" /></TableCell>
+                          <TableCell><div className="mx-auto h-8 w-20 animate-pulse rounded-md bg-muted/40" /></TableCell>
+                        </TableRow>
+                      ))
+                    ) : filteredProducts.map((product) => (
                       <TableRow key={product.id} className="border-border">
                         <TableCell>
                           <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold font-mono text-primary">
