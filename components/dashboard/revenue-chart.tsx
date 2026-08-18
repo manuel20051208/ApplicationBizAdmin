@@ -19,17 +19,17 @@ interface RevenueChartProps {
 
 export function RevenueChart({ data, loading }: RevenueChartProps) {
   return (
-    <Card className="border-border/50 bg-card">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-foreground">
+    <Card className="mx-auto min-w-0 w-full max-w-full overflow-hidden border-white/20 bg-card/60 backdrop-blur-md">
+      <CardHeader className="px-3 pb-2 sm:px-6 sm:pb-6">
+        <CardTitle className="text-base font-semibold text-foreground sm:text-lg">
           Resumen de Ingresos
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs sm:text-sm">
           Ingresos mensuales por mes
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="h-[300px] w-full">
+      <CardContent className="min-w-0 px-3 pb-4 sm:px-6 sm:pb-6">
+        <div className="h-[160px] min-w-0 w-full sm:h-[300px]">
           {loading ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               Cargando gráfica...
@@ -39,10 +39,10 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
               Sin datos de ingresos
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <AreaChart
                 data={data}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                margin={{ top: 8, right: 4, left: 0, bottom: 0 }}
               >
                 <defs>
                   <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
@@ -59,12 +59,14 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
                   dataKey="month" 
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "oklch(0.65 0 0)", fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  tick={{ fill: "oklch(0.65 0 0)", fontSize: 10 }}
                 />
                 <YAxis 
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "oklch(0.65 0 0)", fontSize: 12 }}
+                  width={42}
+                  tick={{ fill: "oklch(0.65 0 0)", fontSize: 10 }}
                   tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                 />
                 <Tooltip

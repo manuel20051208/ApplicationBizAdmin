@@ -20,9 +20,26 @@ export interface Product {
   stock: number;
   category: string;
   description?: string | null;
+  /** Campos opcionales para publicaciones futuras: producto nuevo, usado o servicio. */
+  listingType?: string | null;
+  productType?: string | null;
+  condition?: string | null;
+  type?: string | null;
   active?: boolean;
   userAdminId?: number | null;
   images?: ProductImage[];
+}
+
+/** Normaliza productos provenientes de endpoints antiguos o de caché local. */
+export function normalizeProduct(product: Product): Product {
+  return {
+    ...product,
+    name: product.name || "Producto sin nombre",
+    price: Number(product.price) || 0,
+    stock: Number(product.stock) || 0,
+    category: product.category || "General",
+    images: Array.isArray(product.images) ? product.images : [],
+  };
 }
 
 export interface PageResponse<T> {
@@ -158,18 +175,21 @@ function toProxiedUploadPath(pathOrUrl: string): string {
   return pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
 }
 
-export function getImageUrl(imageOrPath: ProductImage | string): string {
+export function getImageUrl(imageOrPath: ProductImage | string, width?: number): string {
   if (!imageOrPath) return "";
 
   if (typeof imageOrPath === 'object') {
     if (imageOrPath.url) {
-      return optimizeCloudinaryUrl(resolveMediaUrl(imageOrPath.url));
+      return optimizeCloudinaryUrl(resolveMediaUrl(imageOrPath.url), { width });
     }
     return getImageUrl(imageOrPath.filePath ?? "");
   }
 
   const filePath = toProxiedUploadPath(imageOrPath);
   if (!filePath) return "";
-  if (/^https?:\/\//i.test(filePath)) return optimizeCloudinaryUrl(toHttps(filePath));
-  return optimizeCloudinaryUrl(resolveMediaUrl(filePath.startsWith("/") ? filePath : `/uploads/${filePath}`));
+  if (/^https?:\/\//i.test(filePath)) return optimizeCloudinaryUrl(toHttps(filePath), { width });
+  return optimizeCloudinaryUrl(
+    resolveMediaUrl(filePath.startsWith("/") ? filePath : `/uploads/${filePath}`),
+    { width },
+  );
 }

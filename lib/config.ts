@@ -40,6 +40,23 @@ export function toHttps(url: string): string {
 }
 
 /**
+ * Normaliza fotos entregadas por Google OAuth.
+ * Google sirve avatares desde dominios HTTPS; nunca debemos guardar o renderizar
+ * una variante HTTP porque el navegador la bloquea cuando la app usa HTTPS.
+ */
+export function normalizeGooglePhotoUrl(url?: string | null): string {
+  if (!url) return "";
+  const value = url.trim();
+  if (!value) return "";
+
+  if (/^http:\/\/(?:[^/]+\.)?(googleusercontent\.com|googleapis\.com|gstatic\.com|google\.com)\//i.test(value)) {
+    return `https://${value.slice("http://".length)}`;
+  }
+
+  return toHttps(value);
+}
+
+/**
  * Resuelve la URL de un medio (imagen de producto o foto de perfil).
  * - URLs absolutas (http/https/data/blob) se devuelven tal cual (con https si aplica).
  * - Rutas relativas: si hay API_BASE_URL se antepone; si no se dejan relativas

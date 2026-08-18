@@ -1,9 +1,15 @@
 import { getStoredUser } from "@/lib/services/authService"
 
+export const FREE_SHIPPING_THRESHOLD = 99
+export const SHIPPING_FEE = 9.99
+
 export interface CartItem {
   productId: number
   quantity: number
 }
+
+const FAVORITES_SUFFIX = "favorites"
+const PRODUCTS_CACHE_SUFFIX = "products-cache"
 
 export interface LinkedCard {
   id?: number
@@ -29,6 +35,46 @@ function scopedKey(suffix: string): string | null {
   const userKey = getUserStorageKey()
   if (!userKey) return null
   return `biz-portal-${suffix}-${userKey}`
+}
+
+export function getPortalFavorites(): number[] {
+  const key = scopedKey(FAVORITES_SUFFIX)
+  if (!key) return []
+  try {
+    const raw = localStorage.getItem(key)
+    const parsed = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed) ? parsed.map(Number).filter(Number.isFinite) : []
+  } catch {
+    return []
+  }
+}
+
+export function savePortalFavorites(productIds: number[]): void {
+  const key = scopedKey(FAVORITES_SUFFIX)
+  if (!key) return
+  localStorage.setItem(key, JSON.stringify(productIds))
+}
+
+export function getCachedProducts<T>(): T[] | null {
+  const key = scopedKey(PRODUCTS_CACHE_SUFFIX)
+  if (!key) return null
+  try {
+    const raw = localStorage.getItem(key)
+    const parsed = raw ? JSON.parse(raw) : null
+    return Array.isArray(parsed) ? parsed as T[] : null
+  } catch {
+    return null
+  }
+}
+
+export function saveCachedProducts<T>(products: T[]): void {
+  const key = scopedKey(PRODUCTS_CACHE_SUFFIX)
+  if (!key) return
+  try {
+    localStorage.setItem(key, JSON.stringify(products))
+  } catch {
+    // El catálogo es una optimización; no debe bloquear la tienda.
+  }
 }
 
 export function getPortalCart(): CartItem[] {

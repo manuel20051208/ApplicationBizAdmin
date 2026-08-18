@@ -28,9 +28,9 @@ export default async function DashboardPage({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="flex h-14 items-center gap-4 border-b border-border/50 bg-background px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="h-6" />
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-background px-3 sm:h-16 sm:px-4">
+            <SidebarTrigger className="-ml-1 hidden md:inline-flex" />
+            <Separator orientation="vertical" className="mr-2 hidden h-4 md:block" />
             
             <div className="flex-1" />
             

@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import {
-  Search, ShoppingCart, Heart,
+  Search, ShoppingCart, Heart, SlidersHorizontal,
   Package, Zap, Truck, Shield as ShieldIcon,
   Star, ImageIcon, Loader2, RefreshCw,
   Store, Phone, Mail, FileText, User
@@ -35,11 +36,34 @@ import { fetchStoreDescription, getProfilePhotoUrl, type StoreDescription } from
 import {
   getPortalCart,
   savePortalCart,
+  getPortalFavorites,
+  savePortalFavorites,
+  saveCachedProducts,
   type CartItem,
 } from "@/lib/portal-store"
 import { StoreCheckoutBar } from "@/components/portal/store-checkout-bar"
-import { GoogleCallbackClient } from "@/components/auth/GoogleCallbackClient"
 import { formatCurrency } from "@/lib/format"
+
+type PublicationType = "all" | "new" | "used" | "service"
+
+const publicationTypes: Array<{ id: PublicationType; label: string; description: string }> = [
+  { id: "all", label: "Todo", description: "Ver todas las publicaciones" },
+  { id: "new", label: "Producto nuevo", description: "Artículos nuevos" },
+  { id: "used", label: "Segunda mano", description: "Productos usados" },
+  { id: "service", label: "Servicio", description: "Servicios profesionales" },
+]
+
+function getPublicationType(product: Product): Exclude<PublicationType, "all"> {
+  const raw = [product.listingType, product.productType, product.condition, product.type]
+    .find(Boolean)
+    ?.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+
+  if (raw?.includes("serv")) return "service"
+  if (raw?.includes("used") || raw?.includes("segunda") || raw?.includes("usado")) return "used"
+  return "new"
+}
 
 // Producto con imágenes cargadas para la tienda
 interface StoreProduct extends Product {
@@ -66,24 +90,24 @@ async function mapWithConcurrency<T, R>(
 }
 
 export default function TiendaPage() {
-  return (
-    <GoogleCallbackClient>
-      <TiendaPageContent />
-    </GoogleCallbackClient>
-  )
+  return <TiendaPageContent />
 }
 
 function TiendaPageContent() {
 
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [selectedPublicationType, setSelectedPublicationType] = useState<PublicationType>("all")
+  const [sortBy, setSortBy] = useState("featured")
+  const [onlyAvailable, setOnlyAvailable] = useState(false)
   const [cart, setCart] = useState<CartItem[]>([])
-  const [favorites, setFavorites] = useState<number[]>([])
+  const [favorites, setFavorites] = useState<number[]>(() => getPortalFavorites())
   const [products, setProducts] = useState<StoreProduct[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null)
   const [storeInfo, setStoreInfo] = useState<StoreDescription | null>(null)
   const [detailCarouselApi, setDetailCarouselApi] = useState<CarouselApi | null>(null)
+  const router = useRouter()
 
   // Embla mide mal el ancho si el carrusel estaba oculto (diálogo cerrado); reInit al abrir
   useEffect(() => {
@@ -131,6 +155,7 @@ function TiendaPageContent() {
         imageLoading: true,
       }))
       setProducts(storeProducts)
+      saveCachedProducts(storeProducts)
 
       // Solo si el JSON no incluyó imágenes (endpoint legacy), pedirlas una por
       // una con un límite de concurrencia para no saturar el backend.
@@ -202,7 +227,7 @@ function TiendaPageContent() {
   // Filtrado optimizado
   const filteredProducts = React.useMemo(() => {
     const q = searchQuery.toLowerCase()
-    return products.filter(p => {
+    const result = products.filter(p => {
       // Filtrar productos inactivos (eliminados lógicamente)
       if (p.active === false) return false
 
@@ -214,14 +239,26 @@ function TiendaPageContent() {
       const matchesCategory =
         selectedCategory === "all" ||
         p.category.toLowerCase() === selectedCategory
-      return matchesSearch && matchesCategory
+      const matchesType =
+        selectedPublicationType === "all" || getPublicationType(p) === selectedPublicationType
+      const matchesAvailability = !onlyAvailable || p.stock > 0
+      return matchesSearch && matchesCategory && matchesType && matchesAvailability
     })
-  }, [products, searchQuery, selectedCategory])
+
+    return [...result].sort((a, b) => {
+      if (sortBy === "price-low") return a.price - b.price
+      if (sortBy === "price-high") return b.price - a.price
+      if (sortBy === "name") return a.name.localeCompare(b.name, "es")
+      return Number(b.stock > 0) - Number(a.stock > 0)
+    })
+  }, [products, searchQuery, selectedCategory, selectedPublicationType, onlyAvailable, sortBy])
 
   const toggleFavorite = (id: number) => {
-    setFavorites(prev =>
-      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-    )
+    setFavorites(prev => {
+      const next = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
+      savePortalFavorites(next)
+      return next
+    })
   }
 
   const getCartQuantity = (productId: number) =>
@@ -285,7 +322,7 @@ function TiendaPageContent() {
   return (
     <>
       {/* Hero / Search Section */}
-      <div className="mb-8 rounded-2xl p-8 relative overflow-hidden bg-card border border-border">
+      <div className="relative mb-6 overflow-hidden rounded-2xl border border-border bg-card p-4 sm:mb-8 sm:p-8">
         <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-primary to-transparent" />
         <div className="relative">
           <div className="mb-4">
@@ -312,7 +349,7 @@ function TiendaPageContent() {
       </div>
 
       {/* Trust Badges */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-5 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 sm:grid-cols-4">
         {[
           { icon: Truck, label: "Envío Gratis", sub: "En pedidos +$99" },
           { icon: ShieldIcon, label: "Compra Segura", sub: "100% protegido" },
@@ -349,6 +386,60 @@ function TiendaPageContent() {
         })}
       </div>
 
+      {/* Tipo de publicación y controles de catálogo */}
+      <div className="mb-6 rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <div className="mb-3 flex items-center gap-2">
+          <SlidersHorizontal className="size-4 text-primary" />
+          <h2 className="text-sm font-semibold text-foreground">¿Qué estás buscando?</h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {publicationTypes.map((type) => {
+            const isActive = selectedPublicationType === type.id
+            return (
+              <button
+                key={type.id}
+                type="button"
+                onClick={() => setSelectedPublicationType(type.id)}
+                className={`rounded-xl border px-4 py-3 text-left transition-all ${isActive
+                  ? "border-primary/40 bg-primary/10 text-primary shadow-sm"
+                  : "border-border bg-background text-muted-foreground hover:border-primary/30 hover:bg-muted/60 hover:text-foreground"
+                  }`}
+              >
+                <span className="block text-sm font-semibold">{type.label}</span>
+                <span className="mt-0.5 block text-[11px] opacity-80">{type.description}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <label htmlFor="catalog-sort" className="text-xs font-medium text-muted-foreground">
+              Ordenar por
+            </label>
+            <select
+              id="catalog-sort"
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value)}
+              className="h-9 rounded-lg border border-border bg-background px-3 text-xs font-medium text-foreground outline-none transition-colors focus:border-primary/50"
+            >
+              <option value="featured">Recomendados</option>
+              <option value="price-low">Precio: menor a mayor</option>
+              <option value="price-high">Precio: mayor a menor</option>
+              <option value="name">Nombre</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Switch id="only-available" checked={onlyAvailable} onCheckedChange={setOnlyAvailable} />
+            <Label htmlFor="only-available" className="cursor-pointer text-xs text-muted-foreground">
+              Solo disponibles
+            </Label>
+          </div>
+        </div>
+      </div>
+
       {/* Results count */}
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
@@ -363,6 +454,12 @@ function TiendaPageContent() {
           const cartQty = getCartQuantity(product.id)
           const inCart = cartQty > 0
           const inStock = product.stock > 0
+          const publicationType = getPublicationType(product)
+          const publicationLabel = publicationType === "service"
+            ? "Servicio"
+            : publicationType === "used"
+              ? "Segunda mano"
+              : "Producto nuevo"
           const sortedImages = product.loadedImages.length > 0
             ? [...product.loadedImages].sort((a, b) => a.displayOrder - b.displayOrder)
             : []
@@ -370,7 +467,7 @@ function TiendaPageContent() {
           return (
             <Card
               key={product.id}
-              onClick={() => setSelectedProduct(product)}
+              onClick={() => router.push(`/portal/producto/${product.id}`)}
               className="group relative overflow-hidden border border-border bg-card transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:border-primary/30 cursor-pointer"
             >
               {/* Low stock badge */}
@@ -446,9 +543,12 @@ function TiendaPageContent() {
                 </div>
 
                 {/* Category */}
-                <p className="text-[11px] font-medium mb-1 text-primary">
-                  {product.category}
-                </p>
+                <div className="mb-1 flex items-center gap-2">
+                  <p className="text-[11px] font-medium text-primary">{product.category}</p>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                    {publicationLabel}
+                  </span>
+                </div>
 
                 {/* Product name */}
                 <h3 className="text-sm font-semibold text-foreground leading-tight mb-1 line-clamp-2">

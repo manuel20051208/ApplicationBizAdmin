@@ -46,7 +46,7 @@ function getStatusClass(status: string): string {
 
 export function RecentSalesTable({ sales, loading, totalElements }: RecentSalesTableProps) {
   return (
-    <Card className="border-border/50 bg-card">
+    <Card className="border-white/20 bg-card/60 backdrop-blur-md">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-foreground">
           Ventas Recientes
@@ -57,7 +57,8 @@ export function RecentSalesTable({ sales, loading, totalElements }: RecentSalesT
             : "Últimas transacciones de tu negocio"}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-w-0 px-3 sm:px-6">
+        <div className="min-w-0 overflow-x-auto">
         {loading ? (
           <Table>
             <TableHeader>
@@ -140,6 +141,7 @@ export function RecentSalesTable({ sales, loading, totalElements }: RecentSalesT
             </TableBody>
           </Table>
         )}
+        </div>
       </CardContent>
     </Card>
   )

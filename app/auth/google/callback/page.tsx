@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { saveAuthSession } from "@/lib/auth/session"
-import { toHttps } from "@/lib/config"
+import { normalizeGooglePhotoUrl } from "@/lib/config"
 import { toast } from "sonner"
 
 /**
@@ -22,7 +22,7 @@ function GoogleCallbackContent() {
     const id          = params.get("id")
     const email       = params.get("email")
     const name        = params.get("name") ?? params.get("fullName") ?? ""
-    const photo       = toHttps(params.get("photo") ?? params.get("picture") ?? params.get("profilePhoto") ?? "")
+    const photo       = normalizeGooglePhotoUrl(params.get("photo") ?? params.get("picture") ?? params.get("profilePhoto") ?? "")
     const roleParam   = params.get("role")
     const accountType = params.get("accountType")
 

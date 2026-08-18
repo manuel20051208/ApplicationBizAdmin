@@ -13,7 +13,7 @@ interface StatCardProps {
 
 function StatCardSkeleton({ title, icon: Icon }: { title: string; icon: LucideIcon }) {
   return (
-    <Card className="border-border/50 bg-card">
+    <Card className="h-full min-h-[160px] gap-2 border-white/20 bg-card/60 py-3 backdrop-blur-md">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
@@ -22,7 +22,7 @@ function StatCardSkeleton({ title, icon: Icon }: { title: string; icon: LucideIc
           <Icon className="size-5 text-primary" />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-1 -translate-y-2 flex-col justify-center">
         <div className="h-9 w-28 animate-pulse rounded-md bg-muted/60" />
         <div className="mt-2 h-4 w-24 animate-pulse rounded-md bg-muted/40" />
       </CardContent>
@@ -36,7 +36,7 @@ export function StatCard({ title, value, change, changeType, icon: Icon, loading
   }
 
   return (
-    <Card className="border-border/50 bg-card">
+    <Card className="h-full min-h-[160px] gap-2 border-white/20 bg-card/60 py-3 backdrop-blur-md">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
@@ -45,7 +45,7 @@ export function StatCard({ title, value, change, changeType, icon: Icon, loading
           <Icon className="size-5 text-primary" />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-1 -translate-y-2 flex-col justify-center">
         <div className="text-3xl font-bold text-foreground animate-in fade-in-0 duration-500">{value}</div>
         <p className={cn(
           "text-sm mt-1 animate-in fade-in-0 duration-700",

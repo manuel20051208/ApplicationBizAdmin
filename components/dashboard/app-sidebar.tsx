@@ -38,7 +38,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getStoredUser, logout, updateStoredUser } from "@/lib/services/authService"
@@ -167,7 +166,8 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
+    <>
+      <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-lg bg-primary">
@@ -179,8 +179,6 @@ export function AppSidebar() {
           </div>
         </Link>
       </SidebarHeader>
-
-      <SidebarSeparator />
 
       <SidebarContent>
         <SidebarGroup>
@@ -205,8 +203,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarSeparator />
 
       <SidebarFooter className="p-4">
         <SidebarMenu>
@@ -308,11 +304,9 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        <SidebarSeparator className="my-2" />
-
         <Link href="/configuracion" className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center">
           <Avatar className="size-9">
-            <AvatarImage src={avatarUrl || "/avatar-placeholder.png"} alt={fullName} />
+            <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={fullName} />
             <AvatarFallback className="bg-primary/20 text-primary text-sm uppercase">
               {fullName.substring(0, 2)}
             </AvatarFallback>
@@ -323,7 +317,31 @@ export function AppSidebar() {
           </div>
         </Link>
       </SidebarFooter>
-    </Sidebar>
+      </Sidebar>
+
+      <nav
+        aria-label="Navegación principal móvil"
+        className="fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t border-white/10 bg-background/95 px-1 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl md:hidden"
+      >
+        {[...navItems, { title: "Configuración", icon: Settings, href: "/configuracion" }].map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.title}
+              href={item.href}
+              onMouseEnter={() => handleLinkHover(item.href)}
+              className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-[10px] font-medium transition-colors ${isActive
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              <item.icon className={`size-5 ${isActive ? "drop-shadow-[0_0_6px_hsl(var(--primary))]" : ""}`} />
+              <span className="max-w-full truncate">{item.title}</span>
+            </Link>
+          )
+        })}
+      </nav>
+    </>
   )
 }
 

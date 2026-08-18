@@ -430,9 +430,9 @@ export default function ConfiguracionPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border bg-card px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-background px-3 sm:h-16 sm:px-4">
+          <SidebarTrigger className="-ml-1 hidden md:inline-flex" />
+          <Separator orientation="vertical" className="mr-2 hidden h-4 md:block" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -442,7 +442,7 @@ export default function ConfiguracionPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-3 pb-24 sm:p-6 sm:pb-6">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-foreground">Configuración</h1>
             <p className="text-muted-foreground">Administra tu cuenta y preferencias</p>
@@ -461,7 +461,7 @@ export default function ConfiguracionPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-6">
+                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
                   <div className="relative h-24 w-24">
                     {profile.avatar ? (
                       <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-border">

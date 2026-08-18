@@ -15,6 +15,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -36,6 +37,20 @@ interface Customer {
   totalPurchases: number
   totalSpent: number
   lastPurchase: string
+}
+
+function ClientMetricSkeleton() {
+  return (
+    <Card>
+      <CardContent className="flex items-center gap-4 p-6">
+        <Skeleton className="h-12 w-12 rounded-xl bg-muted/70" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-28 bg-muted/60" />
+          <Skeleton className="h-7 w-20 bg-muted/60" />
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
 
 export default function ClientesPage() {
@@ -108,9 +123,9 @@ export default function ClientesPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border bg-card px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-background px-3 sm:h-16 sm:px-4">
+          <SidebarTrigger className="-ml-1 hidden md:inline-flex" />
+          <Separator orientation="vertical" className="mr-2 hidden h-4 md:block" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -120,46 +135,56 @@ export default function ClientesPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-3 pb-24 sm:p-6 sm:pb-6">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-foreground">Clientes</h1>
             <p className="text-muted-foreground">Gestiona la información de tus clientes</p>
           </div>
 
           <div className="mb-6 grid gap-4 sm:grid-cols-3">
-            <Card>
-              <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Clientes</p>
-                  <p className="text-2xl font-bold text-foreground">{totalCustomers}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-                  <ShoppingBag className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Ingresos Totales</p>
-                  <p className="text-2xl font-bold text-foreground">{formatCurrency(totalRevenue)}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-                  <Mail className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Promedio Compras</p>
-                  <p className="text-2xl font-bold text-foreground">{avgPurchases} / cliente</p>
-                </div>
-              </CardContent>
-            </Card>
+            {isLoading && customers.length === 0 ? (
+              <>
+                <ClientMetricSkeleton />
+                <ClientMetricSkeleton />
+                <ClientMetricSkeleton />
+              </>
+            ) : (
+              <>
+                <Card>
+                  <CardContent className="flex items-center gap-4 p-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
+                      <Users className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Clientes</p>
+                      <p className="text-2xl font-bold text-foreground">{totalCustomers}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="flex items-center gap-4 p-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
+                      <ShoppingBag className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Ingresos Totales</p>
+                      <p className="text-2xl font-bold text-foreground">{formatCurrency(totalRevenue)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="flex items-center gap-4 p-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
+                      <Mail className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Promedio Compras</p>
+                      <p className="text-2xl font-bold text-foreground">{avgPurchases} / cliente</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
 
           <Card>
@@ -198,14 +223,14 @@ export default function ClientesPage() {
                         <TableRow key={i} className="border-border">
                           <TableCell>
                             <div className="space-y-1">
-                              <div className="h-4 w-32 animate-pulse rounded-md bg-muted/50" />
-                              <div className="h-4 w-16 animate-pulse rounded-full bg-muted/40" />
+                              <Skeleton className="h-4 w-32 bg-muted/60" />
+                              <Skeleton className="h-4 w-16 rounded-full bg-muted/50" />
                             </div>
                           </TableCell>
-                          <TableCell><div className="h-4 w-40 animate-pulse rounded-md bg-muted/40" /></TableCell>
-                          <TableCell><div className="mx-auto h-5 w-12 animate-pulse rounded-full bg-muted/50" /></TableCell>
-                          <TableCell><div className="ml-auto h-4 w-20 animate-pulse rounded-md bg-muted/50" /></TableCell>
-                          <TableCell><div className="h-4 w-24 animate-pulse rounded-md bg-muted/40" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-40 bg-muted/50" /></TableCell>
+                          <TableCell><Skeleton className="mx-auto h-5 w-12 rounded-full bg-muted/50" /></TableCell>
+                          <TableCell><Skeleton className="ml-auto h-4 w-20 bg-muted/50" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-24 bg-muted/40" /></TableCell>
                         </TableRow>
                       ))
                     ) : filteredCustomers.length === 0 ? (

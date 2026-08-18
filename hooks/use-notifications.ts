@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { getStoredUser } from "@/lib/auth/session"
-import { backendUrl } from "@/lib/config"
+import { API_BASE_URL, backendUrl } from "@/lib/config"
 
 export interface Notification {
   id: string
@@ -82,9 +82,15 @@ export function useNotifications() {
       }
 
       try {
-        const url = backendUrl("/api/notification/stream")
+        // En desarrollo/local usamos el proxy de Next para evitar CORS, mixed
+        // content y el problema de que `localhost` en un teléfono apunta al
+        // propio teléfono, no al equipo donde corre el backend.
+        const url = API_BASE_URL
+          ? backendUrl("/api/notification/stream")
+          : "/api/notification/stream"
         const response = await fetch(url, {
           signal: controller.signal,
+          cache: "no-store",
           headers: {
             "Authorization": `Bearer ${user.token}`,
             "Accept": "text/event-stream",

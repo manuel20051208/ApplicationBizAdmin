@@ -350,9 +350,9 @@ export default function InventarioPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border bg-card px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-background px-3 sm:h-16 sm:px-4">
+          <SidebarTrigger className="-ml-1 hidden md:inline-flex" />
+          <Separator orientation="vertical" className="mr-2 hidden h-4 md:block" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -362,7 +362,7 @@ export default function InventarioPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-3 pb-24 sm:p-6 sm:pb-6">
 
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -418,7 +418,7 @@ export default function InventarioPage() {
                         placeholder="Ej: Laptop HP Pavilion"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="grid gap-2">
                         <Label htmlFor="price">Precio <span className="text-destructive">*</span></Label>
                         <Input
@@ -658,7 +658,7 @@ export default function InventarioPage() {
                     placeholder="Nombre del producto"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
                     <Label htmlFor="edit-price">Precio (MXN) <span className="text-destructive">*</span></Label>
                     <Input
