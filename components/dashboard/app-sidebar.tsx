@@ -2,7 +2,7 @@
 
 // Agrega estos imports arriba
 import { Bell } from "lucide-react"
-import { useNotifications } from "@/hooks/use-notifications"
+import { useNotifications, type Notification } from "@/hooks/use-notifications"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,6 +71,96 @@ const navItems = [
     href: "/clientes",
   },
 ]
+
+function NotificationsDropdown({
+  notifications,
+  unreadCount,
+  markAllAsRead,
+  clearAll,
+  markAsRead,
+  mobile = false,
+}: {
+  notifications: Notification[]
+  unreadCount: number
+  markAllAsRead: () => void
+  clearAll: () => void
+  markAsRead: (id: string) => void
+  mobile?: boolean
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        {mobile ? (
+          <button
+            type="button"
+            aria-label="Abrir notificaciones"
+            className="relative flex size-10 items-center justify-center rounded-full border border-border bg-background/90 text-muted-foreground shadow-lg backdrop-blur-xl transition-colors hover:text-foreground"
+          >
+            <Bell className="size-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
+        ) : (
+          <SidebarMenuButton tooltip="Notificaciones" className="relative">
+            <div className="relative">
+              <Bell className="size-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </div>
+            <span>Notificaciones</span>
+          </SidebarMenuButton>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side={mobile ? "bottom" : "right"} align="end" className="w-[min(20rem,calc(100vw-1.5rem))]">
+        <DropdownMenuLabel className="flex items-center justify-between">
+          <span>Notificaciones</span>
+          {notifications.length > 0 && (
+            <button onClick={clearAll} className="text-xs text-muted-foreground hover:text-foreground">
+              Limpiar todo
+            </button>
+          )}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {notifications.length === 0 ? (
+          <div className="py-6 text-center text-sm text-muted-foreground">Sin notificaciones</div>
+        ) : (
+          notifications.map(n => (
+            <DropdownMenuItem
+              key={n.id}
+              onClick={() => markAsRead(n.id)}
+              className={`flex cursor-pointer flex-col items-start gap-1 px-3.5 py-3 transition-all duration-200 focus:bg-muted ${!n.leida ? "border-l-2 border-primary bg-primary/5" : "border-l-2 border-transparent"}`}
+            >
+              <div className="flex w-full items-center justify-between">
+                <span className={`text-xs font-semibold ${n.tipo === "VENTA_NUEVA" ? "text-primary" : n.tipo === "STOCK_BAJO" ? "text-yellow-500" : "text-blue-500"}`}>
+                  {n.tipo === "VENTA_NUEVA" ? "Venta nueva" : n.tipo === "STOCK_BAJO" ? "Stock bajo" : "Cliente nuevo"}
+                </span>
+                {!n.leida && <span className="h-2 w-2 animate-pulse rounded-full bg-destructive" />}
+              </div>
+              <span className="text-sm font-medium">{n.mensaje}</span>
+              <span className="text-xs text-muted-foreground">
+                {n.timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            </DropdownMenuItem>
+          ))
+        )}
+        {notifications.length > 0 && unreadCount > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={markAllAsRead} className="cursor-pointer justify-center text-xs text-muted-foreground hover:text-foreground">
+              Marcar todas como leídas
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -215,76 +305,7 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton tooltip="Notificaciones" className="relative">
-                  <div className="relative">
-                    <Bell className="size-4" />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
-                  </div>
-                  <span>Notificaciones</span>
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent side="right" align="end" className="w-80">
-                <DropdownMenuLabel className="flex items-center justify-between">
-                  <span>Notificaciones</span>
-                  {notifications.length > 0 && (
-                    <button
-                      onClick={clearAll}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      Limpiar todo
-                    </button>
-                  )}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {notifications.length === 0 ? (
-                  <div className="py-6 text-center text-sm text-muted-foreground">
-                    Sin notificaciones
-                  </div>
-                ) : (
-                  notifications.map(n => (
-                    <DropdownMenuItem
-                      key={n.id}
-                      onClick={() => markAsRead(n.id)}
-                      className={`flex flex-col items-start gap-1 py-3 px-3.5 cursor-pointer transition-all duration-200 focus:bg-muted ${!n.leida
-                          ? "bg-primary/5 border-l-2 border-primary"
-                          : "border-l-2 border-transparent"
-                        }`}
-                    >
-                      <div className="flex w-full items-center justify-between">
-                        <span className={`text-xs font-semibold ${n.tipo === "VENTA_NUEVA" ? "text-primary" :
-                            n.tipo === "STOCK_BAJO" ? "text-yellow-500" :
-                              "text-blue-500"
-                          }`}>
-                          {n.tipo === "VENTA_NUEVA" ? "Venta nueva" :
-                            n.tipo === "STOCK_BAJO" ? "Stock bajo" : "Cliente nuevo"}
-                        </span>
-                        {!n.leida && (
-                          <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-                        )}
-                      </div>
-                      <span className="text-sm font-medium">{n.mensaje}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {n.timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </DropdownMenuItem>
-                  ))
-                )}
-                {notifications.length > 0 && unreadCount > 0 && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={markAllAsRead} className="justify-center text-xs text-muted-foreground hover:text-foreground cursor-pointer">
-                      Marcar todas como leídas
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <NotificationsDropdown notifications={notifications} unreadCount={unreadCount} markAllAsRead={markAllAsRead} clearAll={clearAll} markAsRead={markAsRead} />
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Cerrar sesión" onClick={handleLogout}>
@@ -319,9 +340,21 @@ export function AppSidebar() {
       </SidebarFooter>
       </Sidebar>
 
+      <div className="fixed right-3 top-2 z-[60] flex items-center gap-2 md:hidden">
+        <button
+          type="button"
+          aria-label={resolvedTheme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+          className="flex size-10 items-center justify-center rounded-full border border-border bg-background/90 text-muted-foreground shadow-lg backdrop-blur-xl transition-colors hover:text-foreground"
+        >
+          {mounted && resolvedTheme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+        </button>
+        <NotificationsDropdown notifications={notifications} unreadCount={unreadCount} markAllAsRead={markAllAsRead} clearAll={clearAll} markAsRead={markAsRead} mobile />
+      </div>
+
       <nav
         aria-label="Navegación principal móvil"
-        className="fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t border-white/10 bg-background/95 px-1 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t border-border bg-background/95 px-1 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl md:hidden"
       >
         {[...navItems, { title: "Configuración", icon: Settings, href: "/configuracion" }].map((item) => {
           const isActive = pathname === item.href

@@ -123,10 +123,10 @@ export default function ClientesPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-background px-3 sm:h-16 sm:px-4">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-3 sm:h-16 sm:px-4">
           <SidebarTrigger className="-ml-1 hidden md:inline-flex" />
           <Separator orientation="vertical" className="mr-2 hidden h-4 md:block" />
-          <Breadcrumb>
+          <Breadcrumb className="hidden md:block">
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbPage>Clientes</BreadcrumbPage>

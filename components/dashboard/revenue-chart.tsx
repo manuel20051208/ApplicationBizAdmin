@@ -19,7 +19,7 @@ interface RevenueChartProps {
 
 export function RevenueChart({ data, loading }: RevenueChartProps) {
   return (
-    <Card className="mx-auto min-w-0 w-full max-w-full overflow-hidden border-white/20 bg-card/60 backdrop-blur-md">
+    <Card className="mx-auto min-w-0 w-full max-w-full overflow-hidden border-border bg-card/60 backdrop-blur-md">
       <CardHeader className="px-3 pb-2 sm:px-6 sm:pb-6">
         <CardTitle className="text-base font-semibold text-foreground sm:text-lg">
           Resumen de Ingresos

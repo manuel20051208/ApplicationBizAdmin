@@ -29,7 +29,7 @@ const RevenueChart = dynamic(
 
 function RevenueChartSkeleton() {
   return (
-    <Card className="h-full min-h-[160px] border-white/20 bg-card/60 py-4 backdrop-blur-md">
+    <Card className="h-full min-h-[160px] border-border bg-card/60 py-4 backdrop-blur-md">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-foreground">
           Resumen de Ingresos
@@ -54,7 +54,7 @@ interface TopSeller {
 
 function TopSellersCard({ sellers, loading }: { sellers: TopSeller[]; loading: boolean }) {
   return (
-    <Card className="border-white/20 bg-card/60 backdrop-blur-md">
+    <Card className="border-border bg-card/60 backdrop-blur-md">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
           <Trophy className="size-5 text-amber-400" />
@@ -274,7 +274,7 @@ export function DashboardContent() {
             onClick={handleExportPdf}
             disabled={exportingPdf}
             variant="outline"
-            className="h-9 flex-1 gap-2 border-white/20 bg-card/60 px-3 text-xs backdrop-blur-md transition-all hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400 hover:shadow-[0_0_18px_rgba(239,68,68,0.18)] sm:flex-none"
+            className="h-9 flex-1 gap-2 border-border bg-card/60 px-3 text-xs backdrop-blur-md transition-all hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400 hover:shadow-[0_0_18px_rgba(239,68,68,0.18)] sm:flex-none"
           >
             <FileText className="h-4 w-4 text-red-500" />
             {exportingPdf ? "Exportando..." : "Exportar PDF"}
@@ -283,7 +283,7 @@ export function DashboardContent() {
             onClick={handleExportExcel}
             disabled={exporting}
             variant="outline"
-            className="h-9 flex-1 gap-2 border-white/20 bg-card/60 px-3 text-xs backdrop-blur-md transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-400 hover:shadow-[0_0_18px_rgba(16,185,129,0.18)] sm:flex-none"
+            className="h-9 flex-1 gap-2 border-border bg-card/60 px-3 text-xs backdrop-blur-md transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-400 hover:shadow-[0_0_18px_rgba(16,185,129,0.18)] sm:flex-none"
           >
             <Download className="h-4 w-4 text-emerald-500" />
             {exporting ? "Exportando..." : "Exportar Excel"}

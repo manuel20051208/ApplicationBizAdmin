@@ -105,7 +105,7 @@ export async function fetchStoreDescription(adminId: number): Promise<StoreDescr
 }
 
 export async function updateAdminProfile(profile: AdminProfile): Promise<AdminProfile> {
-  const res = await fetchClient(`api/user/modify`, {
+  const res = await fetchClient(`api/user/${profile.id}/modify`, {
     method: "PATCH",
     body: JSON.stringify(profile)
   });
@@ -125,7 +125,7 @@ export async function updateProfilePhotoUrl(photoUrl: string): Promise<AdminProf
   // Traemos el perfil actual para hacer un PATCH parcial sin pisar otros campos
   const current = await fetchAdminProfile();
 
-  const res = await fetchClient(`api/user/modify`, {
+  const res = await fetchClient(`api/user/${user.id}/modify`, {
     method: "PATCH",
     body: JSON.stringify({
       ...current,
@@ -135,6 +135,25 @@ export async function updateProfilePhotoUrl(photoUrl: string): Promise<AdminProf
   });
 
   if (!res.ok) throw new Error("Error al actualizar la foto de perfil");
+  return res.json();
+}
+
+/** Sube la foto de perfil al backend; el backend se encarga de Cloudinary. */
+export async function uploadProfilePhoto(file: File): Promise<AdminProfile> {
+  const formData = new FormData();
+  formData.append("profilePhoto", file);
+
+  const res = await fetchClient("api/user/upload-profile", {
+    method: "PATCH",
+    body: formData,
+    requireAuth: true,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null);
+    throw new Error(errorData?.message || "Error al subir la foto de perfil");
+  }
+
   return res.json();
 }
 

@@ -54,7 +54,7 @@ import {
 } from "lucide-react"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { getStoredUser, updateStoredUser } from "@/lib/services/authService"
-import { fetchAdminProfile, updateAdminProfile, updateProfilePhotoUrl, getProfilePhotoUrl } from "@/lib/services/adminService"
+import { fetchAdminProfile, updateAdminProfile, updateProfilePhotoUrl, uploadProfilePhoto, getProfilePhotoUrl } from "@/lib/services/adminService"
 import { optimizeCloudinaryUrl } from "@/lib/config"
 
 interface UserProfile {
@@ -335,14 +335,26 @@ export default function ConfiguracionPage() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreviewImage(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecciona un archivo de imagen válido")
+      e.target.value = ""
+      return
     }
+
+    // Las fotos tomadas con el teléfono pueden ser muy pesadas y provocar que
+    // el navegador cancele la petición antes de llegar a Cloudinary.
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("La imagen debe pesar menos de 10 MB")
+      e.target.value = ""
+      return
+    }
+
+    setSelectedFile(file)
+    const reader = new FileReader()
+    reader.onloadend = () => setPreviewImage(reader.result as string)
+    reader.readAsDataURL(file)
   }
 
   const handleSaveAvatar = async () => {
@@ -359,11 +371,13 @@ export default function ConfiguracionPage() {
 
     try {
       setIsSavingAvatar(true)
-      const { uploadToCloudinary } = await import("@/lib/services/cloudinaryService")
-      const cloudinaryUrl = await uploadToCloudinary(selectedFile)
+      const updated = await uploadProfilePhoto(selectedFile)
+      // UserResponseDTO devuelve la URL en `photo`.
+      const savedPhoto = updated.photo || updated.profilePhotoUrl || updated.profilePhoto || ""
 
-      const updated = await updateProfilePhotoUrl(cloudinaryUrl)
-      const savedPhoto = updated.profilePhotoUrl || updated.profilePhoto || cloudinaryUrl
+      if (!savedPhoto) {
+        throw new Error("El backend no devolvió la URL de la foto subida")
+      }
 
       setProfile(prev => ({ ...prev, avatar: savedPhoto }))
       updateStoredUser({
@@ -430,10 +444,10 @@ export default function ConfiguracionPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-background px-3 sm:h-16 sm:px-4">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-3 sm:h-16 sm:px-4">
           <SidebarTrigger className="-ml-1 hidden md:inline-flex" />
           <Separator orientation="vertical" className="mr-2 hidden h-4 md:block" />
-          <Breadcrumb>
+          <Breadcrumb className="hidden md:block">
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbPage>Configuración</BreadcrumbPage>
@@ -516,7 +530,7 @@ export default function ConfiguracionPage() {
                           <input
                             ref={fileInputRef}
                             type="file"
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                             className="hidden"
                             onChange={handleImageUpload}
                           />

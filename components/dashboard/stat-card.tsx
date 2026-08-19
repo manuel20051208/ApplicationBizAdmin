@@ -13,7 +13,7 @@ interface StatCardProps {
 
 function StatCardSkeleton({ title, icon: Icon }: { title: string; icon: LucideIcon }) {
   return (
-    <Card className="h-full min-h-[160px] gap-2 border-white/20 bg-card/60 py-3 backdrop-blur-md">
+    <Card className="h-full min-h-[160px] gap-2 border-border bg-card/60 py-3 backdrop-blur-md">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
@@ -36,7 +36,7 @@ export function StatCard({ title, value, change, changeType, icon: Icon, loading
   }
 
   return (
-    <Card className="h-full min-h-[160px] gap-2 border-white/20 bg-card/60 py-3 backdrop-blur-md">
+    <Card className="h-full min-h-[160px] gap-2 border-border bg-card/60 py-3 backdrop-blur-md">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}

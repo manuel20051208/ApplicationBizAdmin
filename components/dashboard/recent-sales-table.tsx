@@ -46,7 +46,7 @@ function getStatusClass(status: string): string {
 
 export function RecentSalesTable({ sales, loading, totalElements }: RecentSalesTableProps) {
   return (
-    <Card className="border-white/20 bg-card/60 backdrop-blur-md">
+    <Card className="border-border bg-card/60 backdrop-blur-md">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-foreground">
           Ventas Recientes
