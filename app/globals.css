@@ -4,74 +4,74 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.15 0.005 260);
+  --background: oklch(0.97 0 0);
+  --foreground: oklch(0.12 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.005 260);
+  --card-foreground: oklch(0.12 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.005 260);
-  --primary: oklch(0.55 0.18 165);
+  --popover-foreground: oklch(0.12 0 0);
+  --primary: oklch(0.22 0 0);
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.95 0.005 260);
-  --secondary-foreground: oklch(0.15 0.005 260);
-  --muted: oklch(0.95 0.005 260);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.55 0.18 165);
+  --secondary: oklch(0.90 0 0);
+  --secondary-foreground: oklch(0.12 0 0);
+  --muted: oklch(0.93 0 0);
+  --muted-foreground: oklch(0.42 0 0);
+  --accent: oklch(0.35 0 0);
   --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.55 0.2 25);
+  --destructive: oklch(0.30 0 0);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.90 0.005 260);
-  --input: oklch(0.95 0.005 260);
-  --ring: oklch(0.55 0.18 165);
-  --chart-1: oklch(0.55 0.18 165);
-  --chart-2: oklch(0.55 0.15 250);
-  --chart-3: oklch(0.60 0.18 50);
-  --chart-4: oklch(0.50 0.20 310);
-  --chart-5: oklch(0.55 0.15 200);
+  --border: oklch(0.82 0 0);
+  --input: oklch(0.94 0 0);
+  --ring: oklch(0.30 0 0);
+  --chart-1: oklch(0.20 0 0);
+  --chart-2: oklch(0.38 0 0);
+  --chart-3: oklch(0.52 0 0);
+  --chart-4: oklch(0.66 0 0);
+  --chart-5: oklch(0.78 0 0);
   --radius: 0.75rem;
-  --sidebar: oklch(0.97 0.005 260);
-  --sidebar-foreground: oklch(0.15 0.005 260);
-  --sidebar-primary: oklch(0.55 0.18 165);
+  --sidebar: oklch(0.94 0 0);
+  --sidebar-foreground: oklch(0.12 0 0);
+  --sidebar-primary: oklch(0.22 0 0);
   --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.93 0.005 260);
-  --sidebar-accent-foreground: oklch(0.15 0.005 260);
-  --sidebar-border: oklch(0.90 0.005 260);
-  --sidebar-ring: oklch(0.55 0.18 165);
+  --sidebar-accent: oklch(0.86 0 0);
+  --sidebar-accent-foreground: oklch(0.12 0 0);
+  --sidebar-border: oklch(0.82 0 0);
+  --sidebar-ring: oklch(0.30 0 0);
 }
 
 .dark {
-  --background: oklch(0.13 0.005 260);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.17 0.005 260);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.17 0.005 260);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.75 0.18 165);
-  --primary-foreground: oklch(0.13 0.005 260);
-  --secondary: oklch(0.22 0.005 260);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.22 0.005 260);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.75 0.18 165);
-  --accent-foreground: oklch(0.13 0.005 260);
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.28 0.005 260);
-  --input: oklch(0.22 0.005 260);
-  --ring: oklch(0.75 0.18 165);
-  --chart-1: oklch(0.75 0.18 165);
-  --chart-2: oklch(0.65 0.15 250);
-  --chart-3: oklch(0.70 0.18 50);
-  --chart-4: oklch(0.60 0.20 310);
-  --chart-5: oklch(0.65 0.15 200);
-  --sidebar: oklch(0.10 0.005 260);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.75 0.18 165);
-  --sidebar-primary-foreground: oklch(0.13 0.005 260);
-  --sidebar-accent: oklch(0.18 0.005 260);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.25 0.005 260);
-  --sidebar-ring: oklch(0.75 0.18 165);
+  --background: oklch(0.10 0 0);
+  --foreground: oklch(0.99 0 0);
+  --card: oklch(0.15 0 0);
+  --card-foreground: oklch(0.99 0 0);
+  --popover: oklch(0.15 0 0);
+  --popover-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.92 0 0);
+  --primary-foreground: oklch(0.10 0 0);
+  --secondary: oklch(0.23 0 0);
+  --secondary-foreground: oklch(0.99 0 0);
+  --muted: oklch(0.20 0 0);
+  --muted-foreground: oklch(0.78 0 0);
+  --accent: oklch(0.78 0 0);
+  --accent-foreground: oklch(0.10 0 0);
+  --destructive: oklch(0.70 0 0);
+  --destructive-foreground: oklch(0.10 0 0);
+  --border: oklch(0.30 0 0);
+  --input: oklch(0.20 0 0);
+  --ring: oklch(0.85 0 0);
+  --chart-1: oklch(0.95 0 0);
+  --chart-2: oklch(0.78 0 0);
+  --chart-3: oklch(0.62 0 0);
+  --chart-4: oklch(0.46 0 0);
+  --chart-5: oklch(0.32 0 0);
+  --sidebar: oklch(0.07 0 0);
+  --sidebar-foreground: oklch(0.99 0 0);
+  --sidebar-primary: oklch(0.92 0 0);
+  --sidebar-primary-foreground: oklch(0.10 0 0);
+  --sidebar-accent: oklch(0.18 0 0);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(0.24 0 0);
+  --sidebar-ring: oklch(0.85 0 0);
 }
 
 @theme inline {
@@ -121,5 +121,337 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Badge bump del carrito (fly-to-cart) */
+@utility animate-pop {
+  animation: pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.45);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ── Sileo: los toasts siguen el tema de la app (oscuro/claro) ──
+   El fondo del toast lo dibuja un <rect> SVG con el atributo `fill`
+   (presentation attribute, prioridad más baja que el CSS). Lo
+   forzamos a --card para que sea oscuro en modo dark y claro en light,
+   y le damos borde con el color --border de la app. */
+/* ── Sileo: los toasts siguen el tema de la app (oscuro/claro) ──
+   El fondo del toast lo dibujan <rect> SVG (presentation attributes, prioridad
+   más baja que el CSS), así que forzamos --card para que sea oscuro en modo
+   dark y claro en light. El borde NO se pinta sobre los rect (el filtro gooey
+   lo emborrona): se dibuja nítido con un pseudo-elemento sobre la pastilla,
+   usando las variables --_px/--_pw/--_h que sileo expone en el contenedor. */
+[data-sileo-viewport] [data-sileo-pill],
+[data-sileo-viewport] [data-sileo-body] {
+  fill: var(--card) !important;
+}
+
+[data-sileo-viewport] [data-sileo-title],
+[data-sileo-viewport] [data-sileo-description] {
+  color: var(--card-foreground) !important;
+}
+
+[data-sileo-viewport] [data-sileo-description] {
+  color: var(--muted-foreground) !important;
+}
+
+[data-sileo-viewport] [data-sileo-button] {
+  --sileo-btn-color: var(--primary) !important;
+  --sileo-btn-bg: color-mix(in oklch, var(--primary) 15%, transparent) !important;
+  --sileo-btn-bg-hover: color-mix(in oklch, var(--primary) 25%, transparent) !important;
+}
+
+/* Borde nítido de la pastilla (colapsada) */
+[data-sileo-toast]::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: var(--_px);
+  width: var(--_pw);
+  height: 40px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+/* Cuerpo expandido (descripción/acción) */
+[data-sileo-toast]::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 40px;
+  width: var(--sileo-width);
+  height: calc(var(--_h) - 40px);
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  pointer-events: none;
+}
+
+[data-sileo-toast]:not([data-expanded="true"])::before {
+  display: none;
+}
+
+[data-sileo-toast][data-expanded="true"]::after {
+  border-radius: 16px 16px 0 0;
+  /* El cuerpo expandido continúa debajo; evita la línea divisoria del diseño original. */
+  border-bottom-color: transparent;
+}
+
+/* Sombra suave para despegar el toast del fondo (fuera del filtro gooey) */
+[data-sileo-viewport] [data-sileo-toast] {
+  --sileo-accent: var(--foreground);
+  /* El filtro sigue la silueta SVG completa de Sileo: un solo contorno, sin
+     pseudo-elementos ni líneas internas. */
+  filter:
+    drop-shadow(0 0 1.5px color-mix(in oklch, var(--sileo-accent) 92%, transparent))
+    drop-shadow(0 0 7px color-mix(in oklch, var(--sileo-accent) 58%, transparent))
+    drop-shadow(0 4px 16px oklch(0 0 0 / 0.18));
+  transition: filter 240ms ease;
+}
+
+/* El color de estado aporta una firma visual sin cambiar el fondo del toast. */
+[data-sileo-viewport] [data-sileo-toast][data-state="success"] {
+  --sileo-accent: var(--foreground);
+}
+
+[data-sileo-viewport] [data-sileo-toast][data-state="info"] {
+  --sileo-accent: var(--foreground);
+}
+
+[data-sileo-viewport] [data-sileo-toast][data-state="warning"] {
+  --sileo-accent: var(--foreground);
+}
+
+[data-sileo-viewport] [data-sileo-toast][data-state="error"] {
+  --sileo-accent: var(--foreground);
+}
+
+/* El contorno del toast mantiene el verde de la marca en todos los estados. */
+[data-sileo-viewport] [data-sileo-toast][data-state] {
+  --sileo-accent: var(--foreground);
+}
+
+[data-sileo-viewport] [data-sileo-toast]:hover {
+  filter:
+    drop-shadow(0 0 2px var(--sileo-accent))
+    drop-shadow(0 0 11px color-mix(in oklch, var(--sileo-accent) 72%, transparent))
+    drop-shadow(0 8px 24px oklch(0 0 0 / 0.24));
+}
+
+/* Movimiento de entrada: aparece desde arriba con profundidad y un rebote muy sutil. */
+:root {
+  --sileo-duration: 760ms;
+}
+
+@keyframes sileo-toast-enter {
+  0% {
+    opacity: 0;
+    transform: perspective(720px) translate3d(30px, -16px, 0) rotateX(-10deg) scale(0.86);
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 1px 4px oklch(0 0 0 / 0.08));
+  }
+  58% {
+    opacity: 1;
+    transform: perspective(720px) translate3d(-4px, 2px, 0) rotateX(1deg) scale(1.018);
+    filter:
+      drop-shadow(0 0 2px var(--sileo-accent))
+      drop-shadow(0 0 12px color-mix(in oklch, var(--sileo-accent) 72%, transparent));
+  }
+  78% {
+    transform: perspective(720px) translate3d(1px, -1px, 0) rotateX(0) scale(0.997);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(720px) translate3d(0, 0, 0) rotateX(0) scale(1);
+    filter:
+      drop-shadow(0 0 1.5px color-mix(in oklch, var(--sileo-accent) 92%, transparent))
+      drop-shadow(0 0 7px color-mix(in oklch, var(--sileo-accent) 58%, transparent))
+      drop-shadow(0 4px 16px oklch(0 0 0 / 0.18));
+  }
+}
+
+@keyframes sileo-toast-exit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(28px, -8px, 0) scale(0.94);
+  }
+}
+
+[data-sileo-viewport][data-position^="top"]
+  [data-sileo-toast][data-ready="true"]:not([data-exiting="true"]) {
+  animation: sileo-toast-enter var(--sileo-duration) var(--sileo-spring-easing) both;
+}
+
+[data-sileo-viewport][data-position^="top"]
+  [data-sileo-toast][data-ready="true"][data-exiting="true"] {
+  animation: sileo-toast-exit 240ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+/* La línea de acento se anima junto con el mensaje y ayuda a reconocer el estado. */
+[data-sileo-toast]::after {
+  border-color: color-mix(in oklch, var(--sileo-accent) 34%, var(--border));
+  box-shadow: inset 3px 0 0 color-mix(in oklch, var(--sileo-accent) 78%, transparent);
+}
+
+[data-sileo-toast][data-expanded="true"]::before {
+  border-color: color-mix(in oklch, var(--sileo-accent) 24%, var(--border));
+}
+
+/* Sileo ya dibuja la silueta con su SVG. No superponer pseudo-bordes: al
+   expandirse producen esquinas y separadores duplicados. */
+[data-sileo-viewport] [data-sileo-toast]::before,
+[data-sileo-viewport] [data-sileo-toast]::after {
+  content: none;
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sileo-viewport] [data-sileo-toast],
+  [data-sileo-viewport] [data-sileo-toast][data-ready="true"] {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* Entrada progresiva del contenido de las páginas del panel. */
+@keyframes page-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-content-enter {
+  animation: page-content-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+
+.page-stagger-item {
+  animation: page-content-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--stagger-index, 0) * 70ms);
+}
+
+/* Marca exclusiva del login: siempre conserva el verde predeterminado. */
+.login-brand-mark {
+  background-color: #16a34a !important;
+  color: #ffffff !important;
+}
+
+/* Notificaciones: siempre respetan el color de acento elegido. */
+[data-sonner-toast] {
+  border-color: color-mix(in oklch, var(--primary) 48%, var(--border)) !important;
+  background: color-mix(in oklch, var(--card) 92%, var(--primary)) !important;
+  color: var(--card-foreground) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--primary) 12%, transparent),
+    0 10px 30px oklch(0 0 0 / 0.22),
+    0 0 18px color-mix(in oklch, var(--primary) 16%, transparent) !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  color: var(--primary) !important;
+}
+
+.dashboard-export-button {
+  border-color: color-mix(in oklch, var(--primary) 52%, var(--border)) !important;
+  background-color: color-mix(in oklch, var(--primary) 8%, var(--card)) !important;
+  color: var(--primary) !important;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.dashboard-export-button:hover:not(:disabled) {
+  border-color: color-mix(in oklch, var(--primary) 78%, var(--border)) !important;
+  background-color: color-mix(in oklch, var(--primary) 16%, var(--card)) !important;
+  color: var(--primary) !important;
+  box-shadow: 0 0 18px color-mix(in oklch, var(--primary) 22%, transparent);
+  transform: translateY(-1px);
+}
+
+.dashboard-export-button:disabled {
+  opacity: 0.6;
+}
+
+.status-completed {
+  border-color: color-mix(in oklch, #22c55e 45%, transparent) !important;
+  background-color: color-mix(in oklch, #22c55e 14%, transparent) !important;
+  color: #22c55e !important;
+}
+
+/* Módulos del dashboard: borde blanco opaco y halo muy discreto. */
+.dashboard-module {
+  border-color: color-mix(in oklch, white 22%, var(--border)) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, white 8%, transparent),
+    0 0 18px color-mix(in oklch, white 6%, transparent),
+    0 1px 2px oklch(0 0 0 / 0.08);
+}
+
+/* ── Paleta monocromática ───────────────────────────────────────
+   Algunos componentes conservan utilidades de color semánticas. Las
+   convertimos aquí a grises para que la interfaz completa respete el tema. */
+[class*="text-red-"], [class*="text-green-"], [class*="text-blue-"],
+[class*="text-yellow-"], [class*="text-amber-"], [class*="text-orange-"],
+[class*="text-purple-"], [class*="text-pink-"], [class*="text-indigo-"],
+[class*="text-violet-"], [class*="text-rose-"], [class*="text-emerald-"],
+[class*="text-teal-"], [class*="text-cyan-"], [class*="text-sky-"],
+[class*="text-lime-"] {
+  color: var(--foreground) !important;
+}
+
+[class*="bg-red-"], [class*="bg-green-"], [class*="bg-blue-"],
+[class*="bg-yellow-"], [class*="bg-amber-"], [class*="bg-orange-"],
+[class*="bg-purple-"], [class*="bg-pink-"], [class*="bg-indigo-"],
+[class*="bg-violet-"], [class*="bg-rose-"], [class*="bg-emerald-"],
+[class*="bg-teal-"], [class*="bg-cyan-"], [class*="bg-sky-"],
+[class*="bg-lime-"] {
+  background-color: var(--muted) !important;
+}
+
+[class*="border-red-"], [class*="border-green-"], [class*="border-blue-"],
+[class*="border-yellow-"], [class*="border-amber-"], [class*="border-orange-"],
+[class*="border-purple-"], [class*="border-pink-"], [class*="border-indigo-"],
+[class*="border-violet-"], [class*="border-rose-"], [class*="border-emerald-"],
+[class*="border-teal-"], [class*="border-cyan-"], [class*="border-sky-"],
+[class*="border-lime-"] {
+  border-color: var(--border) !important;
+}
+
+[class*="fill-red-"], [class*="fill-green-"], [class*="fill-blue-"],
+[class*="fill-yellow-"], [class*="fill-amber-"], [class*="fill-orange-"],
+[class*="fill-purple-"], [class*="fill-pink-"], [class*="fill-indigo-"],
+[class*="fill-violet-"], [class*="fill-rose-"], [class*="fill-emerald-"],
+[class*="fill-teal-"], [class*="fill-cyan-"], [class*="fill-sky-"],
+[class*="fill-lime-"] {
+  fill: currentColor !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-content-enter,
+  .page-stagger-item {
+    animation: none;
   }
 }

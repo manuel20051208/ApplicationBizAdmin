@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import {
   User, Mail, Phone, MapPin, Lock, Eye, EyeOff,
-  Save, Camera, Bell, CreditCard, Shield, Globe,
+  Save, Camera, Bell, CreditCard, Shield,
   X, Trash2, Upload, Loader2
 } from "lucide-react"
 
@@ -13,18 +13,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
-import { CreditCardVisual } from "@/components/portal/credit-card-visual"
 import { LinkCardDialog } from "@/components/portal/link-card-dialog"
 import {
   getLinkedCardRaw,
   removeLinkedCard,
   saveLinkedCard,
-  type LinkedCard,
 } from "@/lib/portal-store"
 import { toast } from "sonner"
 import { getStoredUser, updateStoredUser } from "@/lib/services/authService"
 import { toHttps, optimizeCloudinaryUrl } from "@/lib/config"
 import { fetchClientProfilePhotoBlobUrl, uploadClientProfilePhoto, getPaymentCards, updatePaymentCardStatus, fetchClientProfile, updateClientProfile, type PaymentCardResponseDTO } from "@/lib/services/clientService"
+import { AccentColorPicker } from "@/components/accent-color-provider"
 import {
   Dialog,
   DialogContent,
@@ -40,7 +39,6 @@ export default function ConfiguracionClientePage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<"perfil" | "pagos" | "seguridad" | "notificaciones">("perfil")
-  const [linkedCard, setLinkedCard] = useState<LinkedCard | null>(null)
   const [linkCardOpen, setLinkCardOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isSavingAvatar, setIsSavingAvatar] = useState(false)
@@ -108,10 +106,8 @@ export default function ConfiguracionClientePage() {
           active: true,
           linkedAt: activeCard.createdAt
         });
-        setLinkedCard(getLinkedCardRaw());
       } else {
         removeLinkedCard();
-        setLinkedCard(null);
       }
     } catch (err) {
       console.error(err)
@@ -127,8 +123,6 @@ export default function ConfiguracionClientePage() {
   }, [activeTab])
 
   useEffect(() => {
-    setLinkedCard(getLinkedCardRaw())
-
     const loadProfile = async () => {
       const fallbackVal = (val?: string | number | null) => {
         if (val === undefined || val === null) return "No especificado"
@@ -321,34 +315,6 @@ export default function ConfiguracionClientePage() {
     }
   }
 
-  const handleSavePassword = async () => {
-    if (!security.newPassword) {
-      toast.error("Escribe la nueva contraseña")
-      return
-    }
-    if (security.newPassword !== security.confirmPassword) {
-      toast.error("Las contraseñas no coinciden")
-      return
-    }
-    setIsSaving(true)
-    try {
-      await updateClientProfile({
-        fullName: profile.name,
-        email: profile.email,
-        password: security.newPassword,
-        phone: profile.phone ? Number(profile.phone.replace(/\D/g, "")) || null : null,
-        address: profile.address || null,
-      })
-      setSecurity({ currentPassword: "", newPassword: "", confirmPassword: "" })
-      toast.success("Contraseña actualizada correctamente")
-    } catch (err) {
-      console.error("Error al cambiar contraseña:", err)
-      toast.error("No se pudo actualizar la contraseña")
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
   const tabs = [
     { id: "perfil" as const, label: "Mi Perfil", icon: User },
     { id: "pagos" as const, label: "Pagos", icon: CreditCard },
@@ -364,6 +330,17 @@ export default function ConfiguracionClientePage() {
           Administra tu perfil y preferencias
         </p>
       </div>
+
+      <Card className="mb-6 border-border bg-card/70">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <span className="size-3 rounded-full bg-primary shadow-[0_0_12px_var(--primary)]" />
+            Color de la interfaz
+          </CardTitle>
+          <CardDescription>Personaliza el color de acento para tu portal.</CardDescription>
+        </CardHeader>
+        <CardContent><AccentColorPicker /></CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
         {/* Sidebar tabs */}
@@ -679,7 +656,7 @@ export default function ConfiguracionClientePage() {
               <LinkCardDialog
                 open={linkCardOpen}
                 onOpenChange={setLinkCardOpen}
-                onLinked={(card) => {
+                onLinked={() => {
                   loadCards()
                 }}
               />

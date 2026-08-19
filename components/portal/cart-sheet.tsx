@@ -1,7 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
-import { Minus, Plus, ShoppingCart, Trash2, ImageIcon } from "lucide-react"
+import { BadgePercent, Minus, Plus, ShoppingCart, Trash2, ImageIcon, Truck, X } from "lucide-react"
 import {
   Sheet,
   SheetContent,
@@ -10,10 +11,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { getImageUrl, type Product, type ProductImage } from "@/lib/services/productService"
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/portal-store"
 import type { CartItem } from "@/lib/portal-store"
+import { computeOrderTotals, validateCoupon, type Coupon } from "@/lib/coupons"
+import { toast } from "sonner"
 
 interface CartSheetProps {
   open: boolean
@@ -24,6 +29,8 @@ interface CartSheetProps {
   onUpdateQuantity: (productId: number, quantity: number) => void
   onRemove: (productId: number) => void
   formatCurrency: (amount: number) => string
+  coupon: Coupon | null
+  onCouponChange: (coupon: Coupon | null) => void
 }
 
 export function CartSheet({
@@ -35,7 +42,10 @@ export function CartSheet({
   onUpdateQuantity,
   onRemove,
   formatCurrency,
+  coupon,
+  onCouponChange,
 }: CartSheetProps) {
+  const [couponInput, setCouponInput] = useState("")
   const lines = cart
     .map((item) => {
       const product = products.find((p) => p.id === item.productId)
@@ -46,6 +56,18 @@ export function CartSheet({
 
   const total = lines.reduce((sum, { item, product }) => sum + product.price * item.quantity, 0)
   const totalItems = lines.reduce((sum, { item }) => sum + item.quantity, 0)
+  const totals = computeOrderTotals(total, coupon)
+
+  const applyCoupon = () => {
+    const found = validateCoupon(couponInput)
+    if (!found) {
+      toast.error("Cupón no válido. Prueba con BIZ10 o FREE.")
+      return
+    }
+    onCouponChange(found)
+    setCouponInput("")
+    toast.success(`Cupón ${found.code} aplicado: ${found.label}`)
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -62,10 +84,42 @@ export function CartSheet({
           </SheetDescription>
         </SheetHeader>
 
+        {lines.length > 0 && (
+          <div className="border-b border-border px-6 py-3">
+            {total >= FREE_SHIPPING_THRESHOLD ? (
+              <p className="flex items-center gap-2 text-xs font-semibold text-green-600">
+                <Truck className="size-4" />
+                ¡Envío gratis aplicado!
+              </p>
+            ) : (
+              <>
+                <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Truck className="size-4 shrink-0 text-primary" />
+                  <span>
+                    Te faltan{" "}
+                    <span className="font-bold text-foreground">
+                      {formatCurrency(FREE_SHIPPING_THRESHOLD - total)}
+                    </span>{" "}
+                    para envío gratis
+                  </span>
+                </p>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-500"
+                    style={{ width: `${Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100)}%` }}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
         <ScrollArea className="max-h-[50vh] px-6">
           {lines.length === 0 ? (
-            <div className="flex flex-col items-center py-12 text-center text-muted-foreground">
-              <ShoppingCart className="mb-3 size-12 opacity-30" />
+            <div className="flex flex-col items-center rounded-2xl border border-border bg-card py-10 text-center text-muted-foreground">
+              <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-muted">
+                <ShoppingCart className="size-7 opacity-40" />
+              </div>
               <p className="text-sm font-medium text-foreground">Carrito vacío</p>
               <p className="mt-1 text-xs">Los productos que agregues aparecerán aquí.</p>
             </div>
@@ -146,10 +200,66 @@ export function CartSheet({
 
         {lines.length > 0 && (
           <>
+            <div className="border-t border-border px-6 py-3">
+              {coupon ? (
+                <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <BadgePercent className="size-4 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-xs font-bold text-foreground">{coupon.code}</p>
+                      <p className="text-[10px] text-muted-foreground">{coupon.label}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Quitar cupón"
+                    className="rounded-full p-1 text-muted-foreground hover:text-destructive"
+                    onClick={() => onCouponChange(null)}
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                    placeholder="¿Tienes un cupón? Ej. BIZ10"
+                    className="h-9 flex-1 text-xs"
+                  />
+                  <Button variant="secondary" size="sm" className="h-9" onClick={applyCoupon}>
+                    Aplicar
+                  </Button>
+                </div>
+              )}
+            </div>
+
             <Separator />
-            <div className="flex items-center justify-between px-6 py-4">
-              <span className="text-sm text-muted-foreground">Total estimado</span>
-              <span className="text-lg font-bold text-foreground">{formatCurrency(total)}</span>
+            <div className="space-y-1.5 px-6 py-4 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-medium">{formatCurrency(totals.subtotal)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Envío</span>
+                <span className={totals.shipping === 0 ? "font-medium text-green-600" : "font-medium"}>
+                  {totals.shipping === 0 ? "Gratis" : formatCurrency(totals.shipping)}
+                </span>
+              </div>
+              {totals.discount > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Descuento</span>
+                  <span className="font-medium text-green-600">
+                    -{formatCurrency(totals.discount)}
+                  </span>
+                </div>
+              )}
+              <Separator className="my-2" />
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">Total</span>
+                <span className="text-lg font-bold text-foreground">{formatCurrency(totals.total)}</span>
+              </div>
             </div>
           </>
         )}

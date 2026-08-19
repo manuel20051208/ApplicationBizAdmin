@@ -159,6 +159,7 @@ export async function uploadClientProfilePhoto(file: File): Promise<void> {
 
   const res = await fetchClient(`api/client/upload-profile`, {
     method: "PATCH",
+    requireAuth: true,
     body: formData,
   });
 

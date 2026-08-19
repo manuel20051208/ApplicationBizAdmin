@@ -38,7 +38,7 @@ function getStatusVariant(status: string): "default" | "secondary" | "outline" {
 
 function getStatusClass(status: string): string {
   const s = status?.toLowerCase() || ""
-  if (s === "completado" || s === "completed") return "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
+  if (s === "completado" || s === "completed") return "!bg-emerald-500/10 !text-emerald-500 hover:!bg-emerald-500/20"
   if (s === "pendiente" || s === "pending") return "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
   if (s === "procesando" || s === "processing") return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
   return "bg-gray-500/10 text-gray-500 hover:bg-gray-500/20"
@@ -46,7 +46,7 @@ function getStatusClass(status: string): string {
 
 export function RecentSalesTable({ sales, loading, totalElements }: RecentSalesTableProps) {
   return (
-    <Card className="border-border bg-card/60 backdrop-blur-md">
+    <Card className="flex h-full flex-col border-border bg-card/60 backdrop-blur-md">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-foreground">
           Ventas Recientes
@@ -57,7 +57,7 @@ export function RecentSalesTable({ sales, loading, totalElements }: RecentSalesT
             : "Últimas transacciones de tu negocio"}
         </CardDescription>
       </CardHeader>
-      <CardContent className="min-w-0 px-3 sm:px-6">
+      <CardContent className="min-h-0 min-w-0 flex-1 overflow-y-auto px-3 sm:px-6">
         <div className="min-w-0 overflow-x-auto">
         {loading ? (
           <Table>

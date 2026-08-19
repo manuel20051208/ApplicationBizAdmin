@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { AccentColorPicker } from "@/components/accent-color-provider"
 import {
   Dialog,
   DialogContent,
@@ -157,6 +158,12 @@ export default function ConfiguracionPage() {
               setEditName(adminData.fullName || stored.fullName || "")
               setEditPhone(adminData.phone ? String(adminData.phone) : stored.phone ? String(stored.phone) : "")
               setEditBusinessName(adminData.businessName || stored.businessName || "")
+              updateStoredUser({
+                fullName: adminData.fullName || stored.fullName,
+                email: adminData.email || stored.email,
+                phone: adminData.phone ?? stored.phone,
+                businessName: adminData.businessName || stored.businessName,
+              })
 
               // Foto: Google OAuth2 (profilePhotoUrl) tiene prioridad, luego Cloudinary (profilePhoto)
               const apiPhoto = optimizeCloudinaryUrl(
@@ -457,10 +464,16 @@ export default function ConfiguracionPage() {
         </header>
 
         <main className="flex-1 p-3 pb-24 sm:p-6 sm:pb-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-foreground">Configuración</h1>
-            <p className="text-muted-foreground">Administra tu cuenta y preferencias</p>
-          </div>
+          <Card className="mb-6 border-border bg-card/70">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <span className="size-3 rounded-full bg-primary shadow-[0_0_12px_var(--primary)]" />
+                Color de la interfaz
+              </CardTitle>
+              <CardDescription>Personaliza el color de acento del panel.</CardDescription>
+            </CardHeader>
+            <CardContent><AccentColorPicker /></CardContent>
+          </Card>
 
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Foto de Perfil */}

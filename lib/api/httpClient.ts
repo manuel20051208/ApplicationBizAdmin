@@ -35,7 +35,9 @@ function buildUrl(endpoint: string): string {
 function ensureValidSession(skipSessionCheck: boolean): void {
   if (skipSessionCheck || typeof window === "undefined") return;
   const user = getStoredUser();
-  if (!user?.token) return;
+  if (!user?.token) {
+    throw new ApiError("No hay una sesión autenticada", 401);
+  }
   if (isSessionExpired(user)) {
     handleSessionExpired("Tu sesión expiró por inactividad. Inicia sesión de nuevo.");
     throw new ApiError("Sesión expirada", 401);
@@ -67,10 +69,13 @@ export async function fetchClient(
 
   if (requireAuth) {
     const user = getStoredUser();
-    if (user?.token) {
-      headers.set("Authorization", `Bearer ${user.token}`);
-      touchSession(user.role);
+    // Todas las peticiones protegidas deben viajar autenticadas, incluidas
+    // las que usan FormData como la subida de la foto de perfil.
+    if (!user?.token) {
+      throw new ApiError("No hay un token de autenticación", 401);
     }
+    headers.set("Authorization", `Bearer ${user.token}`);
+    touchSession(user.role);
   }
 
   const config: RequestInit = {

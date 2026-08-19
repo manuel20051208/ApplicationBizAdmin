@@ -244,7 +244,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
+          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col overflow-x-hidden group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
         >
           {children}
         </div>
@@ -362,7 +362,10 @@ function SidebarSeparator({
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      className={cn('bg-sidebar-border mx-2 w-auto', className)}
+      className={cn(
+        'bg-sidebar-border mx-3 shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-[calc(100%-1.5rem)]',
+        className,
+      )}
       {...props}
     />
   )

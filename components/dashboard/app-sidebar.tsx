@@ -222,6 +222,8 @@ export function AppSidebar() {
 
         updateStoredUser({
           fullName: freshName,
+          email: profile.email || userData?.email,
+          phone: profile.phone ?? userData?.phone,
           businessName: freshBusiness || undefined,
           photo: freshPhoto || undefined,
           profilePhotoUrl: freshPhoto || undefined,
@@ -282,7 +284,11 @@ export function AppSidebar() {
                     isActive={pathname === item.href}
                     tooltip={item.title}
                   >
-                    <Link href={item.href} onMouseEnter={() => handleLinkHover(item.href)}>
+                    <Link
+                      href={item.href}
+                      data-speculation={item.href === "/configuracion" ? "prefetch" : "prerender"}
+                      onMouseEnter={() => handleLinkHover(item.href)}
+                    >
                       <item.icon className="size-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -298,7 +304,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Configuración" isActive={pathname === "/configuracion"}>
-              <Link href="/configuracion">
+              <Link href="/configuracion" data-speculation="prefetch">
                 <Settings className="size-4" />
                 <span>Configuración</span>
               </Link>
@@ -325,7 +331,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        <Link href="/configuracion" className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center">
+        <Link href="/configuracion" data-speculation="prefetch" className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center">
           <Avatar className="size-9">
             <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={fullName} />
             <AvatarFallback className="bg-primary/20 text-primary text-sm uppercase">
@@ -362,6 +368,7 @@ export function AppSidebar() {
             <Link
               key={item.title}
               href={item.href}
+              data-speculation={item.href === "/configuracion" ? "prefetch" : "prerender"}
               onMouseEnter={() => handleLinkHover(item.href)}
               className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-[10px] font-medium transition-colors ${isActive
                 ? "text-primary"

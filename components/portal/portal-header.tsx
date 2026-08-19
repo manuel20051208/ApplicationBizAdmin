@@ -117,7 +117,7 @@ export function PortalHeader() {
     <header className="sticky top-0 z-50 border-b border-border bg-card">
       <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-2 px-3 sm:h-16 sm:px-6">
         {/* Logo */}
-        <Link href="/portal" className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <Link href="/portal" data-speculation="prerender" className="flex shrink-0 items-center gap-2 sm:gap-3">
           <div className="flex size-9 items-center justify-center rounded-lg bg-primary">
             <ShoppingBag className="size-5 text-primary-foreground" />
           </div>
@@ -132,6 +132,7 @@ export function PortalHeader() {
               <Link
                 key={item.href}
                 href={item.href}
+                data-speculation={item.href === "/portal" ? "prerender" : "prefetch"}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -191,6 +192,7 @@ export function PortalHeader() {
             <Link
               key={item.href}
               href={item.href}
+              data-speculation={item.href === "/portal" ? "prerender" : "prefetch"}
                 className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-[10px] font-medium transition-colors ${isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"

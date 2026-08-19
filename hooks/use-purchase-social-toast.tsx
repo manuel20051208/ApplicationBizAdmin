@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import Image from "next/image"
 import { Flame, X } from "lucide-react"
-import { sileo } from "sileo"
+import { toast } from "sonner"
 
 export interface SocialPurchaseProduct {
   id: number
@@ -57,19 +57,14 @@ export function usePurchaseSocialToast(products: SocialPurchaseProduct[]) {
                 <button
                   type="button"
                   aria-label="Cerrar notificación"
-                  onClick={() => { if (toastId) sileo.dismiss(toastId) }}
+                  onClick={() => { if (toastId) toast.dismiss(toastId) }}
                   className="shrink-0 rounded-full p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
                 >
                   <X className="size-3.5" />
                 </button>
               </div>
             )
-            toastId = sileo.show({
-              title: "Alguien acaba de comprar",
-              description,
-              icon: <Flame className="size-4 text-primary" />,
-              duration: 6000,
-            })
+            toastId = toast.custom(() => description, { duration: 6000 })
           }
           schedule()
         },

@@ -15,6 +15,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
 import {
@@ -26,6 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Users, Search, Mail, ShoppingBag } from "lucide-react"
+import { CouponDialog } from "@/components/coupons/coupon-dialog"
 
 import { useDebounce } from "@/hooks/use-debounce"
 import { cachedFetch, CACHE_KEYS, CACHE_TTL } from "@/lib/api/apiCache"
@@ -58,6 +60,7 @@ export default function ClientesPage() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [customers, setCustomers] = useState<Customer[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [couponRecipient, setCouponRecipient] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     async function loadCustomers() {
@@ -136,11 +139,6 @@ export default function ClientesPage() {
         </header>
 
         <main className="flex-1 p-3 pb-24 sm:p-6 sm:pb-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-foreground">Clientes</h1>
-            <p className="text-muted-foreground">Gestiona la información de tus clientes</p>
-          </div>
-
           <div className="mb-6 grid gap-4 sm:grid-cols-3">
             {isLoading && customers.length === 0 ? (
               <>
@@ -215,6 +213,7 @@ export default function ClientesPage() {
                       <TableHead className="text-center text-muted-foreground">Total Ventas</TableHead>
                       <TableHead className="text-right text-muted-foreground">Total Gastado</TableHead>
                       <TableHead className="text-muted-foreground">Última Compra</TableHead>
+                      <TableHead className="text-right text-muted-foreground">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -264,13 +263,29 @@ export default function ClientesPage() {
                           <TableCell className="text-muted-foreground">
                             {formatRelativeDate(customer.lastPurchase)}
                           </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-1.5"
+                              onClick={() => setCouponRecipient(customer.email === "Sin correo" ? "" : customer.email)}
+                            >
+                              <Mail className="size-3.5 text-primary" />
+                              Cupón
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       )))}
                   </TableBody>
-                </Table>
+            </Table>
               </div>
             </CardContent>
           </Card>
+          <CouponDialog
+            open={couponRecipient !== undefined}
+            onOpenChange={(open) => { if (!open) setCouponRecipient(undefined) }}
+            recipientEmail={couponRecipient}
+          />
         </main>
       </SidebarInset>
     </SidebarProvider>

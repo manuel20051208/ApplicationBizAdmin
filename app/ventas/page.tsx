@@ -124,11 +124,7 @@ export default function VentasPage() {
         </header>
 
         <main className="flex-1 p-3 pb-24 sm:p-6 sm:pb-6">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Ventas</h1>
-              <p className="text-muted-foreground">Registro de todas las ventas realizadas</p>
-            </div>
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
             <div className="flex items-center gap-3">
               <Select value={String(sizeLimit)} onValueChange={(val) => setSizeLimit(Number(val))}>
                 <SelectTrigger className="w-[140px]">
@@ -185,8 +181,8 @@ export default function VentasPage() {
             </Card>
             <Card>
               <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/20">
-                  <Package className="h-6 w-6 text-yellow-500" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                  <Package className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Clientes Únicos</p>

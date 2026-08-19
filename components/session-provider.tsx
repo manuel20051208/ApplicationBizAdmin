@@ -8,7 +8,7 @@ import {
   isSessionExpired,
   touchSession,
 } from "@/lib/auth/session";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const ACTIVITY_EVENTS = [
   "mousedown",
@@ -26,7 +26,6 @@ const CHECK_INTERVAL_MS = 60_000;
  */
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
 
   useEffect(() => {
     // Si estamos en login, no validamos sesión para expulsar

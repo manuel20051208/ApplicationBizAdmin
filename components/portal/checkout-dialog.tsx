@@ -12,7 +12,7 @@ import {
   ShoppingCart,
   X,
 } from "lucide-react"
-import { sileo } from "sileo"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -82,12 +82,12 @@ export function CheckoutDialog({
   const applyCoupon = () => {
     const found = validateCoupon(couponInput)
     if (!found) {
-      sileo.error({ title: "Cupón no válido. Prueba con BIZ10 o FREE." })
+      toast.error("Cupón no válido. Prueba con BIZ10 o FREE.")
       return
     }
     onCouponChange(found)
     setCouponInput("")
-    sileo.success({ title: `Cupón ${found.code} aplicado: ${found.label}` })
+    toast.success(`Cupón ${found.code} aplicado: ${found.label}`)
   }
 
   const confirmPurchase = async () => {

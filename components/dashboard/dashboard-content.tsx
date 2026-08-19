@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
-import { Download, DollarSign, FileText, Package, Trophy, Users } from "lucide-react"
+import { Download, DollarSign, FileText, Package, Users } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -45,22 +45,29 @@ function RevenueChartSkeleton() {
   )
 }
 
-interface TopSeller {
+interface RankingEntry {
   id: string
   name: string
-  sales: number
+  quantity: number
   amount: number
 }
 
-function TopSellersCard({ sellers, loading }: { sellers: TopSeller[]; loading: boolean }) {
+function RankingCard({ title, description, icon: Icon, entries, loading, emptyMessage }: {
+  title: string
+  description: string
+  icon: typeof Users
+  entries: RankingEntry[]
+  loading: boolean
+  emptyMessage: string
+}) {
   return (
-    <Card className="border-border bg-card/60 backdrop-blur-md">
+    <Card className="h-full border-border bg-card/60 backdrop-blur-md">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <Trophy className="size-5 text-amber-400" />
-          3 mejores vendedores
+          <Icon className="size-5 text-primary" />
+          {title}
         </CardTitle>
-        <CardDescription>Ranking de rendimiento comercial</CardDescription>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -76,26 +83,26 @@ function TopSellersCard({ sellers, loading }: { sellers: TopSeller[]; loading: b
               </div>
             ))}
           </div>
-        ) : sellers.length === 0 ? (
+        ) : entries.length === 0 ? (
           <div className="flex min-h-32 flex-col items-center justify-center text-center">
-            <Trophy className="mb-2 size-8 text-muted-foreground/40" />
-            <p className="text-sm font-medium text-foreground">Sin datos de ranking</p>
+            <Icon className="mb-2 size-8 text-muted-foreground/40" />
+            <p className="text-sm font-medium text-foreground">Sin datos disponibles</p>
             <p className="mt-1 max-w-52 text-xs text-muted-foreground">
-              El ranking aparecerá cuando el backend entregue los mejores vendedores.
+              {emptyMessage}
             </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {sellers.slice(0, 3).map((seller, index) => (
-              <div key={seller.id} className="flex items-center gap-3">
+            {entries.slice(0, 3).map((entry, index) => (
+              <div key={entry.id} className="flex items-center gap-3">
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   {index + 1}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-foreground">{seller.name}</p>
-                  <p className="text-xs text-muted-foreground">{seller.sales} ventas</p>
+                  <p className="truncate text-sm font-semibold text-foreground">{entry.name}</p>
+                  <p className="text-xs text-muted-foreground">{entry.quantity} {title.includes("clientes") ? "compras" : "unidades"}</p>
                 </div>
-                <span className="text-xs font-semibold text-primary">{formatCurrency(seller.amount)}</span>
+                <span className="text-xs font-semibold text-primary">{formatCurrency(entry.amount)}</span>
               </div>
             ))}
           </div>
@@ -112,7 +119,8 @@ export function DashboardContent() {
   const [graphicData, setGraphicData] = useState<RevenueDataPoint[]>([])
   const [latestSales, setLatestSales] = useState<SaleItemView[]>([])
   const [latestSalesTotal, setLatestSalesTotal] = useState(0)
-  const [topSellers, setTopSellers] = useState<TopSeller[]>([])
+  const [topClients, setTopClients] = useState<RankingEntry[]>([])
+  const [topProducts, setTopProducts] = useState<RankingEntry[]>([])
   const [exporting, setExporting] = useState(false)
   const [exportingPdf, setExportingPdf] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -169,13 +177,25 @@ export function DashboardContent() {
     setLatestSales(mappedSales);
     setLatestSalesTotal(dashboardData?.showLatestSales?.totalElements ?? 0);
 
-    const ranking = dashboardData?.topSellers ?? dashboardData?.bestSellers ?? dashboardData?.topSellingUsers ?? [];
-    setTopSellers(Array.isArray(ranking) ? ranking.map((seller: any, index: number) => ({
-      id: String(seller.id ?? seller.userId ?? seller.sellerId ?? index),
-      name: seller.name || seller.fullName || seller.sellerName || "Vendedor sin nombre",
-      sales: Number(seller.sales ?? seller.totalSales ?? seller.salesCount ?? seller.count ?? 0),
-      amount: Number(seller.amount ?? seller.totalAmount ?? seller.totalSpent ?? 0),
-    })) : []);
+    const mapRanking = (ranking: any[], type: "client" | "product") => Array.isArray(ranking)
+      ? ranking.map((entry: any, index: number) => ({
+          id: String(entry.id ?? entry.clientId ?? entry.productId ?? index),
+          name: type === "client"
+            ? entry.name || entry.fullName || entry.clientName || "Cliente sin nombre"
+            : entry.name || entry.productName || "Producto sin nombre",
+          quantity: Number(entry.quantity ?? entry.totalQuantity ?? entry.salesCount ?? entry.count ?? entry.unitsSold ?? 0),
+          amount: Number(entry.amount ?? entry.totalAmount ?? entry.totalSpent ?? entry.revenue ?? 0),
+        }))
+      : [];
+
+    setTopClients(mapRanking(
+      dashboardData?.topClients ?? dashboardData?.bestClients ?? dashboardData?.topCustomers ?? [],
+      "client"
+    ));
+    setTopProducts(mapRanking(
+      dashboardData?.topProducts ?? dashboardData?.bestProducts ?? dashboardData?.topSellingProducts ?? [],
+      "product"
+    ));
   }, []);
 
   const loadDashboard = useCallback(async () => {
@@ -274,24 +294,24 @@ export function DashboardContent() {
             onClick={handleExportPdf}
             disabled={exportingPdf}
             variant="outline"
-            className="h-9 flex-1 gap-2 border-border bg-card/60 px-3 text-xs backdrop-blur-md transition-all hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400 hover:shadow-[0_0_18px_rgba(239,68,68,0.18)] sm:flex-none"
+            className="dashboard-export-button h-9 flex-1 gap-2 px-3 text-xs backdrop-blur-md sm:flex-none"
           >
-            <FileText className="h-4 w-4 text-red-500" />
+            <FileText className="h-4 w-4" />
             {exportingPdf ? "Exportando..." : "Exportar PDF"}
           </Button>
           <Button
             onClick={handleExportExcel}
             disabled={exporting}
             variant="outline"
-            className="h-9 flex-1 gap-2 border-border bg-card/60 px-3 text-xs backdrop-blur-md transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-400 hover:shadow-[0_0_18px_rgba(16,185,129,0.18)] sm:flex-none"
+            className="dashboard-export-button h-9 flex-1 gap-2 px-3 text-xs backdrop-blur-md sm:flex-none"
           >
-            <Download className="h-4 w-4 text-emerald-500" />
+            <Download className="h-4 w-4" />
             {exporting ? "Exportando..." : "Exportar Excel"}
           </Button>
         </div>
       </div>
 
-      <div className="relative z-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="relative z-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatCard
           title="Ingresos Totales"
           value={totalRevenue !== null ? formatCurrency(totalRevenue) : "$0.00"}
@@ -316,10 +336,9 @@ export function DashboardContent() {
           icon={Users}
           loading={loading && totalClients === null}
         />
-        <TopSellersCard sellers={topSellers} loading={loading} />
       </div>
 
-      <div className="relative z-10 grid w-full min-w-0 grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="relative z-10 grid w-full min-w-0 grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
         {loading && graphicData.length === 0 ? (
           <RevenueChartSkeleton />
         ) : (
@@ -328,6 +347,25 @@ export function DashboardContent() {
         <div className="min-w-0">
           <RecentSalesTable sales={latestSales} loading={loading && latestSales.length === 0} totalElements={latestSalesTotal} />
         </div>
+      </div>
+
+      <div className="relative z-10 grid w-full min-w-0 grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
+        <RankingCard
+          title="3 mejores clientes"
+          description="Clientes con mayor actividad y gasto"
+          icon={Users}
+          entries={topClients}
+          loading={loading}
+          emptyMessage="El ranking aparecerá cuando el backend entregue los mejores clientes."
+        />
+        <RankingCard
+          title="3 mejores productos"
+          description="Productos con mayor rendimiento"
+          icon={Package}
+          entries={topProducts}
+          loading={loading}
+          emptyMessage="El ranking aparecerá cuando el backend entregue los mejores productos."
+        />
       </div>
     </div>
   )

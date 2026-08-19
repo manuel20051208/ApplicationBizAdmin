@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
+import { AccentColorProvider } from '@/components/accent-color-provider'
 import { SessionProvider } from '@/components/session-provider'
+import { SpeculationRules } from '@/components/speculation-rules'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
@@ -50,11 +52,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionProvider>
-            {children}
-          </SessionProvider>
-          <Toaster richColors closeButton position="top-right" />
+          <AccentColorProvider>
+            <SessionProvider>
+              {children}
+            </SessionProvider>
+          </AccentColorProvider>
+          <Toaster closeButton position="top-right" />
         </ThemeProvider>
+        <SpeculationRules />
         <Analytics />
       </body>
     </html>

@@ -64,7 +64,8 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import Image from "next/image"
-import { Plus, Trash2, Package, Search, Pencil, Upload, ImageIcon, Eye, Store, Phone, Mail, FileText, ShoppingCart } from "lucide-react"
+import { Plus, Trash2, Package, Search, Pencil, Upload, ImageIcon, Eye, Store, Phone, Mail, FileText, ShoppingCart, Tag } from "lucide-react"
+import { CouponDialog } from "@/components/coupons/coupon-dialog"
 
 const PRODUCT_CATEGORIES = [
   "Electrónica",
@@ -110,7 +111,10 @@ export default function InventarioPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [newProduct, setNewProduct] = useState({ name: "", price: "", stock: "", category: "", description: "" })
+  const [newProductFiles, setNewProductFiles] = useState<File[]>([])
+  const [isAddingProduct, setIsAddingProduct] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isCouponDialogOpen, setIsCouponDialogOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [onlyWithImages, setOnlyWithImages] = useState(false)
 
@@ -136,7 +140,10 @@ export default function InventarioPage() {
 
   const checkProfileOrWarn = (): boolean => {
     const storedUser = getStoredUser("admin")
-    if (!storedUser) return false
+    if (!storedUser) {
+      toast.error("No se encontró la sesión del administrador. Inicia sesión nuevamente.")
+      return false
+    }
 
     const isInvalid = (val?: string | number | null) => {
       if (val === undefined || val === null) return true
@@ -212,6 +219,7 @@ export default function InventarioPage() {
     if (!checkProfileOrWarn()) return
 
     if (newProduct.name && newProduct.price && newProduct.stock && newProduct.category) {
+      setIsAddingProduct(true)
       try {
         const savedProduct = await saveProduct({
           name: newProduct.name,
@@ -220,15 +228,33 @@ export default function InventarioPage() {
           category: newProduct.category,
           description: newProduct.description.trim() || null,
         })
+
+        let uploadedImages = 0
+        for (const file of newProductFiles) {
+          try {
+            await uploadProductImage(savedProduct.id, file)
+            uploadedImages += 1
+          } catch (imageError) {
+            console.error("Error al subir imagen del producto recién creado:", imageError)
+          }
+        }
+
         setNewProduct({ name: "", price: "", stock: "", category: "", description: "" })
+        setNewProductFiles([])
         setIsDialogOpen(false)
         invalidateCacheByPrefix("productos")
         await loadProducts()
 
-        handleOpenEdit(savedProduct)
+        if (newProductFiles.length > 0 && uploadedImages < newProductFiles.length) {
+          toast.warning(`Producto guardado, pero solo se subieron ${uploadedImages} de ${newProductFiles.length} imágenes`)
+        } else {
+          toast.success(uploadedImages > 0 ? "Producto e imágenes guardados correctamente" : "Producto guardado correctamente")
+        }
       } catch (err) {
         console.error("Error al guardar:", err)
         toast.error("Error al guardar el producto")
+      } finally {
+        setIsAddingProduct(false)
       }
     }
   }
@@ -240,6 +266,7 @@ export default function InventarioPage() {
       setDeletingProduct(null)
       invalidateCacheByPrefix("productos")
       await loadProducts()
+      toast.success("Producto desactivado correctamente")
     } catch (err) {
       console.error("Error al desactivar:", err)
       toast.error("Error al desactivar el producto")
@@ -271,6 +298,7 @@ export default function InventarioPage() {
         setEditingProduct(null)
         invalidateCacheByPrefix("productos")
         await loadProducts()
+        toast.success("Producto actualizado correctamente")
       } catch (err) {
         console.error("Error al actualizar:", err)
         toast.error("Error al actualizar el producto")
@@ -294,6 +322,7 @@ export default function InventarioPage() {
             ...prev,
             images: [...(prev.images || []), uploaded],
           } : null)
+          toast.success(`Imagen ${file.name} subida correctamente`)
         } catch (err) {
           console.error("Error al subir imagen:", err)
           toast.error("Error al subir imagen")
@@ -314,6 +343,7 @@ export default function InventarioPage() {
           images: (editingProduct.images || []).filter(img => img.id !== imageId),
         })
       }
+      toast.success("Imagen eliminada correctamente")
     } catch (err) {
       console.error("Error al eliminar imagen:", err)
       toast.error("Error al eliminar imagen")
@@ -364,11 +394,7 @@ export default function InventarioPage() {
 
         <main className="flex-1 p-3 pb-24 sm:p-6 sm:pb-6">
 
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Inventario</h1>
-              <p className="text-muted-foreground">Gestiona tus productos y stock</p>
-            </div>
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
             <div className="flex flex-col gap-2 sm:flex-row">
               <Select value={String(sizeLimit)} onValueChange={(val) => setSizeLimit(Number(val))}>
                 <SelectTrigger className="w-[140px] h-9">
@@ -469,6 +495,21 @@ export default function InventarioPage() {
                         className="min-h-[100px] resize-y"
                       />
                     </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="new-product-images">Imágenes del producto (opcional)</Label>
+                      <Input
+                        id="new-product-images"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(event) => setNewProductFiles(Array.from(event.target.files ?? []))}
+                      />
+                      {newProductFiles.length > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {newProductFiles.length} imagen{newProductFiles.length === 1 ? " seleccionada" : " seleccionadas"}. Se subirán después de crear el producto.
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <DialogFooter className="flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-between">
                     <Button
@@ -487,16 +528,26 @@ export default function InventarioPage() {
                       </DialogClose>
                       <Button
                         onClick={handleAddProduct}
-                        disabled={!newProduct.name.trim() || !newProduct.price || !newProduct.stock || !newProduct.category}
+                        disabled={isAddingProduct || !newProduct.name.trim() || !newProduct.price || !newProduct.stock || !newProduct.category}
                       >
-                        Agregar
+                        {isAddingProduct ? "Guardando..." : "Agregar"}
                       </Button>
                     </div>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+              <Button variant="outline" className="gap-2" onClick={() => setIsCouponDialogOpen(true)}>
+                <Tag className="h-4 w-4" />
+                Crear cupón
+              </Button>
             </div>
           </div>
+
+          <CouponDialog
+            open={isCouponDialogOpen}
+            onOpenChange={setIsCouponDialogOpen}
+            products={products.map((product) => ({ id: product.id, name: product.name }))}
+          />
 
           <Card>
             <CardHeader className="pb-4">

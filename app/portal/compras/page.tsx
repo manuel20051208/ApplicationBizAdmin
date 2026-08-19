@@ -1,11 +1,13 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import {
   Package, DollarSign, Receipt, Clock, CheckCircle2,
   XCircle, Truck, CreditCard, ShoppingBag, Tag,
-  CalendarDays, Hash,
+  CalendarDays, Hash, RotateCcw,
 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -13,10 +15,12 @@ import {
 } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   fetchClientHistory,
   type ClientHistoryProjection,
 } from "@/lib/services/clientService"
+import { getPortalCart, savePortalCart, type CartItem } from "@/lib/portal-store"
 import { formatCurrency as fmtMoney } from "@/lib/format"
 
 // ── Tipos internos ──────────────────────────────────────────────
@@ -32,9 +36,9 @@ interface SaleGroup {
 
 // ── Mapa de estados ─────────────────────────────────────────────
 const statusConfig: Record<string, { label: string; className: string; icon: React.ElementType }> = {
-  completed:   { label: "Completado",  className: "bg-green-500/10 text-green-500 border-green-500/20",  icon: CheckCircle2 },
-  completado:  { label: "Completado",  className: "bg-green-500/10 text-green-500 border-green-500/20",  icon: CheckCircle2 },
-  entregado:   { label: "Entregado",   className: "bg-green-500/10 text-green-500 border-green-500/20",  icon: CheckCircle2 },
+  completed:   { label: "Completado",  className: "status-completed",  icon: CheckCircle2 },
+  completado:  { label: "Completado",  className: "status-completed",  icon: CheckCircle2 },
+  entregado:   { label: "Entregado",   className: "status-completed",  icon: CheckCircle2 },
   en_camino:   { label: "En Camino",   className: "bg-blue-500/10 text-blue-500 border-blue-500/20",     icon: Truck        },
   procesando:  { label: "Procesando",  className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20", icon: Clock      },
   cancelled:   { label: "Cancelado",   className: "bg-red-500/10 text-red-500 border-red-500/20",        icon: XCircle     },
@@ -93,6 +97,7 @@ function groupBySale(items: ClientHistoryProjection[]): SaleGroup[] {
 
 // ── Componente principal ────────────────────────────────────────
 export default function ComprasPage() {
+  const router = useRouter()
   const [sales, setSales]           = useState<SaleGroup[]>([])
   const [selected, setSelected]     = useState<SaleGroup | null>(null)
   const [loading, setLoading]       = useState(true)
@@ -123,6 +128,23 @@ export default function ComprasPage() {
     [sales]
   )
 
+  // Comprar de nuevo: agrega 1 unidad de cada producto del pedido al carrito
+  const handleReorder = (sale: SaleGroup) => {
+    if (!sale || sale.items.length === 0) return
+    const prev = getPortalCart()
+    const merged: CartItem[] = [...prev]
+    for (const item of sale.items) {
+      const existing = merged.find(i => i.productId === item.productId)
+      if (existing) existing.quantity += 1
+      else merged.push({ productId: item.productId, quantity: 1 })
+    }
+    savePortalCart(merged)
+    const count = merged.reduce((s, i) => s + i.quantity, 0)
+    window.dispatchEvent(new CustomEvent("biz-cart-updated", { detail: { count } }))
+    toast.success("Productos agregados al carrito")
+    router.push("/portal")
+  }
+
   if (loading) return <LoadingSkeleton />
   if (error)   return <ErrorState message={error} />
 
@@ -134,25 +156,25 @@ export default function ComprasPage() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <KpiCard icon={Receipt}      iconBg="bg-primary/10"      iconColor="text-primary"
           label="Total de Pedidos"  value={String(totalOrders)} />
-        <KpiCard icon={CheckCircle2} iconBg="bg-green-500/10"    iconColor="text-green-500"
+        <KpiCard icon={CheckCircle2} iconBg="bg-emerald-500/10" iconColor="!text-emerald-500"
           label="Completados"       value={String(completed)} />
-        <KpiCard icon={DollarSign}   iconBg="bg-blue-500/10"     iconColor="text-blue-500"
+        <KpiCard icon={DollarSign}   iconBg="bg-primary/10"      iconColor="text-primary"
           label="Total Gastado"     value={fmtMoney(totalSpent)} />
       </div>
 
       {empty ? (
         <EmptyState />
       ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_400px]">
+        <div className="grid grid-cols-1 gap-6 lg:items-stretch lg:grid-cols-[1fr_400px]">
           {/* ── Tabla de pedidos ── */}
-          <Card className="border border-border bg-card overflow-hidden">
-            <CardHeader className="pb-4">
+          <Card className="flex h-auto flex-col overflow-hidden border border-border bg-card lg:h-[620px]">
+            <CardHeader className="shrink-0 pb-4">
               <CardTitle className="flex items-center gap-2 text-lg text-foreground">
                 <Package className="size-5 text-primary" />
                 Mis Pedidos
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="min-h-0 flex-1 overflow-y-auto p-0">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -186,7 +208,7 @@ export default function ComprasPage() {
                             {fmtDate(sale.occurredAt)}
                           </TableCell>
                           <TableCell className="text-center">
-                            <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-full bg-secondary px-2 text-xs font-semibold">
+                            <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-full bg-primary/10 px-2 text-xs font-bold text-primary ring-1 ring-primary/20">
                               {sale.totalQuantity}
                             </span>
                           </TableCell>
@@ -210,31 +232,33 @@ export default function ComprasPage() {
 
           {/* ── Panel de detalle ── */}
           {selected && (
-            <Card className="border border-border bg-card h-fit lg:sticky lg:top-[88px]">
-              <CardHeader className="pb-3">
+            <Card className="flex h-auto flex-col border border-border bg-card lg:sticky lg:top-[88px] lg:h-[620px]">
+              <CardHeader className="shrink-0 pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg text-foreground">Detalle del Pedido</CardTitle>
                   <span className="font-mono text-sm font-bold text-primary truncate max-w-[150px]" title={selected.saleIds.join(", ")}>#{selected.saleIds.join(", ")}</span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-5">
-                {/* Estado */}
+              <CardContent className="min-h-0 flex-1 space-y-5 overflow-y-auto">
+                {/* Estado: timeline animado (o cancelado) */}
                 {(() => {
-                  const cfg = getStatusCfg(selected.state)
-                  const Icon = cfg.icon
-                  return (
-                    <div className={`flex items-center gap-3 rounded-xl border p-3 ${cfg.className}`}>
-                      <Icon className="size-5 shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold">{cfg.label}</p>
-                        <p className="text-xs opacity-70">
-                          {fmtDate(selected.occurredAt, {
-                            weekday: "long", day: "numeric", month: "long", year: "numeric",
-                          })}
-                        </p>
+                  const cancelled = ["cancelled", "cancelado"].includes(selected.state.toLowerCase())
+                  if (cancelled) {
+                    return (
+                      <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-red-500">
+                        <XCircle className="size-5 shrink-0" />
+                        <div>
+                          <p className="text-sm font-semibold">Cancelado</p>
+                          <p className="text-xs opacity-70">
+                            {fmtDate(selected.occurredAt, {
+                              weekday: "long", day: "numeric", month: "long", year: "numeric",
+                            })}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )
+                    )
+                  }
+                  return <OrderTimeline state={selected.state} date={selected.occurredAt} />
                 })()}
 
                 {/* Info rápida */}
@@ -262,7 +286,7 @@ export default function ComprasPage() {
                 {/* Productos */}
                 <div className="space-y-2">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Productos ({selected.totalQuantity})
+                    Productos <span className="text-primary">({selected.totalQuantity})</span>
                   </p>
                   <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
                     {selected.items.map((item) => (
@@ -278,7 +302,10 @@ export default function ComprasPage() {
                               {item.productCategory}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
-                              {item.quantity} × {fmtMoney(item.unitPrice)}
+                              <span className="inline-flex h-5 min-w-[1.5rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-bold text-primary ring-1 ring-primary/20">
+                                {item.quantity}
+                              </span>{" "}
+                              × {fmtMoney(item.unitPrice)}
                             </span>
                           </div>
                         </div>
@@ -306,6 +333,17 @@ export default function ComprasPage() {
                   <span className="text-sm font-semibold text-primary">Total del pedido</span>
                   <span className="text-xl font-bold text-foreground">{fmtMoney(selected.grandTotal)}</span>
                 </div>
+
+                {/* Comprar de nuevo */}
+                {["completed", "completado", "entregado"].includes(selected.state.toLowerCase()) && (
+                  <Button
+                    className="w-full gap-2"
+                    onClick={() => handleReorder(selected)}
+                  >
+                    <RotateCcw className="size-4" />
+                    Comprar de nuevo
+                  </Button>
+                )}
               </CardContent>
             </Card>
           )}
@@ -316,6 +354,69 @@ export default function ComprasPage() {
 }
 
 // ── Subcomponentes ──────────────────────────────────────────────
+
+// Timeline animado del estado del pedido
+function OrderTimeline({ state, date }: { state: string; date: string }) {
+  const raw = state.toLowerCase()
+  const steps = [
+    { label: "Procesando", icon: Clock },
+    { label: "En Camino", icon: Truck },
+    { label: "Entregado", icon: CheckCircle2 },
+  ]
+  const current =
+    raw === "en_camino" ? 1
+      : ["completed", "completado", "entregado"].includes(raw) ? 2
+        : 0
+
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-3">
+      <div className="mb-3 flex items-center">
+        {steps.map((step, i) => {
+          const Icon = step.icon
+          const active = i <= current
+          const done = i < current
+          return (
+            <div key={step.label} className="flex flex-1 items-center last:flex-none">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`flex size-8 items-center justify-center rounded-full border-2 transition-all duration-500 ${
+                    active
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-muted text-muted-foreground"
+                  } ${done ? "animate-pop" : ""}`}
+                >
+                  <Icon className="size-4" />
+                </div>
+                <span
+                  className={`whitespace-nowrap text-[9px] font-medium ${
+                    active ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+              {i < steps.length - 1 && (
+                <div className="relative mx-1 mb-4 h-0.5 flex-1 overflow-hidden rounded-full bg-border">
+                  <div
+                    className={`absolute inset-y-0 left-0 bg-primary transition-all duration-700 ${
+                      i < current ? "w-full" : i === current ? "w-1/2" : "w-0"
+                    }`}
+                  />
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <p className="text-center text-[10px] text-muted-foreground">
+        Actualizado:{" "}
+        {fmtDate(date, {
+          weekday: "long", day: "numeric", month: "long", year: "numeric",
+        })}
+      </p>
+    </div>
+  )
+}
 
 function KpiCard({
   icon: Icon, iconBg, iconColor, label, value,

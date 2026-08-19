@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import dynamic from "next/dynamic"
-import { CheckCircle2, CreditCard, Loader2, ShoppingCart } from "lucide-react"
+import { CheckCircle2, ChevronUp, CreditCard, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,10 +17,13 @@ import { type Product, type ProductImage } from "@/lib/services/productService"
 import { purchase, type PurchaseRequestDTO } from "@/lib/services/saleService"
 import {
   getLinkedCard,
+  getPortalCoupon,
   savePortalCart,
+  savePortalCoupon,
   type CartItem,
   type LinkedCard,
 } from "@/lib/portal-store"
+import { computeOrderTotals, validateCoupon, type Coupon } from "@/lib/coupons"
 
 const CartSheet = dynamic(
   () => import("@/components/portal/cart-sheet").then((m) => m.CartSheet),
@@ -30,6 +33,10 @@ const LinkCardDialog = dynamic(
   () => import("@/components/portal/link-card-dialog").then((m) => m.LinkCardDialog),
   { ssr: false }
 )
+const CheckoutDialog = dynamic(
+  () => import("@/components/portal/checkout-dialog").then((m) => m.CheckoutDialog),
+  { ssr: false }
+)
 
 interface StoreCheckoutBarProps {
   cart: CartItem[]
@@ -37,7 +44,7 @@ interface StoreCheckoutBarProps {
   getProductImages: (productId: number) => ProductImage[]
   onCartChange: (cart: CartItem[]) => void
   formatCurrency: (amount: number) => string
-  onPurchaseComplete?: () => void
+  onPurchaseComplete?: () => void | Promise<void>
 }
 
 export function StoreCheckoutBar({
@@ -49,14 +56,62 @@ export function StoreCheckoutBar({
   onPurchaseComplete,
 }: StoreCheckoutBarProps) {
   const [cartOpen, setCartOpen] = useState(false)
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [linkCardOpen, setLinkCardOpen] = useState(false)
   const [successOpen, setSuccessOpen] = useState(false)
+  const [barCollapsed, setBarCollapsed] = useState(false)
+  const stockRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [linkedCard, setLinkedCard] = useState<LinkedCard | null>(null)
-  const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [lastOrderId, setLastOrderId] = useState<string | null>(null)
-  const [isSimulatingLoading, setIsSimulatingLoading] = useState(false)
+  const [coupon, setCoupon] = useState<Coupon | null>(() => {
+    const code = getPortalCoupon()
+    return code ? validateCoupon(code) : null
+  })
 
   const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0)
+  const subtotal = cart.reduce((sum, i) => {
+    const product = products.find((p) => p.id === i.productId)
+    return sum + (product?.price ?? 0) * i.quantity
+  }, 0)
+  const totals = computeOrderTotals(subtotal, coupon)
+
+  const handleCouponChange = (next: Coupon | null) => {
+    setCoupon(next)
+    savePortalCoupon(next?.code ?? null)
+  }
+
+  // Bump del badge cuando aumenta el contador (complementa el fly-to-cart)
+  const [bumping, setBumping] = useState(false)
+  const prevTotalRef = useRef(totalItems)
+  useEffect(() => {
+    if (totalItems > prevTotalRef.current) {
+      setBumping(true)
+      const t = setTimeout(() => setBumping(false), 350)
+      prevTotalRef.current = totalItems
+      return () => clearTimeout(t)
+    }
+    prevTotalRef.current = totalItems
+  }, [totalItems])
+
+  // La barra permanece visible al principio y se oculta hacia abajo después
+  // de 30 segundos. Si el carrito cambia, vuelve a mostrarse automáticamente.
+  useEffect(() => {
+    setBarCollapsed(false)
+  }, [totalItems])
+
+  useEffect(() => {
+    if (barCollapsed) return
+    const timer = window.setTimeout(() => setBarCollapsed(true), 30_000)
+    return () => window.clearTimeout(timer)
+  }, [barCollapsed, totalItems])
+
+  useEffect(() => {
+    return () => {
+      if (stockRefreshTimerRef.current) {
+        clearTimeout(stockRefreshTimerRef.current)
+      }
+    }
+  }, [])
 
   const productsById = useMemo(
     () => new Map(products.map(p => [p.id, p])),
@@ -88,27 +143,16 @@ export function StoreCheckoutBar({
       setCartOpen(true)
       return
     }
-
-    const card = getLinkedCard()
-    setLinkedCard(card)
-
-    if (!card) {
-      setLinkCardOpen(true)
-      return
-    }
-
-    await simulatePurchase(card)
+    setLinkedCard(getLinkedCard())
+    setCheckoutOpen(true)
   }
 
-  const simulatePurchase = async (card: LinkedCard) => {
-    setIsCheckingOut(true)
-
+  const simulatePurchase = async (_card: LinkedCard) => {
     const user = getStoredUser()
     const clientId = Number(user?.id)
 
     if (!Number.isFinite(clientId) || clientId <= 0) {
       toast.error("No se encontró un ID de cliente válido. Por favor, inicia sesión nuevamente.")
-      setIsCheckingOut(false)
       return
     }
 
@@ -135,7 +179,6 @@ export function StoreCheckoutBar({
 
     if (!itemsForApi.length) {
       toast.error("El carrito está vacío. Agrega productos antes de comprar.")
-      setIsCheckingOut(false)
       return
     }
 
@@ -149,10 +192,7 @@ export function StoreCheckoutBar({
 
     try {
       const response = await purchase(request);
-      
-      const lines = purchaseLines.map((item) => item.line)
-      const total = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0)
-      
+
       // Update parsing for saleIds
       const orderId = response.saleIds ? response.saleIds.join(", ") : (response.id || `ORD-${Date.now().toString(36).toUpperCase()}`)
 
@@ -162,10 +202,20 @@ export function StoreCheckoutBar({
 
       setLastOrderId(orderId.toString())
       setCartOpen(false)
-      
-      // Mostrar primero la información de la compra realizada
+      setCheckoutOpen(false)
+
+      // No consultamos dos veces: esperamos a que el backend termine de
+      // actualizar el stock y refrescamos una sola vez después de 20 segundos.
+      if (stockRefreshTimerRef.current) clearTimeout(stockRefreshTimerRef.current)
+      stockRefreshTimerRef.current = setTimeout(() => {
+        stockRefreshTimerRef.current = null
+        void onPurchaseComplete?.()
+      }, 20_000)
+
+      // Mostrar primero la información de la compra realizada.
       setSuccessOpen(true)
-      
+      return
+
     } catch (err: any) {
       console.error("Error al ejecutar compra:", err)
       
@@ -185,36 +235,34 @@ export function StoreCheckoutBar({
       }
 
       toast.error(`Hubo un error al procesar la compra: ${err.message}`)
-    } finally {
-      setIsCheckingOut(false)
+      throw err
     }
   }
 
   const handleCardLinked = (card: LinkedCard) => {
     setLinkedCard(card)
-    if (totalItems > 0) {
-      void simulatePurchase(card)
-    }
   }
 
   const handleSuccessClose = () => {
     setSuccessOpen(false)
-    setIsSimulatingLoading(true)
-    
-    // Iniciar la carga de datos en segundo plano
-    onPurchaseComplete?.()
-
-    // Mantener la animación de carga por 1.5s para que la API tenga tiempo
-    setTimeout(() => {
-      setIsSimulatingLoading(false)
-    }, 1500)
   }
 
   return (
     <>
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-4 pt-2">
-        <div className="pointer-events-auto flex items-center gap-2 rounded-2xl border border-border bg-card/95 p-2 shadow-2xl backdrop-blur-md">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex justify-center px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2">
+        {barCollapsed ? (
           <Button
+            type="button"
+            aria-label="Mostrar carrito"
+            title="Mostrar carrito"
+            className="pointer-events-auto size-11 rounded-full border border-primary/40 bg-card/95 p-0 text-primary shadow-2xl backdrop-blur-md hover:bg-primary/10"
+            onClick={() => setBarCollapsed(false)}
+          >
+            <ChevronUp className="size-5" />
+          </Button>
+        ) : <div className="pointer-events-auto flex w-full max-w-fit items-center justify-center gap-2 rounded-2xl border border-border bg-card/95 p-2 shadow-2xl backdrop-blur-md">
+          <Button
+            id="store-cart-button"
             size="lg"
             variant="secondary"
             className="relative h-12 min-w-[10rem] gap-2 rounded-xl px-5 font-semibold shadow-sm"
@@ -223,31 +271,30 @@ export function StoreCheckoutBar({
             <ShoppingCart className="size-5" />
             Carrito
             {totalItems > 0 && (
-              <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+              <span className={`absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground ${bumping ? "animate-pop" : ""}`}>
                 {totalItems > 99 ? "99+" : totalItems}
               </span>
             )}
           </Button>
 
+          {totalItems > 0 && (
+            <div className="hidden pl-1 pr-2 text-right sm:block">
+              <p className="text-[10px] leading-tight text-muted-foreground">Total</p>
+              <p className="text-sm font-bold leading-tight text-foreground">
+                {formatCurrency(totals.total)}
+              </p>
+            </div>
+          )}
+
           <Button
             size="lg"
             className="h-12 min-w-[8.5rem] gap-2 rounded-xl px-6 font-semibold shadow-md shadow-primary/20"
-            disabled={isCheckingOut}
             onClick={() => void handleBuy()}
           >
-            {isCheckingOut ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Procesando...
-              </>
-            ) : (
-              <>
-                <CreditCard className="size-4" />
-                Comprar
-              </>
-            )}
+            <CreditCard className="size-4" />
+            Comprar
           </Button>
-        </div>
+        </div>}
       </div>
 
       <CartSheet
@@ -259,6 +306,22 @@ export function StoreCheckoutBar({
         onUpdateQuantity={updateQuantity}
         onRemove={removeFromCart}
         formatCurrency={formatCurrency}
+        coupon={coupon}
+        onCouponChange={handleCouponChange}
+      />
+
+      <CheckoutDialog
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        cart={cart}
+        products={products}
+        getProductImages={getProductImages}
+        formatCurrency={formatCurrency}
+        linkedCard={linkedCard}
+        coupon={coupon}
+        onCouponChange={handleCouponChange}
+        onLinkCard={() => setLinkCardOpen(true)}
+        onPurchase={(card) => simulatePurchase(card)}
       />
 
       <LinkCardDialog
@@ -297,14 +360,6 @@ export function StoreCheckoutBar({
         </DialogContent>
       </Dialog>
 
-      {isSimulatingLoading && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-md transition-all duration-300">
-          <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
-            <Loader2 className="size-16 animate-spin text-primary" />
-            <p className="text-xl font-medium text-foreground">Procesando tu compra...</p>
-          </div>
-        </div>
-      )}
     </>
   )
 }

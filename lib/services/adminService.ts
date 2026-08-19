@@ -105,11 +105,31 @@ export async function fetchStoreDescription(adminId: number): Promise<StoreDescr
 }
 
 export async function updateAdminProfile(profile: AdminProfile): Promise<AdminProfile> {
-  const res = await fetchClient(`api/user/${profile.id}/modify`, {
+  const payload = {
+    fullName: profile.fullName?.trim(),
+    email: profile.email?.trim(),
+    phone: Number(profile.phone),
+    businessName: profile.businessName?.trim(),
+  };
+
+  const res = await fetchClient(`api/user/modify`, {
     method: "PATCH",
-    body: JSON.stringify(profile)
+    body: JSON.stringify(payload)
   });
-  if (!res.ok) throw new Error("Error al actualizar perfil del administrador");
+  if (!res.ok) {
+    let detail = `Error HTTP ${res.status}`;
+    try {
+      const body = await res.json();
+      if (typeof body === "string") detail = body;
+      else if (body && typeof body === "object") {
+        const data = body as { message?: string; error?: string; detail?: string };
+        detail = data.message || data.error || data.detail || detail;
+      }
+    } catch {
+      // El backend puede responder sin cuerpo.
+    }
+    throw new Error(`No se pudo actualizar el perfil: ${detail}`);
+  }
   return res.json();
 }
 
@@ -125,7 +145,7 @@ export async function updateProfilePhotoUrl(photoUrl: string): Promise<AdminProf
   // Traemos el perfil actual para hacer un PATCH parcial sin pisar otros campos
   const current = await fetchAdminProfile();
 
-  const res = await fetchClient(`api/user/${user.id}/modify`, {
+  const res = await fetchClient(`api/user/modify`, {
     method: "PATCH",
     body: JSON.stringify({
       ...current,

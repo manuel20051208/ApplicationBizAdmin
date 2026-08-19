@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useLayoutEffect, useState, type CSSProperties, type ReactNode } from "react"
+import { usePathname } from "next/navigation"
 import { Palette } from "lucide-react"
 
 export const ACCENT_OPTIONS = [
@@ -36,23 +37,30 @@ function applyAccent(accentId: AccentId) {
 
 export function AccentColorProvider({ children }: { children: ReactNode }) {
   const [accent, setAccentState] = useState<AccentId>("green")
+  const pathname = usePathname()
+  const isLogin = pathname === "/login"
 
   useLayoutEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as AccentId | null
     const initial = ACCENT_OPTIONS.some(item => item.id === stored) ? stored! : "green"
-    setAccentState(initial)
-    applyAccent(initial)
+    const activeAccent = isLogin ? "green" : initial
+    setAccentState(activeAccent)
+    applyAccent(activeAccent)
 
     const themeObserver = new MutationObserver(() => {
       const current = window.localStorage.getItem(STORAGE_KEY) as AccentId | null
-      applyAccent(ACCENT_OPTIONS.some(item => item.id === current) ? current! : initial)
+      const nextAccent = isLogin
+        ? "green"
+        : (ACCENT_OPTIONS.some(item => item.id === current) ? current! : initial)
+      applyAccent(nextAccent)
     })
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
 
     const sync = (event: StorageEvent) => {
       if (event.key === STORAGE_KEY && event.newValue && ACCENT_OPTIONS.some(item => item.id === event.newValue)) {
-        setAccentState(event.newValue as AccentId)
-        applyAccent(event.newValue as AccentId)
+        const nextAccent = isLogin ? "green" : event.newValue as AccentId
+        setAccentState(nextAccent)
+        applyAccent(nextAccent)
       }
     }
     window.addEventListener("storage", sync)
@@ -60,7 +68,7 @@ export function AccentColorProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("storage", sync)
       themeObserver.disconnect()
     }
-  }, [])
+  }, [isLogin])
 
   const setAccent = (next: AccentId) => {
     setAccentState(next)

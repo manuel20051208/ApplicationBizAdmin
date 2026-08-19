@@ -161,3 +161,25 @@ export function formatExpiry(value: string): string {
   if (digits.length <= 2) return digits
   return `${digits.slice(0, 2)}/${digits.slice(2)}`
 }
+
+// ── Cupón aplicado (scoped por usuario) ─────────────────────────
+export function getPortalCoupon(): string | null {
+  const key = scopedKey("coupon")
+  if (!key) return null
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+export function savePortalCoupon(code: string | null): void {
+  const key = scopedKey("coupon")
+  if (!key) return
+  try {
+    if (code) localStorage.setItem(key, code)
+    else localStorage.removeItem(key)
+  } catch {
+    // ignorar
+  }
+}

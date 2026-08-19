@@ -238,8 +238,8 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex size-16 items-center justify-center rounded-2xl shadow-lg bg-primary">
-            <Icon className="size-8 text-primary-foreground" />
+          <div className="login-brand-mark flex size-16 items-center justify-center rounded-2xl shadow-lg">
+            <Icon className="size-8 text-white" />
           </div>
           <div className="text-center">
             <h1 className="text-3xl font-bold text-foreground tracking-tight">{title}</h1>
