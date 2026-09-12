@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import dynamic from "next/dynamic"
 import { CheckCircle2, ChevronUp, CreditCard, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -14,7 +15,7 @@ import {
 import { toast } from "sonner"
 import { getStoredUser } from "@/lib/services/authService"
 import { type Product, type ProductImage } from "@/lib/services/productService"
-import { purchase, type PurchaseRequestDTO } from "@/lib/services/saleService"
+import { purchase, type PurchaseRequestDTO, type PurchaseResponseDTO } from "@/lib/services/saleService"
 import {
   getLinkedCard,
   getPortalCoupon,
@@ -23,7 +24,8 @@ import {
   type CartItem,
   type LinkedCard,
 } from "@/lib/portal-store"
-import { computeOrderTotals, validateCoupon, type Coupon } from "@/lib/coupons"
+import { couponsFromAssignments, computeOrderTotals, validateCoupon, type Coupon } from "@/lib/coupons"
+import { fetchMyCouponAssignments, type CouponAssignment } from "@/lib/services/couponService"
 
 const CartSheet = dynamic(
   () => import("@/components/portal/cart-sheet").then((m) => m.CartSheet),
@@ -60,20 +62,59 @@ export function StoreCheckoutBar({
   const [linkCardOpen, setLinkCardOpen] = useState(false)
   const [successOpen, setSuccessOpen] = useState(false)
   const [barCollapsed, setBarCollapsed] = useState(false)
+  const [portalMounted, setPortalMounted] = useState(false)
   const stockRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [linkedCard, setLinkedCard] = useState<LinkedCard | null>(null)
   const [lastOrderId, setLastOrderId] = useState<string | null>(null)
-  const [coupon, setCoupon] = useState<Coupon | null>(() => {
-    const code = getPortalCoupon()
-    return code ? validateCoupon(code) : null
-  })
+  const [coupon, setCoupon] = useState<Coupon | null>(null)
+  const [clientCoupons, setClientCoupons] = useState<CouponAssignment[]>([])
+  const [lastPurchase, setLastPurchase] = useState<PurchaseResponseDTO | null>(null)
+
+  useEffect(() => {
+    setPortalMounted(true)
+  }, [])
+
+  // Cargar los cupones asignados al cliente (backend) y restaurar el código
+  // guardado en la sesión, solo si sigue vigente.
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const raw = await fetchMyCouponAssignments()
+        if (cancelled) return
+        setClientCoupons(raw)
+        setCoupon((current) =>
+          current ??
+          (() => {
+            const savedCode = getPortalCoupon()
+            return savedCode ? validateCoupon(savedCode, couponsFromAssignments(raw)) : null
+          })(),
+        )
+      } catch {
+        if (!cancelled) setClientCoupons([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0)
   const subtotal = cart.reduce((sum, i) => {
     const product = products.find((p) => p.id === i.productId)
     return sum + (product?.price ?? 0) * i.quantity
   }, 0)
-  const totals = computeOrderTotals(subtotal, coupon)
+  const totals = computeOrderTotals(
+    subtotal,
+    coupon,
+    cart
+      .map((i) => {
+        const product = products.find((p) => p.id === i.productId)
+        return product ? { price: product.price, quantity: i.quantity, productId: i.productId } : null
+      })
+      .filter(Boolean) as { price: number; quantity: number; productId: number }[],
+  )
+  const cartProductIds = useMemo(() => new Set(cart.map((i) => i.productId)), [cart])
 
   const handleCouponChange = (next: Coupon | null) => {
     setCoupon(next)
@@ -188,19 +229,19 @@ export function StoreCheckoutBar({
       clientId,
       userId: userIds,
       items: itemsForApi,
+      cuponCode: coupon?.code ?? null,
     }
 
     try {
-      const response = await purchase(request);
+      const response = await purchase(request)
 
-      // Update parsing for saleIds
-      const orderId = response.saleIds ? response.saleIds.join(", ") : (response.id || `ORD-${Date.now().toString(36).toUpperCase()}`)
-
+      const orderId = response.saleId ?? response.saleIds?.[0] ?? response.id ?? `ORD-${Date.now().toString(36).toUpperCase()}`
 
       onCartChange([])
       savePortalCart([])
 
-      setLastOrderId(orderId.toString())
+      setLastPurchase(response)
+      setLastOrderId(String(orderId))
       setCartOpen(false)
       setCheckoutOpen(false)
 
@@ -249,7 +290,8 @@ export function StoreCheckoutBar({
 
   return (
     <>
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex justify-center px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2">
+      {portalMounted && createPortal(
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[120] flex justify-center px-2 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 sm:px-3">
         {barCollapsed ? (
           <Button
             type="button"
@@ -260,12 +302,12 @@ export function StoreCheckoutBar({
           >
             <ChevronUp className="size-5" />
           </Button>
-        ) : <div className="pointer-events-auto flex w-full max-w-fit items-center justify-center gap-2 rounded-2xl border border-border bg-card/95 p-2 shadow-2xl backdrop-blur-md">
+        ) : <div className="pointer-events-auto flex w-full max-w-md items-center justify-center gap-2 rounded-2xl border border-border bg-card/95 p-2 shadow-2xl backdrop-blur-md">
           <Button
             id="store-cart-button"
             size="lg"
             variant="secondary"
-            className="relative h-12 min-w-[10rem] gap-2 rounded-xl px-5 font-semibold shadow-sm"
+            className="relative h-12 min-w-0 flex-1 gap-2 rounded-xl px-3 font-semibold shadow-sm sm:min-w-[10rem] sm:flex-none sm:px-5"
             onClick={() => setCartOpen(true)}
           >
             <ShoppingCart className="size-5" />
@@ -288,14 +330,16 @@ export function StoreCheckoutBar({
 
           <Button
             size="lg"
-            className="h-12 min-w-[8.5rem] gap-2 rounded-xl px-6 font-semibold shadow-md shadow-primary/20"
+            className="h-12 min-w-0 flex-1 gap-2 rounded-xl px-3 font-semibold shadow-md shadow-primary/20 sm:min-w-[8.5rem] sm:flex-none sm:px-6"
             onClick={() => void handleBuy()}
           >
             <CreditCard className="size-4" />
             Comprar
           </Button>
         </div>}
-      </div>
+        </div>,
+        document.body
+      )}
 
       <CartSheet
         open={cartOpen}
@@ -308,6 +352,8 @@ export function StoreCheckoutBar({
         formatCurrency={formatCurrency}
         coupon={coupon}
         onCouponChange={handleCouponChange}
+        clientCoupons={clientCoupons}
+        cartProductIds={cartProductIds}
       />
 
       <CheckoutDialog
@@ -322,6 +368,8 @@ export function StoreCheckoutBar({
         onCouponChange={handleCouponChange}
         onLinkCard={() => setLinkCardOpen(true)}
         onPurchase={(card) => simulatePurchase(card)}
+        clientCoupons={clientCoupons}
+        cartProductIds={cartProductIds}
       />
 
       <LinkCardDialog
@@ -350,6 +398,19 @@ export function StoreCheckoutBar({
                 <>
                   Cobrado a tarjeta •••• {linkedCard.last4}. Puedes ver el detalle en{" "}
                   <span className="font-medium text-foreground">Mis Compras</span>.
+                </>
+              )}
+              {lastPurchase?.cupon && (
+                <>
+                  <br />
+                  Cupón{" "}
+                  <span className="font-mono font-semibold text-foreground">
+                    {lastPurchase.cupon.code}
+                  </span>{" "}
+                  aplicado
+                  {lastPurchase.discountApplied != null && (
+                    <> · descuento {formatCurrency(-lastPurchase.discountApplied)}</>
+                  )}
                 </>
               )}
             </DialogDescription>

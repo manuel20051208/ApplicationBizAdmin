@@ -132,6 +132,11 @@ export const CACHE_KEYS = {
   VENTAS: (size: number) => `ventas-${size}`,
   CLIENTES: (adminId: number) => `clientes-${adminId}`,
   PRODUCTOS: (size: number) => `productos-${size}`,
+  PORTAL_PRODUCTOS: "portal-productos",
+  PORTAL_COMPRAS: "portal-compras",
+  PORTAL_PERFIL: "portal-perfil",
+  MEJORES_CLIENTES: "mejores-clientes",
+  MEJORES_PRODUCTOS: "mejores-productos",
 } as const;
 
 /** TTL defaults (ms) */
@@ -140,4 +145,9 @@ export const CACHE_TTL = {
   VENTAS: 30_000,        // 30s
   CLIENTES: 30_000,      // 30s
   PRODUCTOS: 30_000,     // 30s
+  PORTAL_PRODUCTOS: 30_000,
+  PORTAL_COMPRAS: 30_000,
+  PORTAL_PERFIL: 30_000,
+  MEJORES_CLIENTES: 60_000,
+  MEJORES_PRODUCTOS: 60_000,
 } as const;

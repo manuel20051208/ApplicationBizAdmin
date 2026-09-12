@@ -61,13 +61,11 @@ export default function ProductoPage() {
   const [product, setProduct] = useState<ProductWithImages | null>(null)
   const [catalog, setCatalog] = useState<ProductWithImages[]>([])
   const [loading, setLoading] = useState(true)
-  const [favorites, setFavorites] = useState<number[]>(() => getPortalFavorites())
-  const [cart, setCart] = useState<CartItem[]>(() => getPortalCart())
+  const [favorites, setFavorites] = useState<number[]>([])
+  const [cart, setCart] = useState<CartItem[]>([])
   const [qty, setQty] = useState(1)
   const [detailCarouselApi, setDetailCarouselApi] = useState<CarouselApi | null>(null)
-  const [reviews, setReviews] = useState<Review[]>(() =>
-    Number.isFinite(productId) ? getReviewsForProduct(productId) : []
-  )
+  const [reviews, setReviews] = useState<Review[]>([])
   const [storeInfo, setStoreInfo] = useState<StoreDescription | null>(null)
 
   const isFav = favorites.includes(productId)
@@ -143,6 +141,12 @@ export default function ProductoPage() {
       setFavorites(getPortalFavorites())
     }
   }, [product])
+
+  useEffect(() => {
+    if (Number.isFinite(productId)) {
+      setReviews(getReviewsForProduct(productId))
+    }
+  }, [productId])
 
   // Embla reInit al cargar el carrusel
   useEffect(() => {

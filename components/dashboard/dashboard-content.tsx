@@ -14,6 +14,8 @@ import {
   fetchDashboardData,
   fetchDashboardExcel,
   fetchDashboardPdf,
+  fetchBestClients,
+  fetchBestProducts,
   type RevenueDataPoint,
 } from "@/lib/services/adminService"
 import { type SaleItemView } from "@/lib/services/saleService"
@@ -52,6 +54,15 @@ interface RankingEntry {
   amount: number
 }
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "?"
+}
+
 function RankingCard({ title, description, icon: Icon, entries, loading, emptyMessage }: {
   title: string
   description: string
@@ -60,6 +71,14 @@ function RankingCard({ title, description, icon: Icon, entries, loading, emptyMe
   loading: boolean
   emptyMessage: string
 }) {
+  const podium = entries.slice(0, 3)
+  const podiumOrder = podium.length === 3 ? [podium[1], podium[0], podium[2]] : podium
+  const rankStyles = [
+    "order-2 min-h-36",
+    "order-1 min-h-28",
+    "order-3 min-h-24",
+  ]
+
   return (
     <Card className="h-full border-border bg-card/60 backdrop-blur-md">
       <CardHeader className="pb-3">
@@ -92,19 +111,31 @@ function RankingCard({ title, description, icon: Icon, entries, loading, emptyMe
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {entries.slice(0, 3).map((entry, index) => (
-              <div key={entry.id} className="flex items-center gap-3">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                  {index + 1}
+          <div className="relative grid min-h-56 grid-cols-3 items-end gap-2 overflow-hidden rounded-2xl border border-border/70 bg-card/30 px-2 pb-0 pt-8 shadow-inner sm:px-6">
+            <div className="pointer-events-none absolute inset-x-8 top-5 h-20 rounded-full bg-primary/10 blur-3xl" />
+            {podiumOrder.map((entry, position) => {
+              const rank = podium.length === 3 ? [2, 1, 3][position] : position + 1
+              const pedestalHeight = rank === 1 ? "h-28" : rank === 2 ? "h-20" : "h-16"
+              const pedestalStyle = rank === 1
+                ? "from-primary/40 to-primary/20"
+                : rank === 2
+                  ? "from-primary/25 to-primary/10"
+                  : "from-primary/20 to-primary/5"
+              return (
+                <div key={entry.id} className={`relative z-10 flex flex-col items-center justify-end text-center ${rankStyles[rank - 1] || ""}`}>
+                  <div className="mb-2 flex min-h-16 flex-col items-center justify-end">
+                    <div className="relative flex size-12 items-center justify-center rounded-full border-2 border-primary/30 bg-primary/10 text-sm font-black text-primary shadow-lg shadow-primary/10">
+                      {getInitials(entry.name)}
+                    </div>
+                  </div>
+                  <p className="mb-1 w-full max-w-32 truncate text-xs font-bold text-foreground">{entry.name}</p>
+                  <p className="mb-2 text-[11px] font-medium text-muted-foreground">{entry.quantity} compras</p>
+                  <div className={`relative flex w-full max-w-36 items-end justify-center rounded-t-xl bg-gradient-to-b ${pedestalStyle} ${pedestalHeight}`}>
+                    <span className="mb-3 flex size-9 items-center justify-center rounded-full bg-primary text-lg font-black text-primary-foreground shadow-md shadow-primary/20">{rank}</span>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-foreground">{entry.name}</p>
-                  <p className="text-xs text-muted-foreground">{entry.quantity} {title.includes("clientes") ? "compras" : "unidades"}</p>
-                </div>
-                <span className="text-xs font-semibold text-primary">{formatCurrency(entry.amount)}</span>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </CardContent>
@@ -179,11 +210,11 @@ export function DashboardContent() {
 
     const mapRanking = (ranking: any[], type: "client" | "product") => Array.isArray(ranking)
       ? ranking.map((entry: any, index: number) => ({
-          id: String(entry.id ?? entry.clientId ?? entry.productId ?? index),
+          id: String(entry.id ?? entry.clientId ?? entry.productId ?? entry.userId ?? index),
           name: type === "client"
-            ? entry.name || entry.fullName || entry.clientName || "Cliente sin nombre"
-            : entry.name || entry.productName || "Producto sin nombre",
-          quantity: Number(entry.quantity ?? entry.totalQuantity ?? entry.salesCount ?? entry.count ?? entry.unitsSold ?? 0),
+            ? entry.name || entry.fullName || entry.full_name || entry.clientName || entry.client_name || "Cliente sin nombre"
+            : entry.name || entry.productName || entry.product_name || entry.productsName || entry.products_name || "Producto sin nombre",
+          quantity: Number(entry.amountOfBuys ?? entry.quantity ?? entry.totalQuantity ?? entry.salesCount ?? entry.count ?? entry.unitsSold ?? 0),
           amount: Number(entry.amount ?? entry.totalAmount ?? entry.totalSpent ?? entry.revenue ?? 0),
         }))
       : [];
@@ -202,13 +233,17 @@ export function DashboardContent() {
     try {
       setLoading(true)
 
-      const dashboardData = await cachedFetch(
-        CACHE_KEYS.DASHBOARD,
-        () => fetchDashboardData(),
-        CACHE_TTL.DASHBOARD
-      );
+      const [dashboardData, bestClients, bestProducts] = await Promise.all([
+        cachedFetch(CACHE_KEYS.DASHBOARD, () => fetchDashboardData(), CACHE_TTL.DASHBOARD),
+        cachedFetch(CACHE_KEYS.MEJORES_CLIENTES, () => fetchBestClients(), CACHE_TTL.MEJORES_CLIENTES),
+        cachedFetch(CACHE_KEYS.MEJORES_PRODUCTOS, () => fetchBestProducts(), CACHE_TTL.MEJORES_PRODUCTOS),
+      ])
 
-      processDashboardData(dashboardData);
+      processDashboardData({
+        ...dashboardData,
+        bestClients,
+        bestProducts,
+      });
 
     } catch (err) {
       console.error("Error al cargar dashboard:", err)

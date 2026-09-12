@@ -11,6 +11,7 @@ export interface AdminProfile {
   email: string;
   phone: number;
   businessName: string;
+  colorTypes?: string;      // enum ColorTypes: "VERDE" | "AZUL" | "VIOLETA" | "AMBAR" | "ROSA"
   profilePhoto?: string;    // foto subida manualmente (path local)
   profilePhotoUrl?: string; // foto de Google OAuth2 (URL externa)
   fotoPerfil?: string;
@@ -110,6 +111,7 @@ export async function updateAdminProfile(profile: AdminProfile): Promise<AdminPr
     email: profile.email?.trim(),
     phone: Number(profile.phone),
     businessName: profile.businessName?.trim(),
+    colorTypes: profile.colorTypes,
   };
 
   const res = await fetchClient(`api/user/modify`, {
@@ -131,6 +133,20 @@ export async function updateAdminProfile(profile: AdminProfile): Promise<AdminPr
     throw new Error(`No se pudo actualizar el perfil: ${detail}`);
   }
   return res.json();
+}
+
+export interface BestClientRanking {
+  clientId: number;
+  userId: number;
+  name: string;
+  amountOfBuys: number;
+}
+
+export interface BestProductRanking {
+  productId: number;
+  userId: number;
+  name: string;
+  amountOfBuys: number;
 }
 
 /**
@@ -155,6 +171,25 @@ export async function updateProfilePhotoUrl(photoUrl: string): Promise<AdminProf
   });
 
   if (!res.ok) throw new Error("Error al actualizar la foto de perfil");
+  return res.json();
+}
+
+/**
+ * Actualiza el color de acento (field colorTypes -> enum ColorTypes) del administrador.
+ * Trae el perfil actual para hacer un PATCH parcial sin pisar otros campos.
+ */
+export async function updateColorTypes(colorTypes: string): Promise<AdminProfile> {
+  const current = await fetchAdminProfile();
+
+  const res = await fetchClient(`api/user/modify`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      ...current,
+      colorTypes,
+    }),
+  });
+
+  if (!res.ok) throw new Error("Error al actualizar el color de la interfaz");
   return res.json();
 }
 
@@ -231,21 +266,30 @@ export async function fetchDashboardPdf(): Promise<Blob> {
 }
 
 export async function fetchDashboardSum(): Promise<number> {
-  const res = await fetchClient(`${DASHBOARD_API}/sum`);
-  if (!res.ok) throw new Error("Error al obtener ingresos totales");
-  return res.json();
+  const data = await fetchDashboardData();
+  return Number(data.totalSales) || 0;
+}
+
+export async function fetchBestClients(): Promise<BestClientRanking[]> {
+  const res = await fetchClient("api/rankings/best-clients", { requireAuth: true })
+  if (!res.ok) throw new Error("Error al obtener los mejores clientes")
+  return res.json()
+}
+
+export async function fetchBestProducts(): Promise<BestProductRanking[]> {
+  const res = await fetchClient("api/rankings/best-products", { requireAuth: true })
+  if (!res.ok) throw new Error("Error al obtener los mejores productos")
+  return res.json()
 }
 
 export async function fetchDashboardStock(): Promise<number> {
-  const res = await fetchClient(`${DASHBOARD_API}/stock`);
-  if (!res.ok) throw new Error("Error al obtener stock");
-  return res.json();
+  const data = await fetchDashboardData();
+  return Number(data.totalProducts) || 0;
 }
 
 export async function fetchDashboardClientCount(): Promise<number> {
-  const res = await fetchClient(`${DASHBOARD_API}/count-clients`);
-  if (!res.ok) throw new Error("Error al obtener conteo de clientes");
-  return res.json();
+  const data = await fetchDashboardData();
+  return Number(data.totalClients) || 0;
 }
 
 const MONTH_LABELS: Record<number, string> = {
@@ -259,28 +303,16 @@ export interface RevenueDataPoint {
 }
 
 export async function fetchDashboardGraphic(): Promise<RevenueDataPoint[]> {
-  const res = await fetchClient(`${DASHBOARD_API}/data-graphic`);
-  if (!res.ok) throw new Error("Error al obtener datos de la gráfica");
-  const data: Record<string, number> = await res.json();
-
-  const currentMonth = new Date().getMonth() + 1;
-  const result: RevenueDataPoint[] = [];
-
-  for (let i = 1; i <= currentMonth; i++) {
-    result.push({
-      month: MONTH_LABELS[i] || `Mes ${i}`,
-      ingresos: data[String(i)] || 0,
-    });
-  }
-
-  return result;
+  const data = await fetchDashboardData();
+  return (data.monthlyData || []).map((item) => ({
+    month: item.monthName,
+    ingresos: Number(item.monthlyTotal) || 0,
+  }));
 }
 
 export async function fetchDashboardLatestSales(pageSize: number = 5): Promise<SaleItemView[]> {
-  const res = await fetchClient(`${DASHBOARD_API}/latest-sales?pageSize=${pageSize}`);
-  if (!res.ok) throw new Error("Error al obtener últimas ventas");
-  const data = await res.json();
-  const arr = Array.isArray(data) ? data : (data.content || []);
+  const data = await fetchDashboardData();
+  const arr = (data.showLatestSales?.content || []).slice(0, pageSize);
 
   return arr.map((item: any) => {
     // Formatear la fecha para que no se vea el string raro (ej. 2026-06-06T03:20:48.187Z)

@@ -1,5 +1,5 @@
 const API_DOWN_MESSAGE =
-  "No se pudo conectar con el servidor. Verifica que Spring Boot esté corriendo en el puerto 8080."
+  "No se pudo conectar con el servidor. Verifica que el backend esté en línea."
 
 const GATEWAY_STATUSES = [502, 503, 504]
 
@@ -17,7 +17,7 @@ export function isBackendUnreachableResponse(response: Response): boolean {
   if (response.status === 0 || GATEWAY_STATUSES.includes(response.status)) {
     return true
   }
-  // El rewrite de Next suele devolver 500 cuando localhost:8080 no acepta conexión
+  // El rewrite de Next suele devolver 500 cuando el backend no acepta conexión
   if (response.status >= 500) return true
   return false
 }
@@ -63,12 +63,12 @@ export function getNetworkErrorMessage(): string {
 
 import { toast } from "sonner"
 
-/** Muestra una tarjeta roja en la parte superior derecha si Spring Boot no está corriendo */
+/** Muestra una tarjeta roja en la parte superior derecha si el backend no responde */
 export function triggerOfflineNotification(onRetry?: () => void) {
   // Evita acumular toasts repetidos del mismo banner
   toast.dismiss()
   toast.error("Servidor Desconectado", {
-    description: "No se pudo conectar con el servidor. Verifica que Spring Boot esté corriendo en el puerto 8080.",
+    description: "No se pudo conectar con el servidor. Verifica que el backend esté en línea.",
     duration: 10000,
     action: onRetry ? { label: "Reintentar", onClick: onRetry } : undefined,
   })

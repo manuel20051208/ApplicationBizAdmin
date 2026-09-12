@@ -49,8 +49,9 @@ export async function fetchSalesItemsByClient(
 
 /** Portal cliente: historial de compras del cliente autenticado. Requiere endpoint en backend. */
 export async function fetchClientPurchases(clientId: number): Promise<SaleItemView[]> {
-  const params = new URLSearchParams({ clientId: String(clientId) });
-  const res = await fetchClient(`${SALES_API}/by-client?${params.toString()}`);
+  // El backend identifica al cliente desde el JWT; no existe /by-client.
+  void clientId;
+  const res = await fetchClient("api/client/user-payments");
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
     throw new Error(
@@ -78,9 +79,40 @@ export interface PurchaseRequestDTO {
   clientId: number;
   userId: number[];
   items: PurchaseItemRequestDTO[];
+  cuponCode?: string | null;
 }
 
-export async function purchase(request: PurchaseRequestDTO): Promise<any> {
+/** Datos descriptivos del cupón aplicado en la compra (null si no hubo). */
+export interface PurchaseCouponInfo {
+  id: number;
+  code: string;
+  discount: number;
+  cuponDateLimit?: string | null;
+}
+
+export interface PurchaseItemView {
+  productId: number;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+}
+
+export interface PurchaseResponseDTO {
+  saleId?: number;
+  saleIds?: number[];
+  id?: number;
+  clientId?: number;
+  cuponCode?: string | null;
+  cupon?: PurchaseCouponInfo | null;
+  originalTotal?: number;
+  discountApplied?: number;
+  totalAmount?: number;
+  createdAt?: string;
+  items?: PurchaseItemView[];
+}
+
+export async function purchase(request: PurchaseRequestDTO): Promise<PurchaseResponseDTO> {
   const normalizedRequest = {
     clientId: Number(request.clientId),
     userId: request.userId || [],
@@ -88,6 +120,7 @@ export async function purchase(request: PurchaseRequestDTO): Promise<any> {
       productId: Number(item.productId),
       quantity: Number(item.quantity),
     })),
+    cuponCode: request.cuponCode ?? null,
   }
 
   if (!Number.isFinite(normalizedRequest.clientId) || normalizedRequest.clientId <= 0) {
@@ -115,8 +148,8 @@ export async function purchase(request: PurchaseRequestDTO): Promise<any> {
 
   const contentType = res.headers.get("content-type");
   if (contentType && contentType.includes("application/json")) {
-    return res.json();
+    return res.json() as Promise<PurchaseResponseDTO>;
   } else {
-    return res.text();
+    return res.text() as Promise<PurchaseResponseDTO>;
   }
 }

@@ -94,7 +94,9 @@ export async function fetchClient(
         toast.error("No tienes autorización o tu token no fue validado por el servidor.");
       } else if (response.status === 403) {
         toast.error("No tienes permisos para realizar esta acción.");
-      } else if (response.status >= 500) {
+      // Un 500 significa que Spring respondió, aunque haya fallado internamente.
+      // Solo marcamos el backend como caído cuando el proxy devuelve un gateway error.
+      } else if ([502, 503, 504].includes(response.status)) {
         import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
           triggerOfflineNotification();
         });

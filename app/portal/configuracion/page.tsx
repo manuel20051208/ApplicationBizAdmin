@@ -22,8 +22,8 @@ import {
 import { toast } from "sonner"
 import { getStoredUser, updateStoredUser } from "@/lib/services/authService"
 import { toHttps, optimizeCloudinaryUrl } from "@/lib/config"
-import { fetchClientProfilePhotoBlobUrl, uploadClientProfilePhoto, getPaymentCards, updatePaymentCardStatus, fetchClientProfile, updateClientProfile, type PaymentCardResponseDTO } from "@/lib/services/clientService"
-import { AccentColorPicker } from "@/components/accent-color-provider"
+import { fetchClientProfilePhotoBlobUrl, uploadClientProfilePhoto, getPaymentCards, updatePaymentCardStatus, fetchClientProfile, updateClientProfile, updateClientColorTypes, type PaymentCardResponseDTO } from "@/lib/services/clientService"
+import { AccentColorPicker, useAccentColor, accentIdFromColorType, colorTypeFromAccent, type AccentId } from "@/components/accent-color-provider"
 import {
   Dialog,
   DialogContent,
@@ -56,6 +56,8 @@ export default function ConfiguracionClientePage() {
     address: "",
     avatar: null as string | null,
   })
+
+  const { setAccent } = useAccentColor()
 
   const loadProfilePhoto = async (photoPath?: string | null) => {
     if (currentAvatarBlobUrlRef.current) {
@@ -158,7 +160,13 @@ export default function ConfiguracionClientePage() {
           email: data.email,
           phone: data.phone ?? undefined,
           address: data.address ?? undefined,
+          colorTypes: data.colorTypes || stored?.colorTypes,
         })
+
+        // Aplicar el color guardado en la base de datos
+        if (data.colorTypes) {
+          setAccent(accentIdFromColorType(data.colorTypes))
+        }
       } catch (err) {
         console.error("Error al cargar perfil del cliente:", err)
       }
@@ -315,6 +323,16 @@ export default function ConfiguracionClientePage() {
     }
   }
 
+  const handleAccentChange = async (accentId: AccentId) => {
+    updateStoredUser({ colorTypes: colorTypeFromAccent(accentId) })
+    try {
+      await updateClientColorTypes(colorTypeFromAccent(accentId))
+    } catch (err) {
+      console.error("Error al guardar el color", err)
+      toast.error("No se pudo guardar el color en el servidor")
+    }
+  }
+
   const tabs = [
     { id: "perfil" as const, label: "Mi Perfil", icon: User },
     { id: "pagos" as const, label: "Pagos", icon: CreditCard },
@@ -339,7 +357,7 @@ export default function ConfiguracionClientePage() {
           </CardTitle>
           <CardDescription>Personaliza el color de acento para tu portal.</CardDescription>
         </CardHeader>
-        <CardContent><AccentColorPicker /></CardContent>
+        <CardContent><AccentColorPicker onChange={handleAccentChange} /></CardContent>
       </Card>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">

@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { AccentColorPicker } from "@/components/accent-color-provider"
+import { AccentColorPicker, useAccentColor, accentIdFromColorType, colorTypeFromAccent, type AccentId } from "@/components/accent-color-provider"
 import {
   Dialog,
   DialogContent,
@@ -55,7 +55,7 @@ import {
 } from "lucide-react"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { getStoredUser, updateStoredUser } from "@/lib/services/authService"
-import { fetchAdminProfile, updateAdminProfile, updateProfilePhotoUrl, uploadProfilePhoto, getProfilePhotoUrl } from "@/lib/services/adminService"
+import { fetchAdminProfile, updateAdminProfile, updateProfilePhotoUrl, uploadProfilePhoto, getProfilePhotoUrl, updateColorTypes } from "@/lib/services/adminService"
 import { optimizeCloudinaryUrl } from "@/lib/config"
 
 interface UserProfile {
@@ -97,6 +97,8 @@ export default function ConfiguracionPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [isSavingAvatar, setIsSavingAvatar] = useState(false)
+
+  const { setAccent } = useAccentColor()
 
   const loadProfilePhoto = async (photoPath?: string | null) => {
     if (photoPath?.startsWith("data:") || photoPath?.startsWith("blob:")) {
@@ -163,7 +165,13 @@ export default function ConfiguracionPage() {
                 email: adminData.email || stored.email,
                 phone: adminData.phone ?? stored.phone,
                 businessName: adminData.businessName || stored.businessName,
+                colorTypes: adminData.colorTypes || stored.colorTypes,
               })
+
+              // Aplicar el color guardado en la base de datos
+              if (adminData.colorTypes) {
+                setAccent(accentIdFromColorType(adminData.colorTypes))
+              }
 
               // Foto: Google OAuth2 (profilePhotoUrl) tiene prioridad, luego Cloudinary (profilePhoto)
               const apiPhoto = optimizeCloudinaryUrl(
@@ -447,6 +455,20 @@ export default function ConfiguracionPage() {
       .toUpperCase()
   }
 
+  const handleAccentChange = async (accentId: AccentId) => {
+    const user = getStoredUser()
+    if (!user?.id) return
+
+    const colorTypes = colorTypeFromAccent(accentId)
+    updateStoredUser({ colorTypes })
+    try {
+      await updateColorTypes(colorTypes)
+    } catch (err) {
+      console.error("Error al guardar el color", err)
+      toast.error("No se pudo guardar el color en el servidor")
+    }
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -472,7 +494,7 @@ export default function ConfiguracionPage() {
               </CardTitle>
               <CardDescription>Personaliza el color de acento del panel.</CardDescription>
             </CardHeader>
-            <CardContent><AccentColorPicker /></CardContent>
+            <CardContent><AccentColorPicker onChange={handleAccentChange} /></CardContent>
           </Card>
 
           <div className="grid gap-6 lg:grid-cols-2">

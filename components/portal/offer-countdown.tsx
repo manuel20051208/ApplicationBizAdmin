@@ -4,8 +4,10 @@ import { useEffect, useState } from "react"
 
 // Cuenta regresiva de la oferta (ventana rodante de 3h)
 export function OfferCountdown({ deadline }: { deadline: number }) {
+  const [mounted, setMounted] = useState(false)
   const [, force] = useState(0)
   useEffect(() => {
+    setMounted(true)
     const id = setInterval(() => force((n) => n + 1), 1000)
     return () => clearInterval(id)
   }, [])
@@ -16,5 +18,6 @@ export function OfferCountdown({ deadline }: { deadline: number }) {
   const s = Math.floor((remaining % 60000) / 1000)
   const pad = (n: number) => String(n).padStart(2, "0")
 
-  return <span className="tabular-nums">{pad(h)}:{pad(m)}:{pad(s)}</span>
+  // Evita mismatch de hidratación: durante el SSR Date.now() difiere del cliente.
+  return <span className="tabular-nums">{mounted ? `${pad(h)}:${pad(m)}:${pad(s)}` : "--:--:--"}</span>
 }

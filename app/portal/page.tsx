@@ -1,19 +1,17 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
-  Search, ShoppingCart, Heart, SlidersHorizontal,
-  Package, Zap, Truck, Shield as ShieldIcon,
-  Star, ImageIcon, Loader2, RefreshCw,
-  Store, Phone, Mail, FileText, User
+  ShoppingCart, Heart, SlidersHorizontal,
+  Package, Truck, ImageIcon, Loader2,
+  Store, FileText, MapPin, Navigation, ChevronDown
 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import {
@@ -101,13 +99,25 @@ function TiendaPageContent() {
   const [sortBy, setSortBy] = useState("featured")
   const [onlyAvailable, setOnlyAvailable] = useState(false)
   const [cart, setCart] = useState<CartItem[]>([])
-  const [favorites, setFavorites] = useState<number[]>(() => getPortalFavorites())
+  const [favorites, setFavorites] = useState<number[]>([])
   const [products, setProducts] = useState<StoreProduct[]>([])
+  const productsRef = useRef<StoreProduct[]>([])
+  const [stockPulseIds, setStockPulseIds] = useState<Set<number>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null)
   const [storeInfo, setStoreInfo] = useState<StoreDescription | null>(null)
   const [detailCarouselApi, setDetailCarouselApi] = useState<CarouselApi | null>(null)
+  const [featuredCarouselApi, setFeaturedCarouselApi] = useState<CarouselApi | null>(null)
+  const [featuredIndex, setFeaturedIndex] = useState(0)
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null)
+  const [locating, setLocating] = useState(false)
+  const [nearbySearch, setNearbySearch] = useState(false)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    productsRef.current = products
+  }, [products])
 
   // Embla mide mal el ancho si el carrusel estaba oculto (diálogo cerrado); reInit al abrir
   useEffect(() => {
@@ -115,6 +125,33 @@ function TiendaPageContent() {
     const id = requestAnimationFrame(() => detailCarouselApi.reInit())
     return () => cancelAnimationFrame(id)
   }, [selectedProduct?.id, detailCarouselApi])
+
+  useEffect(() => {
+    const handleSearch = (event: Event) => {
+      setSearchQuery((event as CustomEvent<string>).detail ?? "")
+    }
+
+    window.addEventListener("portal-store-search", handleSearch)
+    return () => window.removeEventListener("portal-store-search", handleSearch)
+  }, [])
+
+  useEffect(() => {
+    if (!featuredCarouselApi || products.length < 2) return
+    const timer = window.setInterval(() => featuredCarouselApi.scrollNext(), 3500)
+    return () => window.clearInterval(timer)
+  }, [featuredCarouselApi, products.length])
+
+  useEffect(() => {
+    if (!featuredCarouselApi) return
+
+    const syncIndex = () => setFeaturedIndex(featuredCarouselApi.selectedScrollSnap())
+    syncIndex()
+    featuredCarouselApi.on("select", syncIndex)
+
+    return () => {
+      featuredCarouselApi.off("select", syncIndex)
+    }
+  }, [featuredCarouselApi])
 
   // Cargar productos reales de la API
   const loadProducts = useCallback(async () => {
@@ -198,6 +235,53 @@ function TiendaPageContent() {
   useEffect(() => {
     loadProducts()
   }, [loadProducts])
+
+  // Actualiza únicamente los datos del catálogo desde la caché del backend.
+  // No activa el skeleton ni recarga la página completa.
+  const refreshProductsSilently = useCallback(async () => {
+    try {
+      const data = await fetchActiveProductsWithImages()
+      if (!Array.isArray(data)) return
+
+      const previousById = new Map(productsRef.current.map((product) => [product.id, product]))
+      const changedIds = data
+        .filter((product) => previousById.get(product.id)?.stock !== product.stock)
+        .map((product) => product.id)
+
+      setProducts((previous) => {
+        const currentById = new Map(previous.map((product) => [product.id, product]))
+        return data.map((product) => ({
+          ...product,
+          loadedImages: product.images?.length
+            ? product.images
+            : currentById.get(product.id)?.loadedImages ?? [],
+          imageLoading: false,
+        }))
+      })
+
+      if (changedIds.length > 0) {
+        setStockPulseIds(new Set(changedIds))
+        window.setTimeout(() => setStockPulseIds(new Set()), 700)
+      }
+    } catch (error) {
+      // Una actualización silenciosa no debe interrumpir la experiencia del cliente.
+      console.warn("No se pudo actualizar el stock en segundo plano", error)
+    }
+  }, [])
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void refreshProductsSilently()
+      }
+    }, 20_000)
+
+    return () => window.clearInterval(interval)
+  }, [refreshProductsSilently])
+
+  useEffect(() => {
+    setFavorites(getPortalFavorites())
+  }, [])
 
   useEffect(() => {
     setCart(getPortalCart())
@@ -287,6 +371,36 @@ function TiendaPageContent() {
   const getProductImages = (productId: number) =>
     productsById.get(productId)?.loadedImages ?? []
 
+  const requestLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Tu navegador no permite obtener la ubicación")
+      return
+    }
+
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setLocation({ latitude: coords.latitude, longitude: coords.longitude })
+        setLocating(false)
+        toast.success("Ubicación lista para buscar vendedores cercanos")
+      },
+      () => {
+        setLocating(false)
+        toast.error("No se pudo obtener tu ubicación")
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 },
+    )
+  }
+
+  const handleNearbySearch = () => {
+    setNearbySearch((enabled) => !enabled)
+    if (!location) requestLocation()
+  }
+
+  const featuredProducts = products
+    .filter((product) => product.loadedImages.length > 0)
+    .slice(0, 8)
+
   // Loading skeleton
   if (isLoading) {
     return (
@@ -321,50 +435,58 @@ function TiendaPageContent() {
 
   return (
     <>
-      {/* Hero / Search Section */}
-      <div className="relative mb-6 overflow-hidden rounded-2xl border border-border bg-card p-4 sm:mb-8 sm:p-8">
-        <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-primary to-transparent" />
-        <div className="relative">
-          <div className="mb-4">
-            <h1 className="text-2xl font-bold text-foreground">Explora nuestra tienda</h1>
-            <p className="text-sm mt-1 text-muted-foreground">
-              Encuentra los mejores productos al mejor precio
-            </p>
-          </div>
-
-          {/* Search Bar */}
-          <div className="flex flex-col sm:flex-row gap-4 max-w-3xl items-center">
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Buscar productos, categorías..."
-                className="h-12 pl-12 pr-4 rounded-xl text-base bg-input border-border"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+      {/* Productos destacados y ubicación */}
+      <section className="mb-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Destacados</p>
+            <h1 className="mt-1 text-xl font-bold text-foreground">Productos para ti</h1>
           </div>
         </div>
-      </div>
 
-      {/* Trust Badges */}
-      <div className="mb-5 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 sm:grid-cols-4">
-        {[
-          { icon: Truck, label: "Envío Gratis", sub: "En pedidos +$99" },
-          { icon: ShieldIcon, label: "Compra Segura", sub: "100% protegido" },
-          { icon: Zap, label: "Envío Express", sub: "24-48 horas" },
-          { icon: Star, label: "Garantía", sub: "Satisfacción total" },
-        ].map((badge, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-xl p-3 bg-card border border-border">
-            <badge.icon className="size-5 shrink-0 text-primary" />
-            <div>
-              <p className="text-xs font-semibold text-foreground">{badge.label}</p>
-              <p className="text-[10px] text-muted-foreground">{badge.sub}</p>
-            </div>
+        <Carousel className="px-1 sm:px-8" setApi={setFeaturedCarouselApi} opts={{ align: "start", loop: featuredProducts.length > 1 }}>
+          <CarouselContent className="!ml-0">
+            {featuredProducts.map((product) => {
+              const image = [...product.loadedImages].sort((a, b) => a.displayOrder - b.displayOrder)[0]
+              return (
+                <CarouselItem key={product.id} className="basis-full pl-0">
+                  <button
+                    type="button"
+                    aria-label={`Ver ${product.name}`}
+                    className="group relative block h-32 w-full overflow-hidden rounded-xl border border-border bg-muted transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 sm:h-44 lg:h-52"
+                    onClick={() => router.push(`/portal/producto/${product.id}`)}
+                  >
+                    <Image
+                      src={getImageUrl(image, 640)}
+                      alt={product.name}
+                      fill
+                      className="object-contain p-2 transition-transform duration-500 group-hover:scale-[1.02]"
+                      sizes="(max-width: 640px) 82vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  </button>
+                </CarouselItem>
+              )
+            })}
+          </CarouselContent>
+          {featuredProducts.length > 1 && <>
+            <CarouselPrevious className="!left-2 size-8 border-border bg-card/90 text-foreground shadow-md hover:bg-card sm:!left-10" />
+            <CarouselNext className="!right-2 size-8 border-border bg-card/90 text-foreground shadow-md hover:bg-card sm:!right-10" />
+          </>}
+        </Carousel>
+        {featuredProducts.length > 1 && (
+          <div className="mt-3 flex items-center justify-center gap-1.5" aria-label="Selector de productos destacados">
+            {featuredProducts.map((product, index) => (
+              <button
+                key={product.id}
+                type="button"
+                aria-label={`Mostrar producto destacado ${index + 1}`}
+                onClick={() => featuredCarouselApi?.scrollTo(index)}
+                className={`h-1.5 rounded-full transition-all ${index === featuredIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/60"}`}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        )}
+      </section>
 
 
       {/* Categories - Dinámicas de los productos */}
@@ -386,13 +508,26 @@ function TiendaPageContent() {
         })}
       </div>
 
-      {/* Tipo de publicación y controles de catálogo */}
-      <div className="mb-6 rounded-2xl border border-border bg-card p-4 shadow-sm">
-        <div className="mb-3 flex items-center gap-2">
+      {/* Filtros en un único botón */}
+      <div className="relative mb-6 flex justify-end">
+        <button
+          type="button"
+          aria-expanded={filtersOpen}
+          onClick={() => setFiltersOpen((open) => !open)}
+          className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors ${filtersOpen || nearbySearch
+            ? "border-primary/40 bg-primary/10 text-primary"
+            : "border-border bg-card text-foreground hover:border-primary/30 hover:bg-muted/50"
+            }`}
+        >
           <SlidersHorizontal className="size-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">¿Qué estás buscando?</h2>
-        </div>
+          Filtros
+          {(selectedPublicationType !== "all" || nearbySearch || onlyAvailable) && (
+            <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">!</span>
+          )}
+          <ChevronDown className={`size-4 text-muted-foreground transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+        </button>
 
+        {filtersOpen && <div className="absolute left-0 top-12 z-40 max-h-[calc(100dvh-9rem)] w-full overflow-y-auto rounded-2xl border border-border bg-card p-4 shadow-2xl sm:left-auto sm:w-[42rem]">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {publicationTypes.map((type) => {
             const isActive = selectedPublicationType === type.id
@@ -412,6 +547,33 @@ function TiendaPageContent() {
             )
           })}
         </div>
+
+        <button
+          type="button"
+          aria-pressed={nearbySearch}
+          onClick={handleNearbySearch}
+          disabled={locating}
+          className={`mt-3 flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition-all ${nearbySearch
+            ? "border-primary/40 bg-primary/10 text-primary shadow-sm"
+            : "border-border bg-background text-muted-foreground hover:border-primary/30 hover:bg-muted/60 hover:text-foreground"
+            }`}
+        >
+          <span className="flex items-center gap-2">
+            {nearbySearch ? <Navigation className="size-4" /> : <MapPin className="size-4" />}
+            <span>
+              <span className="block text-sm font-semibold">Vendedores cercanos</span>
+              <span className="mt-0.5 block text-[11px] opacity-80">
+                {locating ? "Obteniendo tu ubicación..." : location ? "Buscar tiendas, servicios y productos por cercanía" : "Usar mi ubicación para buscar ofertas cercanas"}
+              </span>
+            </span>
+          </span>
+          <span className="text-xs font-medium">{nearbySearch ? "Activo" : "Filtrar"}</span>
+        </button>
+        {nearbySearch && (
+          <p className="mt-2 flex items-center gap-1.5 text-[11px] text-primary">
+            <MapPin className="size-3.5" /> La búsqueda por cercanía está lista; conectaremos las coordenadas de vendedores para ordenar los resultados.
+          </p>
+        )}
 
         <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
@@ -438,6 +600,7 @@ function TiendaPageContent() {
             </Label>
           </div>
         </div>
+        </div>}
       </div>
 
       {/* Results count */}
@@ -558,11 +721,11 @@ function TiendaPageContent() {
                 {/* Stock info */}
                 <div className="flex items-center gap-1.5 mb-3">
                   {inStock ? (
-                    <span className="text-[11px] font-medium text-primary">
+                    <span className={`text-[11px] font-medium text-primary ${stockPulseIds.has(product.id) ? "animate-stock-update" : ""}`}>
                       En stock ({product.stock} disponibles)
                     </span>
                   ) : (
-                    <span className="text-[11px] font-medium text-destructive">
+                    <span className={`text-[11px] font-medium text-destructive ${stockPulseIds.has(product.id) ? "animate-stock-update" : ""}`}>
                       Sin stock
                     </span>
                   )}
@@ -617,9 +780,9 @@ function TiendaPageContent() {
                 {/* Add to cart button */}
                 <Button
                   className={`w-full gap-2 font-semibold text-sm ${!inStock
-                    ? "bg-muted text-muted-foreground"
+                    ? "!bg-[#e5e7eb] !text-[#374151] hover:!bg-[#d1d5db] disabled:!opacity-100 [&_svg]:!text-[#374151]"
                     : inCart
-                      ? "bg-green-600 text-white hover:bg-green-700"
+                      ? "!bg-[#22c55e] !text-[#0b1b12] hover:!bg-[#16a34a] disabled:!opacity-100 [&_svg]:!text-[#0b1b12]"
                       : "bg-primary text-primary-foreground hover:bg-primary/90"
                     }`}
                   disabled={!inStock}
@@ -799,7 +962,7 @@ function TiendaPageContent() {
             savePortalCart(next)
           }}
           formatCurrency={formatCurrency}
-          onPurchaseComplete={loadProducts}
+          onPurchaseComplete={refreshProductsSilently}
         />
       )}
     </>

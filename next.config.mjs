@@ -1,9 +1,13 @@
 /** @type {import('next').NextConfig} */
 
-// Destino del backend para los rewrites.
-// En local apunta a http://localhost:8080; en producción configúralo con
-// BACKEND_API_URL (o NEXT_PUBLIC_API_URL) apuntando al backend real.
-const BACKEND = (process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080").replace(/\/+$/, "");
+// Destino del backend para los rewrites (server-side, no se expone al navegador).
+// Prioridad: BACKEND_API_URL → NEXT_PUBLIC_API_URL (legacy, expuesta) → fallback de entorno.
+// En producción el fallback es el backend de Render (no localhost); en desarrollo, localhost:8080.
+const BACKEND = (
+  process.env.BACKEND_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === "production" ? "https://api-project-vh4u.onrender.com" : "http://localhost:8080")
+).replace(/\/+$/, "");
 
 const nextConfig = {
   typescript: {

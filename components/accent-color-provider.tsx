@@ -1,8 +1,9 @@
 "use client"
 
-import { createContext, useContext, useLayoutEffect, useState, type CSSProperties, type ReactNode } from "react"
+import { createContext, useContext, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react"
 import { usePathname } from "next/navigation"
 import { Palette } from "lucide-react"
+import { getStoredUser } from "@/lib/auth/session"
 
 export const ACCENT_OPTIONS = [
   { id: "green", label: "Verde", swatch: "#22c55e", light: "oklch(0.55 0.18 145)", dark: "oklch(0.75 0.18 145)" },
@@ -13,7 +14,37 @@ export const ACCENT_OPTIONS = [
 ] as const
 
 type AccentId = (typeof ACCENT_OPTIONS)[number]["id"]
-const STORAGE_KEY = "biz-accent-color"
+export type { AccentId }
+
+// Mapeo entre ids locales (green/blue/...) y el enum ColorTypes del backend (VERDE/AZUL/...)
+export type ColorTypes = "VERDE" | "AZUL" | "VIOLETA" | "AMBAR" | "ROSA"
+
+export const ACCENT_TO_COLOR_TYPE: Record<AccentId, ColorTypes> = {
+  green: "VERDE",
+  blue: "AZUL",
+  violet: "VIOLETA",
+  amber: "AMBAR",
+  rose: "ROSA",
+}
+
+export const COLOR_TYPE_TO_ACCENT: Record<ColorTypes, AccentId> = {
+  VERDE: "green",
+  AZUL: "blue",
+  VIOLETA: "violet",
+  AMBAR: "amber",
+  ROSA: "rose",
+}
+
+/** Convierte un valor del enum ColorTypes (o string) a un id de acento local. */
+export function accentIdFromColorType(value?: string | null): AccentId {
+  const key = (value || "").toUpperCase() as ColorTypes
+  return COLOR_TYPE_TO_ACCENT[key] ?? "green"
+}
+
+/** Convierte un id de acento local al valor del enum ColorTypes del backend. */
+export function colorTypeFromAccent(accent: AccentId): ColorTypes {
+  return ACCENT_TO_COLOR_TYPE[accent] ?? "VERDE"
+}
 
 const AccentContext = createContext<{
   accent: AccentId
@@ -37,42 +68,28 @@ function applyAccent(accentId: AccentId) {
 
 export function AccentColorProvider({ children }: { children: ReactNode }) {
   const [accent, setAccentState] = useState<AccentId>("green")
+  const accentRef = useRef<AccentId>("green")
   const pathname = usePathname()
   const isLogin = pathname === "/login"
 
   useLayoutEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY) as AccentId | null
-    const initial = ACCENT_OPTIONS.some(item => item.id === stored) ? stored! : "green"
-    const activeAccent = isLogin ? "green" : initial
-    setAccentState(activeAccent)
-    applyAccent(activeAccent)
+    const sessionColorType = getStoredUser()?.colorTypes
+    const initial = isLogin ? "green" : accentIdFromColorType(sessionColorType)
+    accentRef.current = initial
+    setAccentState(initial)
+    applyAccent(initial)
 
     const themeObserver = new MutationObserver(() => {
-      const current = window.localStorage.getItem(STORAGE_KEY) as AccentId | null
-      const nextAccent = isLogin
-        ? "green"
-        : (ACCENT_OPTIONS.some(item => item.id === current) ? current! : initial)
-      applyAccent(nextAccent)
+      applyAccent(isLogin ? "green" : accentRef.current)
     })
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
 
-    const sync = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY && event.newValue && ACCENT_OPTIONS.some(item => item.id === event.newValue)) {
-        const nextAccent = isLogin ? "green" : event.newValue as AccentId
-        setAccentState(nextAccent)
-        applyAccent(nextAccent)
-      }
-    }
-    window.addEventListener("storage", sync)
-    return () => {
-      window.removeEventListener("storage", sync)
-      themeObserver.disconnect()
-    }
+    return () => themeObserver.disconnect()
   }, [isLogin])
 
   const setAccent = (next: AccentId) => {
+    accentRef.current = next
     setAccentState(next)
-    window.localStorage.setItem(STORAGE_KEY, next)
     applyAccent(next)
   }
 
@@ -83,7 +100,7 @@ export function useAccentColor() {
   return useContext(AccentContext)
 }
 
-export function AccentColorPicker() {
+export function AccentColorPicker({ onChange }: { onChange?: (accent: AccentId) => void }) {
   const { accent, setAccent } = useAccentColor()
   return (
     <div className="flex flex-wrap gap-2">
@@ -91,7 +108,10 @@ export function AccentColorPicker() {
         <button
           key={option.id}
           type="button"
-          onClick={() => setAccent(option.id)}
+          onClick={() => {
+            setAccent(option.id)
+            onChange?.(option.id)
+          }}
           aria-label={`Usar color ${option.label}`}
           aria-pressed={accent === option.id}
           style={{ "--option-color": option.swatch } as CSSProperties}

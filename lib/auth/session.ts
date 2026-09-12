@@ -27,6 +27,7 @@ export interface UserData {
   profilePhotoUrl?: string; // URL de Google OAuth2
   fotoPerfil?: string;
   photo?: string;
+  colorTypes?: string;      // enum ColorTypes del backend (VERDE/AZUL/VIOLETA/AMBAR/ROSA)
   address?: string;
 }
 
@@ -39,6 +40,7 @@ export interface AuthApiUsuario {
   username?: string;
   fullName?: string;
   name?: string;
+  colorTypes?: string;
 }
 
 export interface AuthApiResponse {
@@ -58,6 +60,7 @@ export interface AuthApiResponse {
   profilePhotoUrl?: string;
   fotoPerfil?: string;
   photo?: string;
+  colorTypes?: string;      // enum ColorTypes del backend
   address?: string;
   // Objeto anidado que devuelve el backend en registro
   usuario?: AuthApiUsuario;
@@ -254,6 +257,7 @@ export function saveAuthSession(
     profilePhoto,
     fotoPerfil,
     photo,
+    colorTypes: (data.colorTypes || u.colorTypes || "").toUpperCase() || undefined,
     address: (data.address || formData?.address || "").trim() || "No especificado",
   };
 

@@ -4,6 +4,7 @@ const CLIENTS_SUMMARY_API = "api/client-show-summary";
 
 export interface ClientsSummaryView {
   id?: number | string;
+  fullName?: string;
   name?: string;
   clientName?: string;
   client_name?: string;
@@ -27,13 +28,15 @@ export async function fetchClientsSummary(adminId: number): Promise<ClientsSumma
 export async function fetchClientsSummaryByName(adminId: number, name: string): Promise<ClientsSummaryView[]> {
   const res = await fetchClient(`${CLIENTS_SUMMARY_API}/name/${adminId}?name=${encodeURIComponent(name)}`);
   if (!res.ok) throw new Error("Error al buscar cliente por nombre");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.content || []);
 }
 
 export async function fetchClientsSummaryByEmail(adminId: number, email: string): Promise<ClientsSummaryView[]> {
   const res = await fetchClient(`${CLIENTS_SUMMARY_API}/email/${adminId}?email=${encodeURIComponent(email)}`);
   if (!res.ok) throw new Error("Error al buscar cliente por email");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.content || []);
 }
 
 // ==================== PAYMENT CARDS ====================
@@ -74,9 +77,9 @@ export async function updatePaymentCardStatus(
   cardId: number,
   active: boolean
 ): Promise<PaymentCardResponseDTO> {
-  const res = await fetchClient(`api/client/payment-cards/${cardId}/status`, {
+  const params = new URLSearchParams({ active: String(active) });
+  const res = await fetchClient(`api/client/payment-cards/${cardId}/status?${params.toString()}`, {
     method: "PATCH",
-    body: JSON.stringify({ active }),
   });
   if (!res.ok) throw new Error("Error al actualizar estado de la tarjeta");
   return res.json();
@@ -102,6 +105,7 @@ export interface ClientProfile {
   address: string | null;
   createdAt: string;
   photo: string | null;
+  colorTypes?: string;      // enum ColorTypes: "VERDE" | "AZUL" | "VIOLETA" | "AMBAR" | "ROSA"
 }
 
 export async function fetchClientProfile(): Promise<ClientProfile> {
@@ -116,6 +120,7 @@ export interface ClientUpdatePayload {
   password?: string;
   phone?: number | null;
   address?: string | null;
+  colorTypes?: string;
 }
 
 export async function updateClientProfile(payload: ClientUpdatePayload): Promise<ClientProfile> {
@@ -125,6 +130,18 @@ export async function updateClientProfile(payload: ClientUpdatePayload): Promise
   });
   if (!res.ok) throw new Error("Error al actualizar perfil del cliente");
   return res.json();
+}
+
+/**
+ * Actualiza el color de acento (field colorTypes) del cliente autenticado.
+ * Trae el perfil actual para mandar un payload completo sin pisar el nombre.
+ */
+export async function updateClientColorTypes(colorTypes: string): Promise<ClientProfile> {
+  const current = await fetchClientProfile();
+  return updateClientProfile({
+    fullName: current.fullName,
+    colorTypes,
+  });
 }
 
 // ==================== CLIENT PURCHASE HISTORY ====================
@@ -153,7 +170,7 @@ export async function fetchClientHistory(): Promise<ClientHistoryProjection[]> {
   return Array.isArray(data) ? data : [];
 }
 
-export async function uploadClientProfilePhoto(file: File): Promise<void> {
+export async function uploadClientProfilePhoto(file: File): Promise<ClientProfile> {
   const formData = new FormData();
   formData.append("profilePhoto", file);
 
@@ -165,8 +182,8 @@ export async function uploadClientProfilePhoto(file: File): Promise<void> {
 
   if (!res.ok) throw new Error("Error al subir la foto de perfil");
 
-  // El backend devuelve la imagen; consumimos el body.
-  await res.blob();
+  // El backend devuelve ClientResponseDTO, no los bytes de la imagen.
+  return res.json();
 }
 
 /**
@@ -177,6 +194,7 @@ export async function fetchClientProfilePhotoBlobUrl(): Promise<string | null> {
     requireAuth: true,
   });
   if (res.status === 404) return null;
+  if (res.status === 204) return null;
   if (!res.ok) return null;
   const blob = await res.blob();
   return URL.createObjectURL(blob);

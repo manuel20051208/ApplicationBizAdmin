@@ -65,7 +65,6 @@ import {
 import { Switch } from "@/components/ui/switch"
 import Image from "next/image"
 import { Plus, Trash2, Package, Search, Pencil, Upload, ImageIcon, Eye, Store, Phone, Mail, FileText, ShoppingCart, Tag } from "lucide-react"
-import { CouponDialog } from "@/components/coupons/coupon-dialog"
 
 const PRODUCT_CATEGORIES = [
   "Electrónica",
@@ -114,7 +113,6 @@ export default function InventarioPage() {
   const [newProductFiles, setNewProductFiles] = useState<File[]>([])
   const [isAddingProduct, setIsAddingProduct] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isCouponDialogOpen, setIsCouponDialogOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [onlyWithImages, setOnlyWithImages] = useState(false)
 
@@ -536,18 +534,12 @@ export default function InventarioPage() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-              <Button variant="outline" className="gap-2" onClick={() => setIsCouponDialogOpen(true)}>
+              <Button variant="outline" className="gap-2" onClick={() => router.push("/cupones")}>
                 <Tag className="h-4 w-4" />
                 Crear cupón
               </Button>
             </div>
           </div>
-
-          <CouponDialog
-            open={isCouponDialogOpen}
-            onOpenChange={setIsCouponDialogOpen}
-            products={products.map((product) => ({ id: product.id, name: product.name }))}
-          />
 
           <Card>
             <CardHeader className="pb-4">

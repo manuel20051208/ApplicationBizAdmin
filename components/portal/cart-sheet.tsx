@@ -17,7 +17,9 @@ import { Separator } from "@/components/ui/separator"
 import { getImageUrl, type Product, type ProductImage } from "@/lib/services/productService"
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/portal-store"
 import type { CartItem } from "@/lib/portal-store"
-import { computeOrderTotals, validateCoupon, type Coupon } from "@/lib/coupons"
+import { computeOrderTotals, couponsFromAssignments, validateCoupon, type Coupon } from "@/lib/coupons"
+import type { CouponAssignment } from "@/lib/services/couponService"
+import { ClientCouponList } from "@/components/portal/client-coupon-list"
 import { toast } from "sonner"
 
 interface CartSheetProps {
@@ -31,6 +33,8 @@ interface CartSheetProps {
   formatCurrency: (amount: number) => string
   coupon: Coupon | null
   onCouponChange: (coupon: Coupon | null) => void
+  clientCoupons: CouponAssignment[]
+  cartProductIds?: Set<number>
 }
 
 export function CartSheet({
@@ -44,6 +48,8 @@ export function CartSheet({
   formatCurrency,
   coupon,
   onCouponChange,
+  clientCoupons,
+  cartProductIds,
 }: CartSheetProps) {
   const [couponInput, setCouponInput] = useState("")
   const lines = cart
@@ -56,12 +62,16 @@ export function CartSheet({
 
   const total = lines.reduce((sum, { item, product }) => sum + product.price * item.quantity, 0)
   const totalItems = lines.reduce((sum, { item }) => sum + item.quantity, 0)
-  const totals = computeOrderTotals(total, coupon)
+  const totals = computeOrderTotals(
+    total,
+    coupon,
+    lines.map(({ item, product }) => ({ price: product.price, quantity: item.quantity, productId: product.id })),
+  )
 
-  const applyCoupon = () => {
-    const found = validateCoupon(couponInput)
+const applyCoupon = (raw?: string) => {
+    const found = validateCoupon(raw ?? couponInput, couponsFromAssignments(clientCoupons, cartProductIds))
     if (!found) {
-      toast.error("Cupón no válido. Prueba con BIZ10 o FREE.")
+      toast.error("Cupón no válido o no aplica a tu carrito.")
       return
     }
     onCouponChange(found)
@@ -128,6 +138,7 @@ export function CartSheet({
               {lines.map(({ item, product }) => {
                 const images = getProductImages(product.id)
                 const thumb = images[0]
+                const itemDiscount = totals.itemDiscounts[product.id] ?? 0
                 return (
                   <li key={product.id} className="flex gap-3">
                     <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
@@ -188,9 +199,16 @@ export function CartSheet({
                         </Button>
                       </div>
                     </div>
-                    <p className="shrink-0 text-sm font-semibold text-foreground">
-                      {formatCurrency(product.price * item.quantity)}
-                    </p>
+                    <div className="shrink-0 text-right">
+                      <p className={`text-sm font-semibold ${itemDiscount > 0 ? "text-green-600 line-through decoration-muted-foreground/40" : "text-foreground"}`}>
+                        {formatCurrency(product.price * item.quantity)}
+                      </p>
+                      {itemDiscount > 0 && (
+                        <p className="text-xs font-bold text-green-600">
+                          {formatCurrency((product.price * item.quantity) - itemDiscount)}
+                        </p>
+                      )}
+                    </div>
                   </li>
                 )
               })}
@@ -220,18 +238,26 @@ export function CartSheet({
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <Input
-                    value={couponInput}
-                    onChange={(e) => setCouponInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
-                    placeholder="¿Tienes un cupón? Ej. BIZ10"
-                    className="h-9 flex-1 text-xs"
+                <>
+                  <div className="flex gap-2">
+                    <Input
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                      placeholder="Escribe un código de cupón"
+                      className="h-9 flex-1 text-xs"
+                    />
+                    <Button variant="secondary" size="sm" className="h-9" onClick={() => applyCoupon()}>
+                      Aplicar
+                    </Button>
+                  </div>
+                  <ClientCouponList
+                    coupons={clientCoupons}
+                    activeCode={null}
+                    cartProductIds={cartProductIds}
+                    onApply={(code) => applyCoupon(code)}
                   />
-                  <Button variant="secondary" size="sm" className="h-9" onClick={applyCoupon}>
-                    Aplicar
-                  </Button>
-                </div>
+                </>
               )}
             </div>
 

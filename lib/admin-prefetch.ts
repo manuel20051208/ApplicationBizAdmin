@@ -7,6 +7,7 @@ import { getStoredUser } from "@/lib/services/authService"
 
 /** Pre-calienta la caché de API para una ruta del panel admin. */
 export function warmAdminRouteCache(href: string, adminId?: string | number | null) {
+  const numericAdminId = adminId == null ? null : Number(adminId)
   if (href === "/") {
     warmCache(CACHE_KEYS.DASHBOARD, () => fetchDashboardData(), CACHE_TTL.DASHBOARD)
     return
@@ -15,12 +16,12 @@ export function warmAdminRouteCache(href: string, adminId?: string | number | nu
     warmCache(CACHE_KEYS.PRODUCTOS(50), () => fetchAllProducts(50), CACHE_TTL.PRODUCTOS)
     return
   }
-  if (href === "/ventas" && adminId) {
-    warmCache(CACHE_KEYS.VENTAS(50), () => fetchSalesItems(adminId, 50), CACHE_TTL.VENTAS)
+  if (href === "/ventas" && numericAdminId) {
+    warmCache(CACHE_KEYS.VENTAS(50), () => fetchSalesItems(numericAdminId, 50), CACHE_TTL.VENTAS)
     return
   }
-  if (href === "/clientes" && adminId) {
-    warmCache(CACHE_KEYS.CLIENTES(adminId), () => fetchClientsSummary(adminId), CACHE_TTL.CLIENTES)
+  if (href === "/clientes" && numericAdminId) {
+    warmCache(CACHE_KEYS.CLIENTES(numericAdminId), () => fetchClientsSummary(numericAdminId), CACHE_TTL.CLIENTES)
   }
 }
 

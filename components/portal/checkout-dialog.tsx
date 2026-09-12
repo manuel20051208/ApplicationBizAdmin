@@ -27,7 +27,9 @@ import {
 } from "@/components/ui/dialog"
 import { getImageUrl, type Product, type ProductImage } from "@/lib/services/productService"
 import type { CartItem, LinkedCard } from "@/lib/portal-store"
-import { computeOrderTotals, validateCoupon, type Coupon } from "@/lib/coupons"
+import { computeOrderTotals, couponsFromAssignments, validateCoupon, type Coupon } from "@/lib/coupons"
+import type { CouponAssignment } from "@/lib/services/couponService"
+import { ClientCouponList } from "@/components/portal/client-coupon-list"
 
 interface CheckoutDialogProps {
   open: boolean
@@ -41,6 +43,8 @@ interface CheckoutDialogProps {
   onCouponChange: (coupon: Coupon | null) => void
   onLinkCard: () => void
   onPurchase: (card: LinkedCard) => Promise<void>
+  clientCoupons: CouponAssignment[]
+  cartProductIds?: Set<number>
 }
 
 export function CheckoutDialog({
@@ -55,6 +59,8 @@ export function CheckoutDialog({
   onCouponChange,
   onLinkCard,
   onPurchase,
+  clientCoupons,
+  cartProductIds,
 }: CheckoutDialogProps) {
   const [step, setStep] = useState<0 | 1>(0)
   const [couponInput, setCouponInput] = useState("")
@@ -69,7 +75,11 @@ export function CheckoutDialog({
     .filter(Boolean) as { item: CartItem; product: Product }[]
 
   const subtotal = lines.reduce((s, { item, product }) => s + product.price * item.quantity, 0)
-  const totals = computeOrderTotals(subtotal, coupon)
+  const totals = computeOrderTotals(
+    subtotal,
+    coupon,
+    lines.map(({ item, product }) => ({ price: product.price, quantity: item.quantity, productId: product.id })),
+  )
 
   const handleOpenChange = (next: boolean) => {
     onOpenChange(next)
@@ -79,10 +89,10 @@ export function CheckoutDialog({
     }
   }
 
-  const applyCoupon = () => {
-    const found = validateCoupon(couponInput)
+  const applyCoupon = (raw?: string) => {
+    const found = validateCoupon(raw ?? couponInput, couponsFromAssignments(clientCoupons, cartProductIds))
     if (!found) {
-      toast.error("Cupón no válido. Prueba con BIZ10 o FREE.")
+      toast.error("Cupón no válido o no aplica a tu carrito.")
       return
     }
     onCouponChange(found)
@@ -136,6 +146,7 @@ export function CheckoutDialog({
                 {lines.map(({ item, product }) => {
                   const images = getProductImages(product.id)
                   const thumb = images[0]
+                  const itemDiscount = totals.itemDiscounts[product.id] ?? 0
                   return (
                     <li key={product.id} className="flex items-center gap-3">
                       <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-muted">
@@ -157,9 +168,16 @@ export function CheckoutDialog({
                           {item.quantity} × {formatCurrency(product.price)}
                         </p>
                       </div>
-                      <p className="shrink-0 text-sm font-bold text-foreground">
-                        {formatCurrency(product.price * item.quantity)}
-                      </p>
+                      <div className="shrink-0 text-right">
+                        <p className={`text-sm font-bold ${itemDiscount > 0 ? "text-green-600 line-through decoration-muted-foreground/40" : "text-foreground"}`}>
+                          {formatCurrency(product.price * item.quantity)}
+                        </p>
+                        {itemDiscount > 0 && (
+                          <p className="text-xs font-bold text-green-600">
+                            {formatCurrency((product.price * item.quantity) - itemDiscount)}
+                          </p>
+                        )}
+                      </div>
                     </li>
                   )
                 })}
@@ -187,18 +205,26 @@ export function CheckoutDialog({
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <Input
-                    value={couponInput}
-                    onChange={(e) => setCouponInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
-                    placeholder="¿Tienes un cupón? Ej. BIZ10"
-                    className="h-9 flex-1 text-xs"
+                <>
+                  <div className="flex gap-2">
+                    <Input
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                      placeholder="Escribe un código de cupón"
+                      className="h-9 flex-1 text-xs"
+                    />
+                    <Button variant="secondary" size="sm" className="h-9" onClick={() => applyCoupon()}>
+                      Aplicar
+                    </Button>
+                  </div>
+                  <ClientCouponList
+                    coupons={clientCoupons}
+                    activeCode={null}
+                    cartProductIds={cartProductIds}
+                    onApply={(code) => applyCoupon(code)}
                   />
-                  <Button variant="secondary" size="sm" className="h-9" onClick={applyCoupon}>
-                    Aplicar
-                  </Button>
-                </div>
+                </>
               )}
             </div>
 

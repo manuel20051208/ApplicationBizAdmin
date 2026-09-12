@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { ShoppingBag, Package, Receipt, Settings, LogOut, User, Sun, Moon } from "lucide-react"
+import { Search, ShoppingBag, Package, Receipt, Settings, LogOut, User, Sun, Moon, Truck } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { getStoredUser, logout, updateStoredUser } from "@/lib/services/authServ
 import { fetchClientProfile, fetchClientProfilePhotoBlobUrl } from "@/lib/services/clientService"
 import { normalizeGooglePhotoUrl, optimizeCloudinaryUrl } from "@/lib/config"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
 
 export function PortalHeader() {
   const pathname = usePathname()
@@ -18,6 +19,7 @@ export function PortalHeader() {
   const [mounted, setMounted] = useState(false)
   const [clientName, setClientName] = useState("Cliente")
   const [avatarUrl, setAvatarUrl] = useState("")
+  const [storeSearch, setStoreSearch] = useState("")
   const currentHeaderBlobUrlRef = useRef<string | null>(null)
 
   const loadUserData = async () => {
@@ -107,9 +109,15 @@ export function PortalHeader() {
     router.push("/login")
   }
 
+  const handleStoreSearch = (value: string) => {
+    setStoreSearch(value)
+    window.dispatchEvent(new CustomEvent("portal-store-search", { detail: value }))
+  }
+
   const navItems = [
     { label: "Tienda", href: "/portal", icon: Package },
     { label: "Mis Compras", href: "/portal/compras", icon: Receipt },
+    { label: "En proceso", href: "/portal/ventas-proceso", icon: Truck },
     { label: "Configuración", href: "/portal/configuracion", icon: Settings },
   ]
 
@@ -117,12 +125,26 @@ export function PortalHeader() {
     <header className="sticky top-0 z-50 border-b border-border bg-card">
       <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-2 px-3 sm:h-16 sm:px-6">
         {/* Logo */}
-        <Link href="/portal" data-speculation="prerender" className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary">
-            <ShoppingBag className="size-5 text-primary-foreground" />
-          </div>
-          <span className="hidden text-lg font-bold tracking-tight text-foreground sm:inline">BizShop</span>
-        </Link>
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <Link href="/portal" data-speculation="prerender" className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary">
+              <ShoppingBag className="size-5 text-primary-foreground" />
+            </div>
+            <span className="hidden text-lg font-bold tracking-tight text-foreground sm:inline">BizShop</span>
+          </Link>
+          {pathname === "/portal" && (
+            <div className="relative w-[min(9.5rem,38vw)] sm:w-64">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={storeSearch}
+                onChange={(event) => handleStoreSearch(event.target.value)}
+                placeholder="Buscar productos..."
+                aria-label="Buscar productos"
+                className="h-8 rounded-lg border-border bg-background/70 pl-8 pr-2 text-xs"
+              />
+            </div>
+          )}
+        </div>
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-1">

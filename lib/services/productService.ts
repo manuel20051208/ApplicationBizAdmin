@@ -54,7 +54,7 @@ export interface PageResponse<T> {
   empty: boolean;
 }
 
-export async function fetchProducts(adminId: number, sizePage: number = 50): Promise<Product[]> {
+export async function fetchProducts(sizePage: number = 50): Promise<Product[]> {
   const params = new URLSearchParams({ sizePage: String(sizePage) });
   const res = await fetchClient(`${API_BASE}/activeProducts?${params.toString()}`);
   if (!res.ok) throw new Error("Error al obtener productos");
@@ -128,11 +128,8 @@ export async function deactivateProduct(id: number): Promise<Product> {
 }
 
 export async function deleteProduct(id: number): Promise<void> {
-  const params = new URLSearchParams({ id: String(id) });
-  const res = await fetchClient(`${API_BASE}/delete?${params.toString()}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Error al eliminar producto");
+  // No existe un DELETE físico en el backend actual; deleteSafe es la operación disponible.
+  await deactivateProduct(id);
 }
 
 export async function updateProduct(id: number, product: Omit<Product, "id">): Promise<Product> {

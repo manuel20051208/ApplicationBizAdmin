@@ -24,6 +24,7 @@ import {
   LogOut,
   Moon,
   Sun,
+  TicketPercent,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
@@ -69,6 +70,11 @@ const navItems = [
     title: "Clientes",
     icon: Users,
     href: "/clientes",
+  },
+  {
+    title: "Cupones",
+    icon: TicketPercent,
+    href: "/cupones",
   },
 ]
 
@@ -349,7 +355,7 @@ export function AppSidebar() {
       <div className="fixed right-3 top-2 z-[60] flex items-center gap-2 md:hidden">
         <button
           type="button"
-          aria-label={resolvedTheme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          aria-label={mounted && resolvedTheme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
           className="flex size-10 items-center justify-center rounded-full border border-border bg-background/90 text-muted-foreground shadow-lg backdrop-blur-xl transition-colors hover:text-foreground"
         >

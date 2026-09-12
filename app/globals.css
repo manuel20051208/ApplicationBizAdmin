@@ -449,9 +449,30 @@
   fill: currentColor !important;
 }
 
+@keyframes stock-update {
+  0% {
+    opacity: 0.45;
+    transform: translateY(-3px);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-stock-update {
+  display: inline-block;
+  animation: stock-update 700ms ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-content-enter,
-  .page-stagger-item {
+  .page-stagger-item,
+  .animate-stock-update {
     animation: none;
   }
 }

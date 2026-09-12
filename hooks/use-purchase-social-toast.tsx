@@ -36,7 +36,7 @@ export function usePurchaseSocialToast(products: SocialPurchaseProduct[]) {
           if (list.length > 0) {
             const p = list[Math.floor(Math.random() * list.length)]
             const minsAgo = 1 + Math.floor(Math.random() * 12)
-            let toastId: string | null = null
+            let toastId: string | number | null = null
             const description = (
               <div className="flex w-full items-center gap-3">
                 <div className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
