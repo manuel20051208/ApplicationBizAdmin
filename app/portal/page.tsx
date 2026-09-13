@@ -453,14 +453,14 @@ function TiendaPageContent() {
                   <button
                     type="button"
                     aria-label={`Ver ${product.name}`}
-                    className="group relative block h-32 w-full overflow-hidden rounded-xl border border-border bg-muted transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 sm:h-44 lg:h-52"
+                    className="group relative block h-32 w-full overflow-hidden rounded-xl border border-border bg-muted hover:border-primary/50 sm:h-44 lg:h-52"
                     onClick={() => router.push(`/portal/producto/${product.id}`)}
                   >
                     <Image
                       src={getImageUrl(image, 640)}
                       alt={product.name}
                       fill
-                      className="object-contain p-2 transition-transform duration-500 group-hover:scale-[1.02]"
+                      className="object-contain p-2"
                       sizes="(max-width: 640px) 82vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </button>
@@ -631,7 +631,7 @@ function TiendaPageContent() {
             <Card
               key={product.id}
               onClick={() => router.push(`/portal/producto/${product.id}`)}
-              className="group relative overflow-hidden border border-border bg-card transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:border-primary/30 cursor-pointer"
+              className="group relative overflow-hidden border border-border bg-card hover:border-primary/30 cursor-pointer"
             >
               {/* Low stock badge */}
               {inStock && product.stock < 10 && (
@@ -683,7 +683,7 @@ function TiendaPageContent() {
                                 src={getImageUrl(img)}
                                 alt={`${product.name} - ${img.displayOrder}`}
                                 fill
-                                className="object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+                                className="object-contain p-2"
                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                               />
                             ) : null}

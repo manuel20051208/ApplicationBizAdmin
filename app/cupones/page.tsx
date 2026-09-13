@@ -27,6 +27,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CouponCountdown } from "@/components/portal/coupon-countdown"
 import { fetchAllProducts, type Product } from "@/lib/services/productService"
 import { fetchClientsSummary, type ClientsSummaryView } from "@/lib/services/clientService"
 import { getStoredUser } from "@/lib/auth/session"
@@ -48,6 +49,13 @@ function formatDate(value: string) {
 function isExpired(value: string) {
   const date = new Date(value)
   return !Number.isNaN(date.getTime()) && date.getTime() < Date.now()
+}
+
+function formatDateTime(value: string) {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime())
+    ? "Selecciona una fecha y hora"
+    : date.toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })
 }
 
 export default function CuponesPage() {
@@ -239,7 +247,25 @@ export default function CuponesPage() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="coupon-expires">Fecha de expiración</Label>
-                    <Input id="coupon-expires" type="datetime-local" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} />
+                    <div className="rounded-xl border border-border bg-muted/20 p-3">
+                      <div className="flex items-center gap-3">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          <CalendarClock className="size-5" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-muted-foreground">El cupón estará disponible hasta</p>
+                          <p className="truncate text-sm font-semibold text-foreground">{formatDateTime(expiresAt)}</p>
+                        </div>
+                      </div>
+                      <Input
+                        id="coupon-expires"
+                        type="datetime-local"
+                        value={expiresAt}
+                        min={new Date().toISOString().slice(0, 16)}
+                        onChange={(event) => setExpiresAt(event.target.value)}
+                        className="mt-3 h-10 bg-background/70 [color-scheme:light] dark:[color-scheme:dark]"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-3">
@@ -316,7 +342,7 @@ export default function CuponesPage() {
                   return <div key={coupon.id} className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-lg font-bold tracking-wide">{coupon.cuponCode}</span><span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{active ? <CheckCircle2 className="size-3" /> : <XCircle className="size-3" />}{active ? "Activo" : "Expirado"}</span></div>
-                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span className="font-semibold text-foreground">{coupon.discount}% OFF</span><span><CalendarClock className="mr-1 inline size-3.5" /> hasta {formatDate(coupon.cuponDateLimit)}</span><span><Package className="mr-1 inline size-3.5" /> {coupon.productIds?.length || 0} productos</span><span>{coupon.quantity} productos cubiertos</span></div>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground"><span className="font-semibold text-foreground">{coupon.discount}% OFF</span><span><CalendarClock className="mr-1 inline size-3.5" /> hasta {formatDate(coupon.cuponDateLimit)}</span><span><Package className="mr-1 inline size-3.5" /> {coupon.productIds?.length || 0} productos</span><span>{coupon.quantity} productos cubiertos</span><CouponCountdown dateLimit={coupon.cuponDateLimit} /></div>
                     </div>
                     <div className="flex shrink-0 gap-2"><Button type="button" variant="outline" size="icon" title="Copiar código" onClick={() => { void navigator.clipboard?.writeText(coupon.cuponCode); toast.success("Código copiado") }}><Copy className="size-4" /></Button><Button type="button" variant="outline" size="icon" title="Eliminar cupón" onClick={() => void handleDelete(coupon)}><Trash2 className="size-4 text-destructive" /></Button></div>
                   </div>

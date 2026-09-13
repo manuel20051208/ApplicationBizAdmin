@@ -49,6 +49,7 @@ import { fetchSalesItems } from "@/lib/services/saleService"
 import { fetchClientsSummary } from "@/lib/services/clientService"
 import { fetchAllProducts } from "@/lib/services/productService"
 import { fetchDashboardData } from "@/lib/services/adminService"
+import { accentIdFromColorType, useAccentColor } from "@/components/accent-color-provider"
 
 const navItems = [
   {
@@ -172,6 +173,7 @@ export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { resolvedTheme, setTheme } = useTheme()
+  const { setAccent } = useAccentColor()
   const [mounted, setMounted] = useState(false)
   const { notifications, unreadCount, markAllAsRead, clearAll, markAsRead } = useNotifications()
 
@@ -225,6 +227,7 @@ export function AppSidebar() {
         setFullName(freshName)
         if (freshBusiness) setBusinessName(freshBusiness)
         if (freshPhoto) setAvatarUrl(getProfilePhotoUrl(freshPhoto))
+        if (profile.colorTypes) setAccent(accentIdFromColorType(profile.colorTypes))
 
         updateStoredUser({
           fullName: freshName,
@@ -234,6 +237,7 @@ export function AppSidebar() {
           photo: freshPhoto || undefined,
           profilePhotoUrl: freshPhoto || undefined,
           profilePhoto: freshPhoto || undefined,
+          colorTypes: profile.colorTypes || userData?.colorTypes,
         })
       }
     } catch (err) {
@@ -259,8 +263,9 @@ export function AppSidebar() {
   }, [])
 
   const handleLogout = () => {
-    logout("admin")
-    router.push("/login")
+    logout()
+    // Recarga la ruta para que proxy.ts vea la cookie eliminada inmediatamente.
+    window.location.replace("/login")
   }
 
   return (
@@ -362,6 +367,14 @@ export function AppSidebar() {
           {mounted && resolvedTheme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
         </button>
         <NotificationsDropdown notifications={notifications} unreadCount={unreadCount} markAllAsRead={markAllAsRead} clearAll={clearAll} markAsRead={markAsRead} mobile />
+        <button
+          type="button"
+          aria-label="Cerrar sesión"
+          onClick={handleLogout}
+          className="flex size-10 items-center justify-center rounded-full border border-border bg-background/90 text-muted-foreground shadow-lg backdrop-blur-xl transition-colors hover:text-foreground"
+        >
+          <LogOut className="size-5" />
+        </button>
       </div>
 
       <nav

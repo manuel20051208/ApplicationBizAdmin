@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/format"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { Separator } from "@/components/ui/separator"
 import {
-  fetchAllProducts, saveProduct, deactivateProduct, updateProduct,
+  fetchAllProducts, fetchAllProductsWithImages, saveProduct, deactivateProduct, updateProduct,
   uploadProductImage, fetchProductImages, deleteProductImage,
   getImageUrl,
   type Product, type ProductImage,
@@ -132,6 +132,7 @@ export default function InventarioPage() {
 
   const [storePreviewOpen, setStorePreviewOpen] = useState(false)
   const [storePreview, setStorePreview] = useState<StorePreviewPayload | null>(null)
+  const loadVersionRef = useRef(0)
 
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
@@ -179,13 +180,16 @@ export default function InventarioPage() {
   }, [])
 
   const loadProducts = useCallback(async () => {
+    const loadVersion = ++loadVersionRef.current
     try {
       setLoading(true)
+      const fetchProducts = onlyWithImages ? fetchAllProductsWithImages : fetchAllProducts
       const data = await cachedFetch(
-        CACHE_KEYS.PRODUCTOS(sizeLimit),
-        () => fetchAllProducts(sizeLimit),
+        CACHE_KEYS.PRODUCTOS(sizeLimit, onlyWithImages),
+        () => fetchProducts(sizeLimit),
         CACHE_TTL.PRODUCTOS
       )
+      if (loadVersion !== loadVersionRef.current) return
       setProducts(data.map((p: any) => ({ ...p, images: p.images || [] })))
     } catch (err) {
       import("@/lib/api-errors").then(({ triggerOfflineNotification }) => {
@@ -193,9 +197,10 @@ export default function InventarioPage() {
       })
       console.error(err)
     } finally {
+      if (loadVersion !== loadVersionRef.current) return
       setLoading(false)
     }
-  }, [sizeLimit])
+  }, [onlyWithImages, sizeLimit])
 
   useEffect(() => {
     loadProducts()

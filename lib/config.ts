@@ -35,6 +35,16 @@ export function backendUrl(path: string): string {
 }
 
 /**
+ * Inicia Google OAuth desde el mismo origen de la aplicación.
+ * Next.js reescribe esta ruta hacia el backend local o de producción,
+ * evitando que el navegador quede amarrado a localhost o a Render.
+ */
+export function googleOAuthStartPath(role: "admin" | "client"): string {
+  const registration = role === "admin" ? "google-admin" : "google-client";
+  return `/oauth2/authorization/${registration}`;
+}
+
+/**
  * Sube http→https cuando la página se sirve por https.
  * Evita que el navegador bloquee imágenes/peticiones mixtas (mixed content),
  * que es lo que Chrome marca como "no segura" y rompe las fotos de Google.

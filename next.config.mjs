@@ -29,6 +29,11 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        // Inicio de Google OAuth: mismo origen en localhost y producción.
+        source: "/oauth2/:path*",
+        destination: `${BACKEND}/oauth2/:path*`,
+      },
+      {
         source: "/api/:path*",
         destination: `${BACKEND}/api/:path*`,
       },

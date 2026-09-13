@@ -68,6 +68,14 @@ export async function fetchActiveProductsWithImages(adminId?: number): Promise<P
   return res.json();
 }
 
+/** Todos los productos del admin que tienen imágenes cargadas. */
+export async function fetchAllProductsWithImages(sizePage?: number): Promise<Product[]> {
+  const params = sizePage && sizePage > 0 ? new URLSearchParams({ sizePage: String(sizePage) }) : null;
+  const res = await fetchClient(`${API_BASE}/search/with-images${params ? `?${params.toString()}` : ""}`);
+  if (!res.ok) throw new Error("Error al obtener productos con imágenes");
+  return res.json();
+}
+
 export async function fetchProductById(id: number): Promise<Product[]> {
   const res = await fetchClient(`${API_BASE}/search/id/${id}`);
   if (!res.ok) throw new Error("Error al buscar producto por ID");
@@ -96,7 +104,7 @@ export async function fetchProductImages(productId: number): Promise<ProductImag
 
 export async function fetchAllProducts(sizePage?: number): Promise<Product[]> {
   const params = sizePage && sizePage > 0 ? new URLSearchParams({ sizePage: String(sizePage) }) : null;
-  const res = await fetchClient(`${API_BASE}/search/with-images${params ? `?${params.toString()}` : ""}`);
+  const res = await fetchClient(`${API_BASE}/search${params ? `?${params.toString()}` : ""}`);
   if (!res.ok) throw new Error("Error al obtener todos los productos");
   return res.json();
 }

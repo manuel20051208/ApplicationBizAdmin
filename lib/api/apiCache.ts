@@ -131,7 +131,7 @@ export const CACHE_KEYS = {
   DASHBOARD: "dashboard-data",
   VENTAS: (size: number) => `ventas-${size}`,
   CLIENTES: (adminId: number) => `clientes-${adminId}`,
-  PRODUCTOS: (size: number) => `productos-${size}`,
+  PRODUCTOS: (size: number, withImages = false) => withImages ? `productos-con-imagenes-${size}` : `productos-${size}`,
   PORTAL_PRODUCTOS: "portal-productos",
   PORTAL_COMPRAS: "portal-compras",
   PORTAL_PERFIL: "portal-perfil",

@@ -374,16 +374,15 @@ function OrderTimeline({ state, date }: { state: string; date: string }) {
         {steps.map((step, i) => {
           const Icon = step.icon
           const active = i <= current
-          const done = i < current
           return (
             <div key={step.label} className="flex flex-1 items-center last:flex-none">
               <div className="flex flex-col items-center gap-1">
                 <div
-                  className={`flex size-8 items-center justify-center rounded-full border-2 transition-all duration-500 ${
+                  className={`flex size-8 items-center justify-center rounded-full border-2 ${
                     active
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-muted text-muted-foreground"
-                  } ${done ? "animate-pop" : ""}`}
+                  }`}
                 >
                   <Icon className="size-4" />
                 </div>

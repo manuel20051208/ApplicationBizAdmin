@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { BadgePercent, CalendarClock, Check, Package, ShoppingCart } from "lucide-react"
 import type { CouponAssignment } from "@/lib/services/couponService"
 import { isCouponExpired } from "@/lib/coupons"
+import { CouponCountdown } from "@/components/portal/coupon-countdown"
 
 interface ClientCouponListProps {
   coupons: CouponAssignment[]
@@ -119,6 +120,7 @@ export function ClientCouponList({
                   <Package className="size-3" /> {productLabel}
                 </span>
               </span>
+              <CouponCountdown dateLimit={coupon.dateLimit} className="mt-1 w-fit" />
             </span>
             <span
               className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold ${

@@ -124,23 +124,6 @@
   }
 }
 
-/* Badge bump del carrito (fly-to-cart) */
-@utility animate-pop {
-  animation: pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes pop {
-  0% {
-    transform: scale(1);
-  }
-  40% {
-    transform: scale(1.45);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
 /* ── Sileo: los toasts siguen el tema de la app (oscuro/claro) ──
    El fondo del toast lo dibuja un <rect> SVG con el atributo `fill`
    (presentation attribute, prioridad más baja que el CSS). Lo
@@ -332,28 +315,6 @@
   }
 }
 
-/* Entrada progresiva del contenido de las páginas del panel. */
-@keyframes page-content-enter {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.page-content-enter {
-  animation: page-content-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  will-change: opacity, transform;
-}
-
-.page-stagger-item {
-  animation: page-content-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--stagger-index, 0) * 70ms);
-}
-
 /* Marca exclusiva del login: siempre conserva el verde predeterminado. */
 .login-brand-mark {
   background-color: #16a34a !important;
@@ -470,8 +431,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page-content-enter,
-  .page-stagger-item,
   .animate-stock-update {
     animation: none;
   }

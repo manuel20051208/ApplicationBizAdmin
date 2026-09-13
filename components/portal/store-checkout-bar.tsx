@@ -121,19 +121,6 @@ export function StoreCheckoutBar({
     savePortalCoupon(next?.code ?? null)
   }
 
-  // Bump del badge cuando aumenta el contador (complementa el fly-to-cart)
-  const [bumping, setBumping] = useState(false)
-  const prevTotalRef = useRef(totalItems)
-  useEffect(() => {
-    if (totalItems > prevTotalRef.current) {
-      setBumping(true)
-      const t = setTimeout(() => setBumping(false), 350)
-      prevTotalRef.current = totalItems
-      return () => clearTimeout(t)
-    }
-    prevTotalRef.current = totalItems
-  }, [totalItems])
-
   // La barra permanece visible al principio y se oculta hacia abajo después
   // de 30 segundos. Si el carrito cambia, vuelve a mostrarse automáticamente.
   useEffect(() => {
@@ -313,7 +300,7 @@ export function StoreCheckoutBar({
             <ShoppingCart className="size-5" />
             Carrito
             {totalItems > 0 && (
-              <span className={`absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground ${bumping ? "animate-pop" : ""}`}>
+              <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                 {totalItems > 99 ? "99+" : totalItems}
               </span>
             )}

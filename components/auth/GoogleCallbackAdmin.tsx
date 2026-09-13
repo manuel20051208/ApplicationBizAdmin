@@ -84,6 +84,7 @@ export function GoogleCallbackAdmin({ children }: { children?: React.ReactNode }
         photo: photo || undefined,
         fotoPerfil: photo || undefined,
         accountType,
+        colorTypes: typeof payload.colorTypes === "string" ? payload.colorTypes : undefined,
       },
       "admin",
       { name: fullName, email }

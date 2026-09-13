@@ -115,7 +115,7 @@ export function AccentColorPicker({ onChange }: { onChange?: (accent: AccentId) 
           aria-label={`Usar color ${option.label}`}
           aria-pressed={accent === option.id}
           style={{ "--option-color": option.swatch } as CSSProperties}
-          className={`group flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${accent === option.id ? "border-primary bg-primary/10 text-primary shadow-sm" : "border-border text-muted-foreground hover:border-[var(--option-color)] hover:text-[var(--option-color)] hover:shadow-[0_0_14px_var(--option-color)]"}`}
+          className={`group flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${accent === option.id ? "border-primary bg-primary/10 text-primary shadow-sm" : "border-border text-muted-foreground hover:border-[var(--option-color)] hover:text-[var(--option-color)]"}`}
         >
           <span className="size-3 rounded-full ring-1 ring-black/10" style={{ backgroundColor: option.swatch }} />
           {option.label}

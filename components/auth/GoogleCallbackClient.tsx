@@ -83,6 +83,7 @@ export function GoogleCallbackClient({ children }: { children?: React.ReactNode 
         photo: photo || undefined,
         fotoPerfil: photo || undefined,
         accountType,
+        colorTypes: typeof payload.colorTypes === "string" ? payload.colorTypes : undefined,
       },
       "customer",
       { name: fullName, email }

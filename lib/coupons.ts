@@ -16,6 +16,33 @@ export function isCouponExpired(dateLimit?: string | null): boolean {
   return !Number.isNaN(date.getTime()) && date.getTime() < Date.now()
 }
 
+export interface CouponTimeRemaining {
+  totalMs: number
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+}
+
+/** Calcula el tiempo restante sin depender de una zona horaria adicional. */
+export function getCouponTimeRemaining(
+  dateLimit?: string | null,
+  now = Date.now(),
+): CouponTimeRemaining | null {
+  if (!dateLimit) return null
+  const expiresAt = new Date(dateLimit).getTime()
+  if (Number.isNaN(expiresAt)) return null
+
+  const totalMs = Math.max(0, expiresAt - now)
+  const totalSeconds = Math.floor(totalMs / 1000)
+  const days = Math.floor(totalSeconds / 86_400)
+  const hours = Math.floor((totalSeconds % 86_400) / 3_600)
+  const minutes = Math.floor((totalSeconds % 3_600) / 60)
+  const seconds = totalSeconds % 60
+
+  return { totalMs, days, hours, minutes, seconds }
+}
+
 /**
  * Convierte las asignaciones del cliente en cupones aplicables, agrupando por
  * código (un cupón puede tener varias filas, una por producto). Si se pasa

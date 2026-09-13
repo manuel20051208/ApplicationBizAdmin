@@ -508,7 +508,7 @@ export default function ProductoPage() {
                   key={sp.id}
                   type="button"
                   onClick={() => router.push(`/portal/producto/${sp.id}`)}
-                  className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-3 text-left transition-all hover:border-primary/40 hover:shadow-md"
+                  className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-3 text-left hover:border-primary/40"
                 >
                   <div className="relative h-28 w-full overflow-hidden rounded-lg bg-muted">
                     {spImg?.url || spImg?.filePath ? (
@@ -516,7 +516,7 @@ export default function ProductoPage() {
                         src={getImageUrl(spImg, 400)}
                         alt={sp.name}
                         fill
-                        className="object-contain p-1 transition-transform duration-300 group-hover:scale-105"
+                        className="object-contain p-1"
                         sizes="(max-width: 640px) 50vw, 25vw"
                       />
                     ) : (
@@ -649,7 +649,7 @@ function ReviewsSection({
                 onMouseLeave={() => setHover(0)}
                 onClick={() => setRating(star)}
                 aria-label={`${star} estrella${star !== 1 ? "s" : ""}`}
-                className="transition-transform hover:scale-110"
+                className=""
               >
                 <Star
                   className={`size-6 ${

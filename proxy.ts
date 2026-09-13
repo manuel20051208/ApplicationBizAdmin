@@ -14,8 +14,14 @@ export function proxy(request: NextRequest) {
 
   // La página de login es pública para todos
   const isLoginRoute = pathname.startsWith('/login')
+  const isGoogleOAuthStart = pathname.startsWith('/oauth2/authorization/')
 
   if (pathname.startsWith('/uploads')) {
+    return NextResponse.next()
+  }
+
+  // El inicio de Google OAuth debe llegar al backend sin exigir una sesión previa.
+  if (isGoogleOAuthStart) {
     return NextResponse.next()
   }
 

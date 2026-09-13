@@ -105,8 +105,8 @@ export function PortalHeader() {
   }, [])
 
   const handleLogout = () => {
-    logout("customer")
-    router.push("/login")
+    logout()
+    window.location.replace("/login")
   }
 
   const handleStoreSearch = (value: string) => {

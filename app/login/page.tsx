@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Package, ShoppingBag, Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Store, Building2, Sun, Moon, UserRound } from "lucide-react"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { useTheme } from "next-themes"
-import { backendUrl } from "@/lib/config"
+import { googleOAuthStartPath } from "@/lib/config"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,7 +23,6 @@ import { getStoredUser, isSessionExpired } from "@/lib/auth/session"
 type Role = "admin" | "customer"
 
 export default function LoginPage() {
-  const router = useRouter()
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [role, setRole] = useState<Role | null>(null)
@@ -38,14 +36,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     // Si el usuario ya está autenticado, redirigirlo a su respectivo portal.
-    // IMPORTANT: deps vacío — solo corre al montar, no en cada cambio de router.
-    // Si estuviera en [router], re-dispararía justo después del login y causaría
-    // dos router.push() simultáneos que congelan la navegación.
     const user = getStoredUser();
     if (user && user.token && !isSessionExpired(user)) {
-      router.push(user.role === "admin" ? "/" : "/portal");
+      window.location.replace(user.role === "admin" ? "/" : "/portal");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [formData, setFormData] = useState({
@@ -102,9 +96,10 @@ export default function LoginPage() {
       }
 
       if (role === "admin") {
-        router.push("/")
+        // Recarga completa: hace que proxy.ts y el Server Component lean la cookie recién creada.
+        window.location.replace("/")
       } else {
-        router.push("/portal")
+        window.location.replace("/portal")
       }
     } catch (error) {
       if (isNetworkOrApiDown(error)) {
@@ -158,9 +153,9 @@ export default function LoginPage() {
             {/* Admin Card */}
             <button
               onClick={() => { setRole("admin"); resetForm() }}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-primary focus:outline-none"
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 text-left hover:border-primary focus:outline-none"
             >
-              <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-br from-primary/5 to-transparent" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-primary/5 to-transparent" />
 
               <div className="relative">
                 <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-primary">
@@ -172,7 +167,7 @@ export default function LoginPage() {
                 </p>
                 <div className="mt-4 flex items-center gap-1.5 text-sm font-medium text-primary">
                   Continuar
-                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="size-4" />
                 </div>
               </div>
             </button>
@@ -180,9 +175,9 @@ export default function LoginPage() {
             {/* Customer Card */}
             <button
               onClick={() => { setRole("customer"); resetForm() }}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-primary focus:outline-none"
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 text-left hover:border-primary focus:outline-none"
             >
-              <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-br from-primary/5 to-transparent" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-primary/5 to-transparent" />
 
               <div className="relative">
                 <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-primary">
@@ -194,7 +189,7 @@ export default function LoginPage() {
                 </p>
                 <div className="mt-4 flex items-center gap-1.5 text-sm font-medium text-primary">
                   Continuar
-                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="size-4" />
                 </div>
               </div>
             </button>
@@ -417,13 +412,11 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
-                  // URLs exactas del backend Spring Security OAuth2
-                  const url = isAdmin
-                    ? backendUrl("/oauth2/authorization/google-admin")
-                    : backendUrl("/oauth2/authorization/google-client")
-                  window.location.href = url
+                  // Misma ruta para local y producción; Next la reenvía
+                  // al backend configurado en cada entorno.
+                  window.location.assign(googleOAuthStartPath(isAdmin ? "admin" : "client"))
                 }}
-                className="flex w-full items-center justify-center gap-3 rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-[0.98]"
+                className="flex w-full items-center justify-center gap-3 rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
               >
                 <svg viewBox="0 0 24 24" className="h-5 w-5" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
