@@ -14,6 +14,7 @@ import {
   type Product, type ProductImage,
 } from "@/lib/services/productService"
 import { getStoredUser } from "@/lib/auth/session"
+import { compressImage } from "@/lib/image"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -232,10 +233,11 @@ export default function InventarioPage() {
           description: newProduct.description.trim() || null,
         })
 
-        let uploadedImages = 0
+let uploadedImages = 0
         for (const file of newProductFiles) {
           try {
-            await uploadProductImage(savedProduct.id, file)
+            const compressed = await compressImage(file)
+            await uploadProductImage(savedProduct.id, compressed)
             uploadedImages += 1
           } catch (imageError) {
             console.error("Error al subir imagen del producto recién creado:", imageError)
@@ -318,9 +320,10 @@ export default function InventarioPage() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files && editingProduct) {
-      for (const file of Array.from(files)) {
+for (const file of Array.from(files)) {
         try {
-          const uploaded = await uploadProductImage(editingProduct.id, file)
+          const compressed = await compressImage(file)
+          const uploaded = await uploadProductImage(editingProduct.id, compressed)
           setEditingProduct(prev => prev ? {
             ...prev,
             images: [...(prev.images || []), uploaded],

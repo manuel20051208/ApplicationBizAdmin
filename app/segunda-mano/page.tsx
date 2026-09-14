@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image"
 import { formatCurrency } from "@/lib/format"
 import { useDebounce } from "@/hooks/use-debounce"
+import { compressImage } from "@/lib/image"
 import {
   deactivateShProduct, fetchShProductImages, fetchShProducts, getShImageUrl, saveShProduct,
   updateShProduct, uploadShProductImage, type ShProduct, type ShProductPayload,
@@ -105,6 +106,6 @@ function ShImages({ product, onChanged }: { product: ShProduct; onChanged: () =>
   const [images, setImages] = useState(product.images || [])
   const [uploading, setUploading] = useState(false)
   useEffect(() => { fetchShProductImages(product.id).then(setImages).catch(() => setImages([])) }, [product.id])
-  const upload = async (file?: File) => { if (!file) return; try { setUploading(true); const image = await uploadShProductImage(product.id, file); setImages((current) => [...current, image]); await onChanged(); toast.success("Imagen subida") } catch (error) { toast.error(error instanceof Error ? error.message : "No se pudo subir") } finally { setUploading(false) } }
+  const upload = async (file?: File) => { if (!file) return; try { setUploading(true); const compressed = await compressImage(file); const image = await uploadShProductImage(product.id, compressed); setImages((current) => [...current, image]); await onChanged(); toast.success("Imagen subida") } catch (error) { toast.error(error instanceof Error ? error.message : "No se pudo subir") } finally { setUploading(false) } }
   return <div className="space-y-4"><label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border p-5 text-sm text-muted-foreground hover:bg-muted/50"><Upload className="size-4" />{uploading ? "Subiendo..." : "Seleccionar imagen"}<input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={(event) => upload(event.target.files?.[0])} /></label>{images.length === 0 ? <p className="py-5 text-center text-sm text-muted-foreground">Sin imágenes cargadas.</p> : <div className="grid grid-cols-3 gap-2">{images.map((image) => <div key={image.id} className="relative aspect-square overflow-hidden rounded-lg bg-muted"><Image src={getShImageUrl(image)} alt={image.fileName || product.name} fill className="object-cover" sizes="120px" /></div>)}</div>}</div>
 }

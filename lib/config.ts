@@ -2,12 +2,16 @@
  * Configuración central del backend Spring Boot.
  *
  * Variable de entorno canónica: `BACKEND_API_URL` (backend real, p.ej.
- * `https://bizadmin.duckdns.org`). Se usa en los rewrites de next.config.mjs
- * y en este módulo para construir URLs absolutas del backend.
+ * `https://bizadmin.duckdns.org`). Se usa en los rewrites de next.config.mjs:
+ * el navegador llama al mismo origen (`/api/...`) y Next.js reenvía al backend
+ * → sin CORS y sin exponer la URL en el bundle.
  *
- * NO usar `NEXT_PUBLIC_API_URL`: las variables `NEXT_PUBLIC_*` se inyectan en el
- * bundle del navegador (Vercel te avisa de que quedan expuestas). Solo se deja el
- * fallback por compatibilidad con configuraciones antiguas.
+ * `API_BASE_URL` se deja VACÍA por defecto para forzar ese comportamiento de
+ * rewrites. Solo se puede llenar vía `NEXT_PUBLIC_API_URL` (legacy, expuesta en
+ * el bundle) para configuraciones antiguas que llamaban al backend directo.
+ *
+ * Las únicas URLs absolutas hacia el backend son para navegación del navegador
+ * (OAuth de Google), vía `googleOAuthStartPath()`.
  *
  * Si ni `BACKEND_API_URL` ni `NEXT_PUBLIC_API_URL` están definidas:
  *   - En producción el fallback es el backend real (https://bizadmin.duckdns.org).
@@ -20,11 +24,7 @@ const DEFAULT_BACKEND_URL =
     : "http://localhost:8080";
 
 /** Base vacía = las rutas usan prefijo `api/...` y Next rewrites al backend de config. */
-export const API_BASE_URL = (
-  process.env.BACKEND_API_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  ""
-).replace(/\/+$/, "");
+export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
 /** URL del backend para llamadas que el navegador hace directo (OAuth, SSE, imágenes). */
 export const BACKEND_URL = API_BASE_URL || DEFAULT_BACKEND_URL;

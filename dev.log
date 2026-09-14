@@ -1,0 +1,148 @@
+$ next dev
+▲ Next.js 16.2.0 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.8:3000
+- Environments: .env.local
+✓ Ready in 1495ms
+- Experiments (use with caution):
+  · staleTimes
+
+ GET /login 200 in 1919ms (next.js: 468ms, proxy.ts: 813ms, application-code: 638ms)
+ GET /login 200 in 149ms (next.js: 13ms, proxy.ts: 13ms, application-code: 123ms)
+  Reload env: .env.local
+ GET /login 200 in 408ms (next.js: 94ms, proxy.ts: 12ms, application-code: 302ms)
+ GET /login 200 in 71ms (next.js: 6ms, proxy.ts: 13ms, application-code: 52ms)
+ GET /login 200 in 77ms (next.js: 7ms, proxy.ts: 10ms, application-code: 60ms)
+ GET /login 200 in 119ms (next.js: 8ms, proxy.ts: 15ms, application-code: 96ms)
+ GET /?token=eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJtYW51ZWxyYW1vczA5NTQ0QGdtYWlsLmNvbSIsImlkIjo1LCJhY2NvdW50VHlwZSI6IkFETUlOIiwiaWF0IjoxNzg5MzY2MTA1LCJleHAiOjE3ODk0NTI1MDV9.W5gyGcReWiAcXL3SFC_FCVA1WYG9e1r5zKBJ1QkeR3FfdI0N5TCDwKxmrdbMAccv&photo=https://lh3.googleusercontent.com/a/ACg8ocKVvwBA4LviJ5smqfdgY8qSl_R-rhJxTS_BFgO40wgxA-xjJBWG%3Ds96-c 200 in 408ms (next.js: 88ms, proxy.ts: 12ms, application-code: 308ms)
+Failed to proxy http://localhost:8080/api/notification/stream Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+[browser] SSE Error Debug - URL: /api/notification/stream Status: 500 
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:108:19)
+  106 |             return
+  107 |           }
+> 108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+      |                   ^
+  109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+  110 |         }
+  111 | (hooks/use-notifications.ts:108:19)
+[browser] Error en conexión SSE (Notificaciones): Error: SSE HTTP error: 500
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:109:17)
+  107 |           }
+  108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+> 109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+      |                 ^
+  110 |         }
+  111 |
+  112 |         retryCount = 0 (hooks/use-notifications.ts:221:17)
+Failed to proxy http://localhost:8080/api/notification/stream Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Failed to proxy http://localhost:8080/api/notification/stream Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Failed to proxy http://localhost:8080/api/notification/stream Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Failed to proxy http://localhost:8080/api/notification/stream Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+[browser] SSE Error Debug - URL: /api/notification/stream Status: 500 
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:108:19)
+  106 |             return
+  107 |           }
+> 108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+      |                   ^
+  109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+  110 |         }
+  111 | (hooks/use-notifications.ts:108:19)
+[browser] Error en conexión SSE (Notificaciones): Error: SSE HTTP error: 500
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:109:17)
+  107 |           }
+  108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+> 109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+      |                 ^
+  110 |         }
+  111 |
+  112 |         retryCount = 0 (hooks/use-notifications.ts:221:17)
+[browser] SSE Error Debug - URL: /api/notification/stream Status: 500 
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:108:19)
+  106 |             return
+  107 |           }
+> 108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+      |                   ^
+  109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+  110 |         }
+  111 | (hooks/use-notifications.ts:108:19)
+[browser] Error en conexión SSE (Notificaciones): Error: SSE HTTP error: 500
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:109:17)
+  107 |           }
+  108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+> 109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+      |                 ^
+  110 |         }
+  111 |
+  112 |         retryCount = 0 (hooks/use-notifications.ts:221:17)
+[browser] SSE Error Debug - URL: /api/notification/stream Status: 500 
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:108:19)
+  106 |             return
+  107 |           }
+> 108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+      |                   ^
+  109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+  110 |         }
+  111 | (hooks/use-notifications.ts:108:19)
+[browser] Error en conexión SSE (Notificaciones): Error: SSE HTTP error: 500
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:109:17)
+  107 |           }
+  108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+> 109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+      |                 ^
+  110 |         }
+  111 |
+  112 |         retryCount = 0 (hooks/use-notifications.ts:221:17)
+[browser] SSE Error Debug - URL: /api/notification/stream Status: 500 
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:108:19)
+  106 |             return
+  107 |           }
+> 108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+      |                   ^
+  109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+  110 |         }
+  111 | (hooks/use-notifications.ts:108:19)
+[browser] Error en conexión SSE (Notificaciones): Error: SSE HTTP error: 500
+    at useNotifications.useEffect.connectSSE (hooks/use-notifications.ts:109:17)
+  107 |           }
+  108 |           console.error("SSE Error Debug - URL:", url, "Status:", response.status)
+> 109 |           throw new Error(`SSE HTTP error: ${response.status}`)
+      |                 ^
+  110 |         }
+  111 |
+  112 |         retryCount = 0 (hooks/use-notifications.ts:221:17)
+ GET /configuracion 200 in 219ms (next.js: 95ms, proxy.ts: 12ms, application-code: 113ms)
