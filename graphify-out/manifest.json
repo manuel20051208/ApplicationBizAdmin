@@ -30,8 +30,8 @@
     "semantic_hash": ""
   },
   "app/login/page.tsx": {
-    "mtime": 1789278275.928962,
-    "ast_hash": "e1ab1957e2e08c55e56c6220f6cd3e15",
+    "mtime": 1789325154.5630534,
+    "ast_hash": "9dfd9cface62f9b267f5e60a3cc54df5",
     "semantic_hash": ""
   },
   "app/page.tsx": {
@@ -80,8 +80,8 @@
     "semantic_hash": ""
   },
   "components/dashboard/app-sidebar.tsx": {
-    "mtime": 1789273287.0379734,
-    "ast_hash": "4f8ebe31baa8010ee7d945bf7959967f",
+    "mtime": 1789323386.9315062,
+    "ast_hash": "948752a27a21e104c873daa5f1e814aa",
     "semantic_hash": ""
   },
   "components/dashboard/dashboard-content.tsx": {
@@ -120,8 +120,8 @@
     "semantic_hash": "039e751ad9fd2686c5f7f9eb9e4a742c"
   },
   "components/portal/portal-header.tsx": {
-    "mtime": 1789273294.499829,
-    "ast_hash": "f433bb29b0150fb935e1bc55337c40bd",
+    "mtime": 1789323391.2681546,
+    "ast_hash": "724d851ec63441317850562a313c6d09",
     "semantic_hash": ""
   },
   "components/portal/store-checkout-bar.tsx": {
@@ -370,8 +370,8 @@
     "semantic_hash": "49a3ef9c7152e861100b88ac3b034855"
   },
   "proxy.ts": {
-    "mtime": 1789273736.006174,
-    "ast_hash": "217f283655f869982e28326fd1844f63",
+    "mtime": 1789325160.3730648,
+    "ast_hash": "96c781e35c2bafdfce1c9b034e122a2a",
     "semantic_hash": ""
   },
   "swagger.json": {
@@ -430,8 +430,8 @@
     "semantic_hash": "1e533b7b4545d1d605144ce893afc601"
   },
   "app/cupones/page.tsx": {
-    "mtime": 1789274727.7336586,
-    "ast_hash": "fa140d6c1d1fcbeeaa0288f308f7c808",
+    "mtime": 1789324009.076558,
+    "ast_hash": "48ee7bcb6ae832ef1aae90a984d615ee",
     "semantic_hash": ""
   },
   "app/portal/loading.tsx": {
@@ -560,8 +560,8 @@
     "semantic_hash": ""
   },
   "lib/services/couponService.ts": {
-    "mtime": 1788041612.502793,
-    "ast_hash": "90130436e55d808f97311819188db4da",
+    "mtime": 1789323939.3868916,
+    "ast_hash": "991895874b3b9a14a9317ac87395d0ef",
     "semantic_hash": ""
   },
   "lib/social-proof.ts": {
@@ -575,8 +575,8 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1789274023.6489737,
-    "ast_hash": "5cecb295306f01a8f018e2dc693afc2d",
+    "mtime": 1789278935.7734382,
+    "ast_hash": "8a5f5d2e9282ff582093f7ca192df9d7",
     "semantic_hash": ""
   },
   "public/dashboard-bg.jpg": {
@@ -592,6 +592,21 @@
   "components/portal/coupon-countdown.tsx": {
     "mtime": 1789274715.3644342,
     "ast_hash": "71b812f0971f79e2beab1d60491318dd",
+    "semantic_hash": ""
+  },
+  "app/portal/segunda-mano/page.tsx": {
+    "mtime": 1789323382.4673793,
+    "ast_hash": "90a5c5254c5839859817acedc2c49ffd",
+    "semantic_hash": ""
+  },
+  "app/segunda-mano/page.tsx": {
+    "mtime": 1789323375.4269464,
+    "ast_hash": "753dbd79f9edb5dbd968f9ef126162be",
+    "semantic_hash": ""
+  },
+  "lib/services/shProductService.ts": {
+    "mtime": 1789323368.3773668,
+    "ast_hash": "70cc610c95ce5086f5047eb9b4736709",
     "semantic_hash": ""
   }
 }

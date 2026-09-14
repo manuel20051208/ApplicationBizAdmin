@@ -1,6 +1,7 @@
 import { fetchClient } from "../api/httpClient"
 
 const COUPONS_API = "api/cupons"
+const SH_COUPONS_API = "api/sh-cupons"
 
 export interface ProductCouponRequest {
   cuponCode: string
@@ -19,6 +20,30 @@ export interface ProductCoupon {
   active: boolean
   ownerId: number
   productIds: number[]
+}
+
+export interface ShProductCouponRequest {
+  shCuponCode: string
+  cuponDateLimit: string
+  discount: number
+  quantity: number | null
+  shProductIds: number[]
+}
+
+export interface ShProductCoupon {
+  id: number
+  shCuponCode: string
+  cuponDateLimit: string
+  discount: number
+  quantity: number | null
+  active: boolean
+  ownerId: number
+  shProductIds: number[]
+}
+
+export interface ShCouponAssignment extends CouponAssignment {
+  productId?: number
+  productName?: string
 }
 
 export interface CouponAssignmentRequest {
@@ -87,6 +112,41 @@ export async function assignProductCoupon(payload: CouponAssignmentRequest): Pro
   if (!res.ok) {
     const detail = await res.text().catch(() => "")
     throw new Error(`Error al asignar el cupón (${res.status})${detail ? `: ${detail}` : ""}`)
+  }
+  return res.json()
+}
+
+export async function fetchMyShCoupons(): Promise<ShProductCoupon[]> {
+  const res = await fetchClient(`${SH_COUPONS_API}/my`)
+  if (!res.ok) throw new Error(`Error al obtener cupones SH (${res.status})`)
+  return res.json()
+}
+
+export async function fetchMyShCouponAssignments(): Promise<ShCouponAssignment[]> {
+  const res = await fetchClient(`${SH_COUPONS_API}/assignments/my`)
+  if (!res.ok) throw new Error(`Error al obtener tus cupones SH (${res.status})`)
+  return res.json()
+}
+
+export async function createShProductCoupon(payload: ShProductCouponRequest): Promise<ShProductCoupon> {
+  const res = await fetchClient(SH_COUPONS_API, { method: "POST", body: JSON.stringify(payload) })
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "")
+    throw new Error(detail || "Error al crear el cupón de segunda mano")
+  }
+  return res.json()
+}
+
+export async function deleteShProductCoupon(id: number): Promise<void> {
+  const res = await fetchClient(`${SH_COUPONS_API}/${id}`, { method: "DELETE" })
+  if (!res.ok) throw new Error("Error al eliminar el cupón de segunda mano")
+}
+
+export async function assignShProductCoupon(payload: CouponAssignmentRequest): Promise<unknown> {
+  const res = await fetchClient(`${SH_COUPONS_API}/assign`, { method: "POST", body: JSON.stringify(payload) })
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "")
+    throw new Error(`Error al asignar el cupón SH (${res.status})${detail ? `: ${detail}` : ""}`)
   }
   return res.json()
 }

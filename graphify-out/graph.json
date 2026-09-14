@@ -159,7 +159,7 @@
       "label": "formatDate()",
       "file_type": "code",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L42",
+      "source_location": "L48",
       "_origin": "ast"
     },
     {
@@ -167,7 +167,7 @@
       "label": "isExpired()",
       "file_type": "code",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L49",
+      "source_location": "L55",
       "_origin": "ast"
     },
     {
@@ -175,7 +175,7 @@
       "label": "formatDateTime()",
       "file_type": "code",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L54",
+      "source_location": "L60",
       "_origin": "ast"
     },
     {
@@ -183,7 +183,7 @@
       "label": "CuponesPage()",
       "file_type": "code",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L61",
+      "source_location": "L67",
       "_origin": "ast"
     },
     {
@@ -191,7 +191,7 @@
       "label": "TicketIcon()",
       "file_type": "code",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L359",
+      "source_location": "L416",
       "_origin": "ast"
     },
     {
@@ -571,6 +571,22 @@
       "_origin": "ast"
     },
     {
+      "id": "app_portal_segunda_mano_page",
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "app_portal_segunda_mano_page_portalsegundamanopage",
+      "label": "PortalSegundaManoPage()",
+      "file_type": "code",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L14",
+      "_origin": "ast"
+    },
+    {
       "id": "app_portal_template",
       "label": "template.tsx",
       "file_type": "code",
@@ -640,6 +656,54 @@
       "file_type": "code",
       "source_file": "app/portal/ventas-proceso/page.tsx",
       "source_location": "L60",
+      "_origin": "ast"
+    },
+    {
+      "id": "app_segunda_mano_page",
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "app_segunda_mano_page_categories",
+      "label": "categories",
+      "file_type": "code",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L26",
+      "_origin": "ast"
+    },
+    {
+      "id": "app_segunda_mano_page_conditions",
+      "label": "conditions",
+      "file_type": "code",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L27",
+      "_origin": "ast"
+    },
+    {
+      "id": "app_segunda_mano_page_emptyform",
+      "label": "emptyForm",
+      "file_type": "code",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L28",
+      "_origin": "ast"
+    },
+    {
+      "id": "app_segunda_mano_page_segundamanopage",
+      "label": "SegundaManoPage()",
+      "file_type": "code",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L30",
+      "_origin": "ast"
+    },
+    {
+      "id": "app_segunda_mano_page_shimages",
+      "label": "ShImages()",
+      "file_type": "code",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L104",
       "_origin": "ast"
     },
     {
@@ -1031,7 +1095,7 @@
       "label": "navItems",
       "file_type": "code",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L54",
+      "source_location": "L55",
       "_origin": "ast"
     },
     {
@@ -1039,7 +1103,7 @@
       "label": "NotificationsDropdown()",
       "file_type": "code",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L82",
+      "source_location": "L88",
       "_origin": "ast"
     },
     {
@@ -1047,7 +1111,7 @@
       "label": "AppSidebar()",
       "file_type": "code",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L172",
+      "source_location": "L178",
       "_origin": "ast"
     },
     {
@@ -4759,7 +4823,7 @@
       "label": "ProductCouponRequest",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L5",
+      "source_location": "L6",
       "_origin": "ast"
     },
     {
@@ -4767,7 +4831,31 @@
       "label": "ProductCoupon",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L13",
+      "source_location": "L14",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_couponservice_shproductcouponrequest",
+      "label": "ShProductCouponRequest",
+      "file_type": "code",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L25",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_couponservice_shproductcoupon",
+      "label": "ShProductCoupon",
+      "file_type": "code",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L33",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_couponservice_shcouponassignment",
+      "label": "ShCouponAssignment",
+      "file_type": "code",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L44",
       "_origin": "ast"
     },
     {
@@ -4775,7 +4863,7 @@
       "label": "CouponAssignmentRequest",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L24",
+      "source_location": "L49",
       "_origin": "ast"
     },
     {
@@ -4783,7 +4871,7 @@
       "label": "CouponAssignment",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L31",
+      "source_location": "L56",
       "_origin": "ast"
     },
     {
@@ -4791,7 +4879,7 @@
       "label": "fetchMyCoupons()",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L44",
+      "source_location": "L69",
       "_origin": "ast"
     },
     {
@@ -4799,7 +4887,7 @@
       "label": "fetchMyCouponAssignments()",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L54",
+      "source_location": "L79",
       "_origin": "ast"
     },
     {
@@ -4807,7 +4895,7 @@
       "label": "createProductCoupon()",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L63",
+      "source_location": "L88",
       "_origin": "ast"
     },
     {
@@ -4815,7 +4903,7 @@
       "label": "deleteProductCoupon()",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L77",
+      "source_location": "L102",
       "_origin": "ast"
     },
     {
@@ -4823,7 +4911,47 @@
       "label": "assignProductCoupon()",
       "file_type": "code",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L82",
+      "source_location": "L107",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_couponservice_fetchmyshcoupons",
+      "label": "fetchMyShCoupons()",
+      "file_type": "code",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L119",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_couponservice_fetchmyshcouponassignments",
+      "label": "fetchMyShCouponAssignments()",
+      "file_type": "code",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L125",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_couponservice_createshproductcoupon",
+      "label": "createShProductCoupon()",
+      "file_type": "code",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L131",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_couponservice_deleteshproductcoupon",
+      "label": "deleteShProductCoupon()",
+      "file_type": "code",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L140",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_couponservice_assignshproductcoupon",
+      "label": "assignShProductCoupon()",
+      "file_type": "code",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L145",
       "_origin": "ast"
     },
     {
@@ -5104,6 +5232,134 @@
       "file_type": "code",
       "source_file": "lib/services/saleService.ts",
       "source_location": "L115",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice",
+      "label": "shProductService.ts",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_shproduct",
+      "label": "ShProduct",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_shproductimage",
+      "label": "ShProductImage",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L23",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_shproductpayload",
+      "label": "ShProductPayload",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L30",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_normalizeshproduct",
+      "label": "normalizeShProduct()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L41",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_unwraplist",
+      "label": "unwrapList()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L61",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_fetchshproducts",
+      "label": "fetchShProducts()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L68",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_fetchactiveshproducts",
+      "label": "fetchActiveShProducts()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L75",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_fetchshproduct",
+      "label": "fetchShProduct()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L88",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_saveshproduct",
+      "label": "saveShProduct()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L94",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_updateshproduct",
+      "label": "updateShProduct()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L103",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_deactivateshproduct",
+      "label": "deactivateShProduct()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L112",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_fetchshproductimages",
+      "label": "fetchShProductImages()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L128",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_uploadshproductimage",
+      "label": "uploadShProductImage()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L134",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_deleteshproductimage",
+      "label": "deleteShProductImage()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L142",
+      "_origin": "ast"
+    },
+    {
+      "id": "lib_services_shproductservice_getshimageurl",
+      "label": "getShImageUrl()",
+      "file_type": "code",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L147",
       "_origin": "ast"
     },
     {
@@ -5847,7 +6103,7 @@
       "label": "config",
       "file_type": "code",
       "source_file": "proxy.ts",
-      "source_location": "L52",
+      "source_location": "L56",
       "_origin": "ast"
     },
     {
@@ -6104,6 +6360,14 @@
       "file_type": "document",
       "source_file": "AGENTS.md",
       "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "agents_git_y_publicación",
+      "label": "Git y publicación",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L23",
       "_origin": "ast"
     },
     {
@@ -8245,12 +8509,45 @@
     },
     {
       "source": "app_cupones_page",
-      "target": "lib_services_clientservice",
+      "target": "lib_services_shproductservice",
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
       "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page",
+      "target": "lib_services_shproductservice_fetchshproducts",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page",
+      "target": "lib_services_shproductservice_shproduct",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page",
+      "target": "lib_services_clientservice",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8261,7 +8558,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8272,7 +8569,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8283,7 +8580,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8294,7 +8591,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8305,7 +8602,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8316,7 +8613,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8327,7 +8624,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8338,7 +8635,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8349,7 +8646,51 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L34",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page",
+      "target": "lib_services_couponservice_assignshproductcoupon",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page",
+      "target": "lib_services_couponservice_createshproductcoupon",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page",
+      "target": "lib_services_couponservice_deleteshproductcoupon",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page",
+      "target": "lib_services_couponservice_fetchmyshcoupons",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L35",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8360,7 +8701,18 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L34",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page",
+      "target": "lib_services_couponservice_shproductcoupon",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L35",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8370,7 +8722,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L42",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8380,7 +8732,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L49",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8390,7 +8742,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L54",
+      "source_location": "L60",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8400,7 +8752,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L61",
+      "source_location": "L67",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8410,7 +8762,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L359",
+      "source_location": "L416",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8421,7 +8773,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L257",
+      "source_location": "L311",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8432,7 +8784,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L340",
+      "source_location": "L394",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -8443,7 +8795,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L345",
+      "source_location": "L402",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10053,7 +10405,7 @@
       "deferred": true,
       "confidence": "EXTRACTED",
       "source_file": "app/login/page.tsx",
-      "source_location": "L106",
+      "source_location": "L115",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -12759,6 +13111,280 @@
       "_origin": "ast"
     },
     {
+      "source": "app_portal_segunda_mano_page",
+      "target": "ref_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "ref_next_image",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "ref_lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "ref_sonner",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_card",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_card_card",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_card_cardcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_input",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_input_input",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_badge",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_badge_badge",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_dialog",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_dialog_dialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_dialog_dialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "components_ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "lib_format",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "lib_format_formatcurrency",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "lib_services_shproductservice",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "lib_services_shproductservice_fetchactiveshproducts",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "lib_services_shproductservice_fetchshproductimages",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "lib_services_shproductservice_getshimageurl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "lib_services_shproductservice_shproduct",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page",
+      "target": "app_portal_segunda_mano_page_portalsegundamanopage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
       "source": "app_portal_template",
       "target": "app_portal_template_portaltemplate",
       "relation": "contains",
@@ -13023,6 +13649,771 @@
       "confidence": "EXTRACTED",
       "source_file": "app/portal/ventas-proceso/page.tsx",
       "source_location": "L153",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "ref_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "ref_sonner",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "ref_lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_sidebar",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_sidebar_sidebarinset",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_sidebar_sidebarprovider",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_sidebar_sidebartrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_dashboard_app_sidebar",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_dashboard_app_sidebar_appsidebar",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_separator",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_separator_separator",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_breadcrumb",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_breadcrumb_breadcrumb",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_breadcrumb_breadcrumbitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_breadcrumb_breadcrumblist",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_breadcrumb_breadcrumbpage",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_button",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_input",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_input_input",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_textarea",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_textarea_textarea",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_label",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_label_label",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_card",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_card_card",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_card_cardcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_card_cardheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_card_cardtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_dialog",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_dialog_dialogfooter",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_dialog_dialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog_alertdialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog_alertdialogaction",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog_alertdialogcancel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog_alertdialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog_alertdialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog_alertdialogfooter",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog_alertdialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_alert_dialog_alertdialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_select",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_select_select",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_select_selectcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_select_selectitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_select_selecttrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "components_ui_select_selectvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "ref_next_image",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_format",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_format_formatcurrency",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "hooks_use_debounce",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "hooks_use_debounce_usedebounce",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_deactivateshproduct",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_fetchshproductimages",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_fetchshproducts",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_getshimageurl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_saveshproduct",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_updateshproduct",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_uploadshproductimage",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_shproduct",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "lib_services_shproductservice_shproductpayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "app_segunda_mano_page_categories",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "app_segunda_mano_page_conditions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "app_segunda_mano_page_emptyform",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "app_segunda_mano_page_segundamanopage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page",
+      "target": "app_segunda_mano_page_shimages",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L104",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14710,7 +16101,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14721,7 +16112,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14732,7 +16123,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14743,7 +16134,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14754,7 +16145,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14765,7 +16156,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14776,7 +16167,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14787,7 +16178,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14798,7 +16189,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14809,7 +16200,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14820,7 +16211,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14831,7 +16222,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14842,7 +16233,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14853,7 +16244,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14864,7 +16255,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14875,7 +16266,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14886,7 +16277,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14897,7 +16288,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14908,7 +16299,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14919,7 +16310,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14930,7 +16321,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L45",
+      "source_location": "L46",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14941,7 +16332,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L45",
+      "source_location": "L46",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14952,7 +16343,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L45",
+      "source_location": "L46",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14963,7 +16354,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14974,7 +16365,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14985,7 +16376,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14996,7 +16387,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15007,7 +16398,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15018,7 +16409,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15029,7 +16420,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L49",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15040,7 +16431,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L49",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15051,7 +16442,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L50",
+      "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15062,7 +16453,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L50",
+      "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15073,7 +16464,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15084,7 +16475,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L52",
+      "source_location": "L53",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15095,7 +16486,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L52",
+      "source_location": "L53",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15106,7 +16497,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L52",
+      "source_location": "L53",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15116,7 +16507,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L54",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15126,7 +16517,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L82",
+      "source_location": "L88",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -15136,7 +16527,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L172",
+      "source_location": "L178",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -25855,7 +27246,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -25865,33 +27256,33 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0,
       "_origin": "ast"
     },
     {
       "source": "lib_services_couponservice",
-      "target": "lib_services_couponservice_couponassignmentrequest",
+      "target": "lib_services_couponservice_shproductcouponrequest",
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast"
     },
     {
       "source": "lib_services_couponservice",
-      "target": "lib_services_couponservice_couponassignment",
+      "target": "lib_services_couponservice_shproductcoupon",
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L31",
+      "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast"
     },
     {
       "source": "lib_services_couponservice",
-      "target": "lib_services_couponservice_fetchmycoupons",
+      "target": "lib_services_couponservice_shcouponassignment",
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
@@ -25901,11 +27292,41 @@
     },
     {
       "source": "lib_services_couponservice",
+      "target": "lib_services_couponservice_couponassignmentrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice",
+      "target": "lib_services_couponservice_couponassignment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L56",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice",
+      "target": "lib_services_couponservice_fetchmycoupons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice",
       "target": "lib_services_couponservice_fetchmycouponassignments",
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L54",
+      "source_location": "L79",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -25915,7 +27336,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L63",
+      "source_location": "L88",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -25925,7 +27346,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L77",
+      "source_location": "L102",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -25935,7 +27356,57 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L82",
+      "source_location": "L107",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice",
+      "target": "lib_services_couponservice_fetchmyshcoupons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L119",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice",
+      "target": "lib_services_couponservice_fetchmyshcouponassignments",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L125",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice",
+      "target": "lib_services_couponservice_createshproductcoupon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L131",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice",
+      "target": "lib_services_couponservice_deleteshproductcoupon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L140",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice",
+      "target": "lib_services_couponservice_assignshproductcoupon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L145",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -26487,6 +27958,288 @@
       "confidence": "EXTRACTED",
       "source_file": "lib/services/saleService.ts",
       "source_location": "L68",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_api_httpclient",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_productservice",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_productservice_getimageurl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_productservice_productimage",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_shproduct",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_shproductimage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_shproductpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_normalizeshproduct",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_unwraplist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L61",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_fetchshproducts",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_fetchactiveshproducts",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_fetchshproduct",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L88",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_saveshproduct",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L94",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_updateshproduct",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_deactivateshproduct",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L112",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_fetchshproductimages",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L128",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_uploadshproductimage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L134",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_deleteshproductimage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L142",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice",
+      "target": "lib_services_shproductservice_getshimageurl",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L147",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_unwraplist",
+      "target": "lib_services_shproductservice_normalizeshproduct",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_fetchshproducts",
+      "target": "lib_services_shproductservice_unwraplist",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L72",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_fetchactiveshproducts",
+      "target": "lib_services_shproductservice_unwraplist",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L85",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_fetchshproduct",
+      "target": "lib_services_shproductservice_normalizeshproduct",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L91",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_saveshproduct",
+      "target": "lib_services_shproductservice_normalizeshproduct",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L100",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_updateshproduct",
+      "target": "lib_services_shproductservice_normalizeshproduct",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L109",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_deactivateshproduct",
+      "target": "lib_services_shproductservice_normalizeshproduct",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L125",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -27421,7 +29174,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "proxy.ts",
-      "source_location": "L52",
+      "source_location": "L56",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -27735,6 +29488,36 @@
       "_origin": "ast"
     },
     {
+      "source": "agents",
+      "target": "c_users_manue_downloads_applicationbizadmin_applicationbizadmin_auth_y_sesiones_md",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "agents",
+      "target": "c_users_manue_downloads_applicationbizadmin_applicationbizadmin_backend_y_contratos_md",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "agents_agents_md",
+      "target": "agents_git_y_publicación",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
       "source": "lib_services_index",
       "target": "lib_services_authservice",
       "relation": "re_exports",
@@ -27973,6 +29756,39 @@
       "confidence": "EXTRACTED",
       "source_file": "app/portal/producto/[id]/page.tsx",
       "source_location": "L621",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_shimages",
+      "target": "lib_services_shproductservice_fetchshproductimages",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L107",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_shimages",
+      "target": "lib_services_shproductservice_uploadshproductimage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L108",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_shimages",
+      "target": "lib_services_shproductservice_getshimageurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L109",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29462,6 +31278,17 @@
       "_origin": "ast"
     },
     {
+      "source": "lib_services_couponservice_shcouponassignment",
+      "target": "lib_services_couponservice_couponassignment",
+      "relation": "inherits",
+      "context": "type",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
       "source": "app_clientes_page_clientespage",
       "target": "hooks_use_debounce_usedebounce",
       "relation": "calls",
@@ -29649,7 +31476,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L79",
+      "source_location": "L89",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29661,7 +31488,19 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L81",
+      "source_location": "L91",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page_cuponespage",
+      "target": "lib_services_shproductservice_fetchshproducts",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L92",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29673,7 +31512,19 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L82",
+      "source_location": "L93",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page_cuponespage",
+      "target": "lib_services_couponservice_fetchmyshcoupons",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L94",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29685,7 +31536,19 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L83",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page_cuponespage",
+      "target": "lib_services_couponservice_createshproductcoupon",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L188",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29697,7 +31560,19 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L160",
+      "source_location": "L195",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page_cuponespage",
+      "target": "lib_services_couponservice_assignshproductcoupon",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L204",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29709,7 +31584,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L168",
+      "source_location": "L205",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29721,7 +31596,19 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/cupones/page.tsx",
-      "source_location": "L199",
+      "source_location": "L234",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_cupones_page_cuponespage",
+      "target": "lib_services_couponservice_deleteshproductcoupon",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/cupones/page.tsx",
+      "source_location": "L244",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29889,7 +31776,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/login/page.tsx",
-      "source_location": "L39",
+      "source_location": "L42",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29901,7 +31788,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/login/page.tsx",
-      "source_location": "L40",
+      "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29913,7 +31800,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/login/page.tsx",
-      "source_location": "L61",
+      "source_location": "L70",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29925,7 +31812,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/login/page.tsx",
-      "source_location": "L71",
+      "source_location": "L80",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29937,7 +31824,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/login/page.tsx",
-      "source_location": "L105",
+      "source_location": "L114",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29949,7 +31836,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/login/page.tsx",
-      "source_location": "L107",
+      "source_location": "L116",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29961,7 +31848,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/login/page.tsx",
-      "source_location": "L111",
+      "source_location": "L120",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29973,7 +31860,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/login/page.tsx",
-      "source_location": "L417",
+      "source_location": "L426",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30458,6 +32345,54 @@
       "_origin": "ast"
     },
     {
+      "source": "app_portal_segunda_mano_page_portalsegundamanopage",
+      "target": "lib_services_shproductservice_fetchactiveshproducts",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page_portalsegundamanopage",
+      "target": "lib_services_shproductservice_fetchshproductimages",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page_portalsegundamanopage",
+      "target": "lib_services_shproductservice_getshimageurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_portal_segunda_mano_page_portalsegundamanopage",
+      "target": "lib_format_formatcurrency",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/portal/segunda-mano/page.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
       "source": "app_portal_ventas_proceso_page_ventasenprocesopage",
       "target": "lib_services_clientservice_fetchclienthistory",
       "relation": "calls",
@@ -30478,6 +32413,102 @@
       "confidence_score": 1.0,
       "source_file": "app/portal/ventas-proceso/page.tsx",
       "source_location": "L164",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_segundamanopage",
+      "target": "hooks_use_debounce_usedebounce",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_segundamanopage",
+      "target": "lib_services_shproductservice_fetchshproducts",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_segundamanopage",
+      "target": "lib_services_shproductservice_updateshproduct",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_segundamanopage",
+      "target": "lib_services_shproductservice_saveshproduct",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_segundamanopage",
+      "target": "lib_services_shproductservice_deactivateshproduct",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_segundamanopage",
+      "target": "lib_services_shproductservice_getshimageurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L94",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_segundamanopage",
+      "target": "lib_format_formatcurrency",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L94",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "app_segunda_mano_page_segundamanopage",
+      "target": "lib_services_shproductservice_fetchshproductimages",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/segunda-mano/page.tsx",
+      "source_location": "L99",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30621,7 +32652,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L176",
+      "source_location": "L182",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30633,7 +32664,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L178",
+      "source_location": "L184",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30645,7 +32676,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L185",
+      "source_location": "L191",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30657,7 +32688,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L189",
+      "source_location": "L195",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30669,7 +32700,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L189",
+      "source_location": "L195",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30681,7 +32712,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L191",
+      "source_location": "L197",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30693,7 +32724,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L193",
+      "source_location": "L201",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30705,7 +32736,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L195",
+      "source_location": "L203",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30717,7 +32748,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L215",
+      "source_location": "L223",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30729,7 +32760,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L221",
+      "source_location": "L229",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30741,7 +32772,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L230",
+      "source_location": "L238",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30753,7 +32784,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L232",
+      "source_location": "L240",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30765,7 +32796,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L266",
+      "source_location": "L274",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -31977,7 +34008,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L45",
+      "source_location": "L70",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -31989,7 +34020,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L55",
+      "source_location": "L80",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -32001,7 +34032,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L66",
+      "source_location": "L91",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -32013,7 +34044,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L78",
+      "source_location": "L103",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -32025,7 +34056,67 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/services/couponService.ts",
-      "source_location": "L83",
+      "source_location": "L108",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice_fetchmyshcoupons",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L120",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice_fetchmyshcouponassignments",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L126",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice_createshproductcoupon",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L132",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice_deleteshproductcoupon",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L141",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_couponservice_assignshproductcoupon",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/couponService.ts",
+      "source_location": "L146",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -32306,6 +34397,126 @@
       "_origin": "ast"
     },
     {
+      "source": "lib_services_shproductservice_fetchshproducts",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L70",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_fetchactiveshproducts",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L83",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_fetchshproduct",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L89",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_saveshproduct",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_updateshproduct",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L104",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_deactivateshproduct",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L123",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_fetchshproductimages",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L129",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_uploadshproductimage",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L137",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_deleteshproductimage",
+      "target": "lib_api_httpclient_fetchclient",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L143",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "lib_services_shproductservice_getshimageurl",
+      "target": "lib_services_productservice_getimageurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/shProductService.ts",
+      "source_location": "L148",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
       "source": "app_inventario_page_inventariopage",
       "target": "lib_api_apicache_cache_keys",
       "relation": "references",
@@ -32361,7 +34572,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/dashboard/app-sidebar.tsx",
-      "source_location": "L191",
+      "source_location": "L197",
       "weight": 1.0,
       "_origin": "ast"
     },

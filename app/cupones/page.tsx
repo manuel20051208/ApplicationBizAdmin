@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CouponCountdown } from "@/components/portal/coupon-countdown"
 import { fetchAllProducts, type Product } from "@/lib/services/productService"
+import { fetchShProducts, type ShProduct } from "@/lib/services/shProductService"
 import { fetchClientsSummary, type ClientsSummaryView } from "@/lib/services/clientService"
 import { getStoredUser } from "@/lib/auth/session"
 import {
@@ -36,7 +37,12 @@ import {
   createProductCoupon,
   deleteProductCoupon,
   fetchMyCoupons,
+  assignShProductCoupon,
+  createShProductCoupon,
+  deleteShProductCoupon,
+  fetchMyShCoupons,
   type ProductCoupon,
+  type ShProductCoupon,
 } from "@/lib/services/couponService"
 
 function formatDate(value: string) {
@@ -60,8 +66,11 @@ function formatDateTime(value: string) {
 
 export default function CuponesPage() {
   const [products, setProducts] = useState<Product[]>([])
+  const [shProducts, setShProducts] = useState<ShProduct[]>([])
   const [clients, setClients] = useState<ClientsSummaryView[]>([])
   const [coupons, setCoupons] = useState<ProductCoupon[]>([])
+  const [shCoupons, setShCoupons] = useState<ShProductCoupon[]>([])
+  const [couponType, setCouponType] = useState<"product" | "secondhand">("product")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [selectedProducts, setSelectedProducts] = useState<number[]>([])
@@ -70,6 +79,7 @@ export default function CuponesPage() {
   const [code, setCode] = useState("")
   const [discount, setDiscount] = useState("")
   const [quantity, setQuantity] = useState("1")
+  const [unlimitedQuantity, setUnlimitedQuantity] = useState(false)
   const [expiresAt, setExpiresAt] = useState("")
   const [allClients, setAllClients] = useState(true)
   const [selectedClients, setSelectedClients] = useState<number[]>([])
@@ -77,9 +87,11 @@ export default function CuponesPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     const adminId = getStoredUser("admin")?.id
-    const [productsResult, couponsResult, clientsResult] = await Promise.allSettled([
+    const [productsResult, shProductsResult, couponsResult, shCouponsResult, clientsResult] = await Promise.allSettled([
       fetchAllProducts(100),
+      fetchShProducts(),
       fetchMyCoupons(),
+      fetchMyShCoupons(),
       adminId ? fetchClientsSummary(Number(adminId)) : Promise.reject(new Error("No hay sesión de administrador")),
     ])
 
@@ -90,11 +102,23 @@ export default function CuponesPage() {
       toast.error("No se pudieron cargar los productos aplicables")
     }
 
+    if (shProductsResult.status === "fulfilled") {
+      setShProducts(shProductsResult.value.filter((product) => product.active !== false))
+    } else {
+      console.error("Error al cargar productos SH para cupones:", shProductsResult.reason)
+    }
+
     if (couponsResult.status === "fulfilled") {
       setCoupons(couponsResult.value)
     } else {
       console.error("Error al cargar cupones:", couponsResult.reason)
       toast.error(couponsResult.reason instanceof Error ? couponsResult.reason.message : "No se pudieron cargar los cupones")
+    }
+
+    if (shCouponsResult.status === "fulfilled") {
+      setShCoupons(shCouponsResult.value)
+    } else {
+      console.error("Error al cargar cupones SH:", shCouponsResult.reason)
     }
 
     if (clientsResult.status === "fulfilled") {
@@ -107,15 +131,17 @@ export default function CuponesPage() {
     setLoading(false)
   }, [])
 
+  const availableProducts = couponType === "secondhand" ? shProducts : products
+
   useEffect(() => {
     void loadData()
   }, [loadData])
 
   const baseProducts = useMemo(() => {
-    if (allProducts) return products
+    if (allProducts) return availableProducts
     const selectedIds = new Set(selectedProducts)
-    return products.filter((product) => selectedIds.has(product.id))
-  }, [allProducts, products, selectedProducts])
+    return availableProducts.filter((product) => selectedIds.has(product.id))
+  }, [allProducts, availableProducts, selectedProducts])
 
   // Límite "a cuántos productos se aplica": 0/vacío = todos los elegibles.
   const limit = Number(productLimit)
@@ -131,13 +157,14 @@ export default function CuponesPage() {
   const canSubmit = useMemo(() => {
     const value = Number(discount)
     const uses = Number(quantity)
-    return Boolean(code.trim() && expiresAt && value > 0 && value <= 100 && uses > 0 && effectiveCount > 0 && (allClients || selectedClients.length > 0))
-  }, [code, discount, quantity, expiresAt, effectiveCount, allClients, selectedClients.length])
+    return Boolean(code.trim() && expiresAt && value > 0 && value <= 100 && (unlimitedQuantity || uses > 0) && effectiveCount > 0 && (allClients || selectedClients.length > 0))
+  }, [code, discount, quantity, unlimitedQuantity, expiresAt, effectiveCount, allClients, selectedClients.length])
 
   const resetForm = () => {
     setCode("")
     setDiscount("")
     setQuantity("1")
+    setUnlimitedQuantity(false)
     setExpiresAt("")
     setSelectedProducts([])
     setAllProducts(true)
@@ -157,19 +184,25 @@ export default function CuponesPage() {
 
     setSaving(true)
     try {
-      const createdCoupon = await createProductCoupon({
-        cuponCode: code.trim().toUpperCase(),
-        // LocalDateTime de Spring espera la fecha sin zona horaria ni sufijo Z.
-        cuponDateLimit: expiresAt,
-        discount: value,
-        quantity: uses,
-        productIds: effectiveProductIds,
-      })
-      await assignProductCoupon({
-        cuponId: createdCoupon.id,
-        clientIds: allClients ? [] : selectedClients,
-        assignToAll: allClients,
-      })
+      const createdCoupon = couponType === "secondhand"
+        ? await createShProductCoupon({
+          shCuponCode: code.trim().toUpperCase(),
+          cuponDateLimit: expiresAt,
+          discount: value,
+          quantity: unlimitedQuantity ? null : uses,
+          shProductIds: effectiveProductIds,
+        })
+        : await createProductCoupon({
+          cuponCode: code.trim().toUpperCase(),
+          // LocalDateTime de Spring espera la fecha sin zona horaria ni sufijo Z.
+          cuponDateLimit: expiresAt,
+          discount: value,
+          quantity: uses,
+          productIds: effectiveProductIds,
+        })
+      const assignment = { cuponId: createdCoupon.id, clientIds: allClients ? [] : selectedClients, assignToAll: allClients }
+      if (couponType === "secondhand") await assignShProductCoupon(assignment)
+      else await assignProductCoupon(assignment)
       toast.success("Cupón creado correctamente")
       resetForm()
       await loadData()
@@ -187,6 +220,8 @@ export default function CuponesPage() {
       : [...current, id])
   }
 
+  const visibleCoupons = couponType === "secondhand" ? shCoupons : coupons
+
   const toggleClient = (id: number) => {
     setAllClients(false)
     setSelectedClients((current) => current.includes(id)
@@ -201,6 +236,16 @@ export default function CuponesPage() {
       toast.success("Cupón eliminado")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo eliminar el cupón")
+    }
+  }
+
+  const handleDeleteSh = async (coupon: ShProductCoupon) => {
+    try {
+      await deleteShProductCoupon(coupon.id)
+      setShCoupons((current) => current.filter((item) => item.id !== coupon.id))
+      toast.success("Cupón SH eliminado")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo eliminar el cupón SH")
     }
   }
 
@@ -221,12 +266,20 @@ export default function CuponesPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Promociones</p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight">Cupones</h1>
             <p className="mt-1 text-muted-foreground">Crea descuentos para tus productos y controla su vigencia.</p>
+            <div className="mt-4 inline-flex rounded-xl border border-border bg-muted/40 p-1">
+              <Button type="button" size="sm" variant={couponType === "product" ? "default" : "ghost"} onClick={() => { setCouponType("product"); setSelectedProducts([]); setAllProducts(true); setProductLimit("") }}>
+                Productos nuevos
+              </Button>
+              <Button type="button" size="sm" variant={couponType === "secondhand" ? "default" : "ghost"} onClick={() => { setCouponType("secondhand"); setSelectedProducts([]); setAllProducts(true); setProductLimit("") }}>
+                Segunda mano
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Plus className="size-5 text-primary" /> Crear cupón</CardTitle>
+                <CardTitle className="flex items-center gap-2"><Plus className="size-5 text-primary" /> Crear cupón {couponType === "secondhand" ? "SH" : ""}</CardTitle>
                 <CardDescription>Define el código, descuento y a cuántos productos aplica. El backend valida la cobertura.</CardDescription>
               </CardHeader>
               <CardContent>
@@ -242,7 +295,8 @@ export default function CuponesPage() {
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="coupon-quantity">Nº de productos cubiertos</Label>
-                      <Input id="coupon-quantity" type="number" min="1" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
+                      <Input id="coupon-quantity" type="number" min="1" value={quantity} disabled={couponType === "secondhand" && unlimitedQuantity} onChange={(event) => setQuantity(event.target.value)} />
+                      {couponType === "secondhand" && <label className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={unlimitedQuantity} onChange={(event) => setUnlimitedQuantity(event.target.checked)} className="size-3.5 accent-[var(--primary)]" /> Uso ilimitado</label>}
                     </div>
                   </div>
                   <div className="grid gap-2">
@@ -272,20 +326,20 @@ export default function CuponesPage() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <Label>Productos aplicables</Label>
-                        <p className="text-xs text-muted-foreground">{allProducts ? "Todos los productos activos" : `${selectedProducts.length} seleccionados`}</p>
+                        <p className="text-xs text-muted-foreground">{allProducts ? `Todos los productos ${couponType === "secondhand" ? "SH" : "activos"}` : `${selectedProducts.length} seleccionados`}</p>
                       </div>
                       <Button type="button" size="sm" variant={allProducts ? "default" : "outline"} onClick={() => { setAllProducts(true); setSelectedProducts([]) }}>Todos</Button>
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="coupon-product-limit">Aplicar a cuántos productos</Label>
                       <div className="flex items-center gap-2">
-                        <Input id="coupon-product-limit" type="number" min="0" value={productLimit} onChange={(event) => setProductLimit(event.target.value)} placeholder={allProducts ? String(products.length || 0) : String(selectedProducts.length || 0)} className="h-9 w-32" />
-                        <p className="text-xs text-muted-foreground">0 = todos los {allProducts ? products.length : selectedProducts.length} elegibles. Se aplicará a{" "}
+                        <Input id="coupon-product-limit" type="number" min="0" value={productLimit} onChange={(event) => setProductLimit(event.target.value)} placeholder={allProducts ? String(availableProducts.length || 0) : String(selectedProducts.length || 0)} className="h-9 w-32" />
+                        <p className="text-xs text-muted-foreground">0 = todos los {allProducts ? availableProducts.length : selectedProducts.length} elegibles. Se aplicará a{" "}
                           <span className="font-semibold text-foreground">{effectiveCount} de {baseProducts.length}</span>.</p>
                       </div>
                     </div>
                     <div className="max-h-52 space-y-2 overflow-y-auto pr-1">
-                      {products.length === 0 ? <p className="text-sm text-muted-foreground">No hay productos activos.</p> : products.map((product) => (
+                      {availableProducts.length === 0 ? <p className="text-sm text-muted-foreground">No hay productos disponibles.</p> : availableProducts.map((product) => (
                         <label key={product.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-muted/50">
                           <input
                             type="checkbox"
@@ -330,21 +384,24 @@ export default function CuponesPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><TicketIcon /> Mis cupones</CardTitle>
-                <CardDescription>Cupones de productos creados por tu negocio.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><TicketIcon /> Mis cupones {couponType === "secondhand" ? "SH" : ""}</CardTitle>
+                <CardDescription>Cupones de {couponType === "secondhand" ? "productos de segunda mano" : "productos"} creados por tu negocio.</CardDescription>
               </CardHeader>
               <CardContent>
-                {loading ? <div className="flex items-center justify-center py-14 text-muted-foreground"><Loader2 className="mr-2 size-5 animate-spin" /> Cargando...</div> : coupons.length === 0 ? (
+                {loading ? <div className="flex items-center justify-center py-14 text-muted-foreground"><Loader2 className="mr-2 size-5 animate-spin" /> Cargando...</div> : visibleCoupons.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-border px-4 py-12 text-center"><Tag className="mx-auto mb-3 size-8 text-muted-foreground" /><p className="font-medium">Aún no tienes cupones</p><p className="mt-1 text-sm text-muted-foreground">Crea el primero desde este panel.</p></div>
-                ) : <div className="space-y-3">{coupons.map((coupon) => {
+                ) : <div className="space-y-3">{visibleCoupons.map((coupon) => {
                   const expired = isExpired(coupon.cuponDateLimit)
                   const active = coupon.active !== false && !expired
+                  const isSh = "shCuponCode" in coupon
+                  const couponCode = isSh ? coupon.shCuponCode : coupon.cuponCode
+                  const productIds = isSh ? coupon.shProductIds : coupon.productIds
                   return <div key={coupon.id} className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-lg font-bold tracking-wide">{coupon.cuponCode}</span><span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{active ? <CheckCircle2 className="size-3" /> : <XCircle className="size-3" />}{active ? "Activo" : "Expirado"}</span></div>
-                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground"><span className="font-semibold text-foreground">{coupon.discount}% OFF</span><span><CalendarClock className="mr-1 inline size-3.5" /> hasta {formatDate(coupon.cuponDateLimit)}</span><span><Package className="mr-1 inline size-3.5" /> {coupon.productIds?.length || 0} productos</span><span>{coupon.quantity} productos cubiertos</span><CouponCountdown dateLimit={coupon.cuponDateLimit} /></div>
+                      <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-lg font-bold tracking-wide">{couponCode}</span><span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{active ? <CheckCircle2 className="size-3" /> : <XCircle className="size-3" />}{active ? "Activo" : "Expirado"}</span></div>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground"><span className="font-semibold text-foreground">{coupon.discount}% OFF</span><span><CalendarClock className="mr-1 inline size-3.5" /> hasta {formatDate(coupon.cuponDateLimit)}</span><span><Package className="mr-1 inline size-3.5" /> {productIds?.length || 0} productos</span><span>{coupon.quantity ?? "Ilimitados"} productos cubiertos</span><CouponCountdown dateLimit={coupon.cuponDateLimit} /></div>
                     </div>
-                    <div className="flex shrink-0 gap-2"><Button type="button" variant="outline" size="icon" title="Copiar código" onClick={() => { void navigator.clipboard?.writeText(coupon.cuponCode); toast.success("Código copiado") }}><Copy className="size-4" /></Button><Button type="button" variant="outline" size="icon" title="Eliminar cupón" onClick={() => void handleDelete(coupon)}><Trash2 className="size-4 text-destructive" /></Button></div>
+                    <div className="flex shrink-0 gap-2"><Button type="button" variant="outline" size="icon" title="Copiar código" onClick={() => { void navigator.clipboard?.writeText(couponCode); toast.success("Código copiado") }}><Copy className="size-4" /></Button><Button type="button" variant="outline" size="icon" title="Eliminar cupón" onClick={() => { if (isSh) void handleDeleteSh(coupon as ShProductCoupon); else void handleDelete(coupon as ProductCoupon) }}><Trash2 className="size-4 text-destructive" /></Button></div>
                   </div>
                 })}</div>}
               </CardContent>

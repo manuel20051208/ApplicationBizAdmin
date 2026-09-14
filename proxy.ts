@@ -45,6 +45,10 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
+  if (customerToken && isLoginRoute) {
+    return NextResponse.redirect(new URL('/portal', request.url))
+  }
+
   return NextResponse.next()
 }
 

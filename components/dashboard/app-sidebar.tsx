@@ -18,6 +18,7 @@ import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   Package,
+  PackageOpen,
   ShoppingCart,
   Users,
   Settings,
@@ -61,6 +62,11 @@ const navItems = [
     title: "Inventario",
     icon: Package,
     href: "/inventario",
+  },
+  {
+    title: "Segunda mano",
+    icon: PackageOpen,
+    href: "/segunda-mano",
   },
   {
     title: "Ventas",
@@ -189,6 +195,8 @@ export function AppSidebar() {
       warmCache(CACHE_KEYS.DASHBOARD, () => fetchDashboardData(), CACHE_TTL.DASHBOARD)
     } else if (href === "/inventario") {
       warmCache(CACHE_KEYS.PRODUCTOS(50), () => fetchAllProducts(50), CACHE_TTL.PRODUCTOS)
+    } else if (href === "/segunda-mano") {
+      router.prefetch(href)
     } else if (href === "/ventas" && adminId) {
       warmCache(CACHE_KEYS.VENTAS(50), () => fetchSalesItems(adminId, 50), CACHE_TTL.VENTAS)
     } else if (href === "/clientes" && adminId) {

@@ -116,6 +116,7 @@ export function PortalHeader() {
 
   const navItems = [
     { label: "Tienda", href: "/portal", icon: Package },
+    { label: "Segunda mano", href: "/portal/segunda-mano", icon: Package },
     { label: "Mis Compras", href: "/portal/compras", icon: Receipt },
     { label: "En proceso", href: "/portal/ventas-proceso", icon: Truck },
     { label: "Configuración", href: "/portal/configuracion", icon: Settings },

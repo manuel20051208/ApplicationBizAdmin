@@ -35,10 +35,19 @@ export default function LoginPage() {
   }, [])
 
   useEffect(() => {
-    // Si el usuario ya está autenticado, redirigirlo a su respectivo portal.
-    const user = getStoredUser();
-    if (user && user.token && !isSessionExpired(user)) {
-      window.location.replace(user.role === "admin" ? "/" : "/portal");
+    // La protección server-side usa cookies; no basta con encontrar una sesión
+    // vieja en localStorage porque eso puede crear un ciclo /login → ruta
+    // protegida → /login cuando la cookie ya expiró o fue eliminada.
+    const hasCookie = (name: string) => document.cookie.split(";").some((part) => part.trim().startsWith(`${name}=`))
+    const user = getStoredUser()
+    const hasMatchingCookie = user?.role === "admin"
+      ? hasCookie("biz-admin-token")
+      : user?.role === "customer"
+        ? hasCookie("biz-customer-token")
+        : false
+
+    if (user && user.token && hasMatchingCookie && !isSessionExpired(user)) {
+      window.location.replace(user.role === "admin" ? "/" : "/portal")
     }
   }, [])
 
