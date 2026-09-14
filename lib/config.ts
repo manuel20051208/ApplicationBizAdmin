@@ -35,13 +35,13 @@ export function backendUrl(path: string): string {
 }
 
 /**
- * Inicia Google OAuth desde el mismo origen de la aplicación.
- * Next.js reescribe esta ruta hacia el backend local o de producción,
- * evitando que el navegador quede amarrado a localhost o a Render.
+ * Inicia Google OAuth yendo DIRECTAMENTE al backend (URL absoluta).
+ * El navegador llama a Spring Security sin depender del rewrite de Next.js.
  */
 export function googleOAuthStartPath(role: "admin" | "client"): string {
   const registration = role === "admin" ? "google-admin" : "google-client";
-  return `/oauth2/authorization/${registration}`;
+  const base = (process.env.BACKEND_API_URL || BACKEND_URL || "").replace(/\/+$/, "");
+  return `${base}/oauth2/authorization/${registration}`;
 }
 
 /**
