@@ -1,29 +1,30 @@
 /**
  * Configuración central del backend Spring Boot.
  *
- * Variable de entorno canónica: `BACKEND_API_URL` (server-side, NO expuesta al navegador).
- *   - La defines en Vercel (Environment Variable normal, scope Production)
- *     apuntando al backend real, p.ej. `https://api-project-vh4u.onrender.com`.
- *   - La usan los rewrites de next.config.mjs: el navegador llama al mismo origen
- *     (`/api/...`) y Next.js reenvía al backend → sin CORS y sin exponer la URL.
+ * Variable de entorno canónica: `BACKEND_API_URL` (backend real, p.ej.
+ * `https://bizadmin.duckdns.org`). Se usa en los rewrites de next.config.mjs
+ * y en este módulo para construir URLs absolutas del backend.
  *
  * NO usar `NEXT_PUBLIC_API_URL`: las variables `NEXT_PUBLIC_*` se inyectan en el
  * bundle del navegador (Vercel te avisa de que quedan expuestas). Solo se deja el
  * fallback por compatibilidad con configuraciones antiguas.
  *
  * Si ni `BACKEND_API_URL` ni `NEXT_PUBLIC_API_URL` están definidas:
- *   - En producción el fallback es el backend de Render (https://api-project-vh4u.onrender.com),
- *     para que las peticiones nunca dependan de rutas locales.
+ *   - En producción el fallback es el backend real (https://bizadmin.duckdns.org).
  *   - En desarrollo el fallback sigue siendo http://localhost:8080 (backend local).
  */
 
 const DEFAULT_BACKEND_URL =
   process.env.NODE_ENV === "production"
-    ? "https://api-project-vh4u.onrender.com"
+    ? "https://bizadmin.duckdns.org"
     : "http://localhost:8080";
 
 /** Base vacía = las rutas usan prefijo `api/...` y Next rewrites al backend de config. */
-export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
+export const API_BASE_URL = (
+  process.env.BACKEND_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  ""
+).replace(/\/+$/, "");
 
 /** URL del backend para llamadas que el navegador hace directo (OAuth, SSE, imágenes). */
 export const BACKEND_URL = API_BASE_URL || DEFAULT_BACKEND_URL;

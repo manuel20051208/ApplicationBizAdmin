@@ -2,11 +2,11 @@
 
 // Destino del backend para los rewrites (server-side, no se expone al navegador).
 // Prioridad: BACKEND_API_URL → NEXT_PUBLIC_API_URL (legacy, expuesta) → fallback de entorno.
-// En producción el fallback es el backend de Render (no localhost); en desarrollo, localhost:8080.
+// En producción el fallback es el backend real (bizadmin.duckdns.org); en desarrollo, localhost:8080.
 const BACKEND = (
   process.env.BACKEND_API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  (process.env.NODE_ENV === "production" ? "https://api-project-vh4u.onrender.com" : "http://localhost:8080")
+  (process.env.NODE_ENV === "production" ? "https://bizadmin.duckdns.org" : "http://localhost:8080")
 ).replace(/\/+$/, "");
 
 const nextConfig = {
